@@ -10,6 +10,7 @@ const secretOrKey = require('../../config/keys').secretOrKey;
 const cleanCache = require('../../middlewares/cleanCache');
 
 const User = require('../../models/User').User;
+const Industry = require('../../models/Industry').Industry;
 
 router.post('/signup',  async (req, res) => {
 
@@ -110,7 +111,50 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
         code: 200,
         user
     });
-})
+});
+
+router.get('/industries', (req, res) => {
+  const industry_arr = ['Photographers', 'Model Agencies', 'Fashion Stylists', 'Hair and Makeup Artists', 'Industry Professionals', 'Models'];
+
+  for(var i=0;i<industry_arr.length;i++) {
+    const indus = new Industry({
+      name: industry_arr[i]
+    });
+    indus.save();
+  }
+  res.send("Success");
+});
+
+router.post('/profile/videos', passport.authenticate('jwt', { session: false }) , async (req, res) => {
+  var user = await User.findOne({ _id: req.user.id});
+  user.videos = req.body.videos;
+  user.save();
+  res.json({
+    success: true,
+    code: 200,
+    message: "Videos uploaded successfully"
+  });
+});
+
+router.post('/profile/info', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  var user = await User.findOne({ _id: req.user.id});
+
+  const user_info = {
+    ethencity: req.body.ethencity,
+    gender: req.body.gender,
+    height: req.body.height,
+    eyes: req.body.eyes,
+    dress: req.body.dress,
+    shoes: req.body.shoes
+  };
+  user.info.unshift(user_info);
+  user.save();
+  res.json({
+    success: true,
+    code: 200,
+    message: "Info uploaded successfully"
+  });
+});
 
 module.exports = router;
 
