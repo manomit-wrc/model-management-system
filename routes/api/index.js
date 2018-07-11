@@ -66,7 +66,7 @@ router.post('/signup',  async (req, res) => {
 router.post('/login', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-  
+
   // Find user by email
   User.findOne({ email }).then(user => {
     // Check for user
@@ -111,6 +111,45 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
         user
     });
 })
+
+router.post('/change-password', passport.authenticate('jwt', {session : false}), (req,res) => {
+  var new_password_with_hashing;
+  var old_password = req.body.old_password;
+  
+
+  bcrypt.compare(old_password, req.user.password).then(isMatch => {
+    if (isMatch) {
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(req.body.new_password, salt, (err, hash) => {
+          if (err) throw err;
+          new_password_with_hashing = hash;
+
+          User.updateOne({
+              _id: req.user.id //matching with table id
+            },{
+              $set: {
+                password: new_password_with_hashing
+              }
+            }).then(function (result) {
+              if(result) {
+                return res.json({
+                  success: true,
+                  code:200,
+                  message: "Password changed successfully."
+                });
+              }
+            });
+        });
+      });
+    } else {
+      return res.json({ success: false, code: 404, message: 'Old Password does not matched.'});
+    }
+  });
+});
+
+router.get('/all-list-of-user', passport.authenticate('jwt', { session:false }), (req,res) => {
+  User.find()
+});
 
 module.exports = router;
 
