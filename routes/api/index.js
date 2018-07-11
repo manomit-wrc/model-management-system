@@ -113,16 +113,12 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
     });
 });
 
-router.get('/industries', (req, res) => {
-  const industry_arr = ['Photographers', 'Model Agencies', 'Fashion Stylists', 'Hair and Makeup Artists', 'Industry Professionals', 'Models'];
-
-  for(var i=0;i<industry_arr.length;i++) {
-    const indus = new Industry({
-      name: industry_arr[i]
+router.get('/industries', async (req, res) => {
+    const data = await Industry.find({});
+    res.send({
+      success: true,
+      industries: data
     });
-    indus.save();
-  }
-  res.send("Success");
 });
 
 router.post('/profile/videos', passport.authenticate('jwt', { session: false }) , async (req, res) => {
