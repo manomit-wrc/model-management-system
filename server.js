@@ -9,7 +9,7 @@ const path = require("path");
 const flash = require("connect-flash");
 const dbURI = require("./config/keys").mongoURI;
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 
 const handlebars = require("handlebars");
 const layouts = require("handlebars-layouts");
