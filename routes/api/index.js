@@ -252,5 +252,51 @@ router.post('/change-password', passport.authenticate('jwt', {session : false}),
   });
 });
 
+router.post('/all-user-list', passport.authenticate('jwt', {session: false}), async (req,res) =>{
+  var user = await User.findOne({_id: req.user.id});
+  var user_list = await User.find({
+    _id :{
+      $nin: user.id
+    }
+  });
+
+  if(user_list.length > 0) {
+    res.json({
+      success: true,
+      all_model_list: user_list
+    });
+  }else{
+    res.json({
+      success: false,
+      message: "No users found."
+    });
+  }
+});
+
+router.post('/user-serach-result' , passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({_id: req.user.id});
+
+  var search_criteria = req.body.search_text;
+  var user_search_result = await User.find({
+    $and : [
+      {
+        $or: [
+          {first_name : /search_criteria/}
+        ],
+        $or: [
+          {last_name : /search_criteria/}
+        ],
+        $or: [
+          {location : /search_criteria/}
+        ],
+        $or: [
+          {city : /search_criteria/}
+        ],
+      }
+    ]
+  });
+  console.log(user_search_result);
+});
+
 module.exports = router;
 
