@@ -275,27 +275,30 @@ router.post('/all-user-list', passport.authenticate('jwt', {session: false}), as
 });
 
 router.post('/user-serach-result' , passport.authenticate('jwt', {session : false}), async (req,res) => {
-  var user = await User.findOne({_id: req.user.id});
-
-  var search_criteria = req.body.search_text;
-  var user_search_result = await User.find({
-    $and : [
+  
+  var user_search_result = await User.find().or(
+    [
       {
-        $or: [
-          {first_name : /search_criteria/}
-        ],
-        $or: [
-          {last_name : /search_criteria/}
-        ],
-        $or: [
-          {location : /search_criteria/}
-        ],
-        $or: [
-          {city : /search_criteria/}
-        ],
+        first_name: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+      },
+      {
+        last_name: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+      },
+      {
+        location: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+      },
+      {
+        city: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
       }
     ]
-  });
+  ).and([
+    {
+      _id :{
+        $nin: req.user.id
+      }
+    }
+  ]).populate('Industry');
+  
   console.log(user_search_result);
 });
 module.exports = router;
