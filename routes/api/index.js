@@ -11,6 +11,7 @@ const cleanCache = require('../../middlewares/cleanCache');
 
 const User = require('../../models/User').User;
 const Industry = require('../../models/Industry').Industry;
+const Admin = require('../../models/Admin').Admin;
 
 router.post('/signup',  async (req, res) => {
 
@@ -190,6 +191,5 @@ router.post('/change-password', passport.authenticate('jwt', {session : false}),
 router.get('/all-list-of-user', passport.authenticate('jwt', { session:false }), (req,res) => {
   User.find()
 });
-
 module.exports = router;
 
