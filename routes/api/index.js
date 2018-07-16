@@ -153,6 +153,71 @@ router.post('/profile/info', passport.authenticate('jwt', { session: false }), a
   });
 });
 
+router.post('/profile/discipline', passport.authenticate('jwt', {session:false}), async (req,res) => {
+  var user = await User.findOne({ _id: req.user.id});
+
+  const discipline = {
+    lingerie: req.body.lingerie,
+    actors: req.body.actors,
+    glamour: req.body.glamour,
+    catalog: req.body.catalog,
+    commercial: req.body.commercial,
+    event: req.body.event,
+    foot: req.body.foot,
+    video: req.body.video,
+    petite: req.body.petite
+  };
+  user.discipline.unshift(discipline);
+  user.save();
+  res.json({
+    success: true,
+    code: 200,
+    message: "Discipline uploaded successfully"
+  });
+});
+
+router.post('/profile/trust', passport.authenticate('jwt', {session:false}), async (req,res) => {
+  var user = await User.findOne({ _id: req.user.id});
+  
+  const trust = {
+    social_verification: req.body.social_verification,
+    mobile_verification: req.body.mobile_verification,
+    reviews: req.body.reviews
+  };
+
+  user.trust.unshift(trust);
+  user.save();
+  res.json({
+    success: true,
+    code: 200,
+    message: "Trust uploaded successfully"
+  });
+});
+
+router.post('/profile/general-info-edit', passport.authenticate('jwt', {session: false}), async (req,res) =>{
+  var user = await User.findOne({ _id: req.user.id});
+  user.first_name = req.body.first_name;
+  user.last_name = req.body.last_name;
+  user.email = req.body.email;
+  user.description = req.body.description;
+  user.location = req.body.location;
+  user.city = req.body.city;
+
+  if(user.save()){
+    res.json({
+      success: true,
+      code: 200,
+      message: "Edit successfully"
+    });
+  }else{
+    res.json({
+      success: false,
+      code: 300,
+      message: "Edit failed."
+    });
+  }
+});
+
 router.post('/change-password', passport.authenticate('jwt', {session : false}), (req,res) => {
   var new_password_with_hashing;
   var old_password = req.body.old_password;
@@ -188,8 +253,50 @@ router.post('/change-password', passport.authenticate('jwt', {session : false}),
   });
 });
 
-router.get('/all-list-of-user', passport.authenticate('jwt', { session:false }), (req,res) => {
-  User.find()
+router.post('/all-user-list', passport.authenticate('jwt', {session: false}), async (req,res) =>{
+  var user = await User.findOne({_id: req.user.id});
+  var user_list = await User.find({
+    _id :{
+      $nin: user.id
+    }
+  });
+
+  if(user_list.length > 0) {
+    res.json({
+      success: true,
+      all_model_list: user_list
+    });
+  }else{
+    res.json({
+      success: false,
+      message: "No users found."
+    });
+  }
+});
+
+router.post('/user-serach-result' , passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({_id: req.user.id});
+
+  var search_criteria = req.body.search_text;
+  var user_search_result = await User.find({
+    $and : [
+      {
+        $or: [
+          {first_name : /search_criteria/}
+        ],
+        $or: [
+          {last_name : /search_criteria/}
+        ],
+        $or: [
+          {location : /search_criteria/}
+        ],
+        $or: [
+          {city : /search_criteria/}
+        ],
+      }
+    ]
+  });
+  console.log(user_search_result);
 });
 module.exports = router;
 
