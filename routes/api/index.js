@@ -12,7 +12,10 @@ const cleanCache = require('../../middlewares/cleanCache');
 const User = require('../../models/User').User;
 const Industry = require('../../models/Industry').Industry;
 const Admin = require('../../models/Admin').Admin;
-const sendmail = require('sendmail')();
+//for sending email
+// const sendmail = require('sendmail')();
+const Mailjet = require('node-mailjet').connect('f6419360e64064bc8ea8c4ea949e7eb8', 'fde7e8364b2ba00150f43eae0851cc85');
+//end
 
 router.post('/signup',  async (req, res) => {
 
@@ -408,7 +411,7 @@ router.post('/forgot-password', async (req,res) => {
     
                                 <br/><br/>
     
-                                If you need help, or you have any other questions, feel free to email partho@wrctpl.com, or call customer service toll-free at +91-1234567890.
+                                If you need help, or you have any other questions, feel free to email info@wrctpl.com, or call customer service toll-free at +91-1234567890.
     
                                 <br/><br/>
     
@@ -432,25 +435,26 @@ router.post('/forgot-password', async (req,res) => {
     
     </html> `;
 
-    sendmail({
-        from: 'Model Management System <partho@wrctpl.com>',
-        to: req.body.email,
-        subject: 'Forgot Password OTP',
-        html: email_body,
-      }, function(err, reply) {
-        if(err){
-          console.log(err && err.stack);
-        }else{
-          user_details.otp = randomNum;
-          if(user_details.save()) {
-            res.json({
-              success: true, 
-              code: 200, 
-              message: 'Email send successfully to the user.'
-            });
-          }
-        }
-    });
+    var sendEmail = Mailjet.post('send');
+ 
+    var emailData = {
+        'FromEmail': 'info@wrctpl.com',
+        'FromName': 'Model Management System',
+        'Subject': 'Forgot Password OTP',
+        'Html-part': email_body,
+        'Recipients': [{'Email': req.body.email}]
+    };
+    
+    if(sendEmail.request(emailData)) {
+      user_details.otp = randomNum;
+      if(user_details.save()) {
+        res.json({
+          success: true, 
+          code: 200, 
+          message: 'Email send successfully to the user.'
+        });
+      }
+    }
 
   }else{
     res.json({
