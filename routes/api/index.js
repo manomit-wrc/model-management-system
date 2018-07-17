@@ -12,6 +12,7 @@ const cleanCache = require('../../middlewares/cleanCache');
 const User = require('../../models/User').User;
 const Industry = require('../../models/Industry').Industry;
 const Admin = require('../../models/Admin').Admin;
+const sendmail = require('sendmail')();
 
 router.post('/signup',  async (req, res) => {
 
@@ -299,7 +300,199 @@ router.post('/user-serach-result' , passport.authenticate('jwt', {session : fals
     }
   ]).populate('Industry');
   
-  console.log(user_search_result);
+  if(user_search_result.length > 0){
+    res.json({
+      success: true,
+      code: 200,
+      data: user_search_result
+    });
+  }else{
+    res.json({
+      success: false,
+      code: 300,
+      message: "User not found"
+    });
+  }
+  
 });
+
+router.post('/forgot-password', async (req,res) => {
+  var user_email = req.body.email;
+  var user_details = await User.findOne({
+    email: user_email
+  });
+
+  if(user_details){
+
+    var digits = 7;	
+		var numfactor = Math.pow(10, parseInt(digits-1));	
+    var randomNum =  Math.floor(Math.random() * numfactor) + 1;	
+
+    var email_body = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    
+    <head>
+    
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    
+        <title>Forgot Password</title>
+    
+        <style>
+    
+            body {
+    
+                background-color: #FFFFFF; padding: 0; margin: 0;
+    
+            }
+    
+        </style>
+    
+    </head>
+    
+    <body style="background-color: #FFFFFF; padding: 0; margin: 0;">
+    
+    <table border="0" cellpadding="0" cellspacing="10" height="100%" bgcolor="#FFFFFF" width="100%" style="max-width: 650px;" id="bodyTable">
+    
+        <tr>
+    
+            <td align="center" valign="top">
+    
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" id="emailContainer" style="font-family:Arial; color: #333333;">
+    
+                    <!-- Logo -->
+    
+                    <tr>
+    
+                        <td align="left" valign="top" colspan="2" style="border-bottom: 1px solid #CCCCCC; padding-bottom: 10px;">
+    
+                            <img alt="" border="0" src="/assets/images/common/demo/logo.png" title="" class="sitelogo" width="60%" style="max-width:250px;" />
+    
+                        </td>
+    
+                    </tr>
+    
+                    <!-- Title -->
+    
+                    <tr>
+    
+                        <td align="left" valign="top" colspan="2" style="border-bottom: 1px solid #CCCCCC; padding: 20px 0 10px 0;">
+    
+                            <span style="font-size: 18px; font-weight: normal;">FORGOT PASSWORD</span>
+    
+                        </td>
+    
+                    </tr>
+    
+                    <!-- Messages -->
+    
+                    <tr>
+    
+                        <td align="left" valign="top" colspan="2" style="padding-top: 10px;">
+    
+                            <span style="font-size: 12px; line-height: 1.5; color: #333333;">
+    
+                              Hi ${user_details.first_name}, <br/>    
+                              We have sent you this email with OTP in response to your request to reset your password on Model Management System.
+    
+                                <br/><br/>
+    
+                                To reset your password for Model Management System login, please copy the below OTP: 
+                                <br/>
+
+                                <b>${randomNum}</b>
+    
+                                <br/><br/>
+    
+                                We recommend that you keep your password secure and not share it with anyone.If you feel your password has been compromised, you can change it by going to your Change password page and clicking on the "Change Password" link.
+    
+                                <br/><br/>
+    
+                                If you need help, or you have any other questions, feel free to email partho@wrctpl.com, or call customer service toll-free at +91-1234567890.
+    
+                                <br/><br/>
+    
+                                Model Management System Customer Service
+    
+                            </span>
+    
+                        </td>
+    
+                    </tr>
+    
+                </table>
+    
+            </td>
+    
+        </tr>
+    
+    </table>
+    
+    </body>
+    
+    </html> `;
+
+    sendmail({
+        from: 'Model Management System <partho@wrctpl.com>',
+        to: req.body.email,
+        subject: 'Forgot Password OTP',
+        html: email_body,
+      }, function(err, reply) {
+        if(err){
+          console.log(err && err.stack);
+        }else{
+          user_details.otp = randomNum;
+          if(user_details.save()) {
+            res.json({
+              success: true, 
+              code: 200, 
+              message: 'Email send successfully to the user.'
+            });
+          }
+        }
+    });
+
+  }else{
+    res.json({
+      success: false, 
+      code: 404, 
+      message: 'Email not found.'
+    });
+  }
+});
+
+router.post('/otp-verify-and-update-pw', async (req,res) => {
+  var otp = req.body.otp;
+
+  var verify_otp_result = await User.findOne({otp});
+  if(verify_otp_result){
+    var new_password = req.body.new_password;
+
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(new_password, salt, (err, hash) => {
+        if (err) throw err;
+        new_password_with_hashing = hash;
+        
+        verify_otp_result.password = new_password_with_hashing;
+
+        if(verify_otp_result.save()){
+          return res.json({
+            success: true,
+            code:200,
+            message: "Password update successfully."
+          });
+        }
+      });
+    });
+  }else{
+    res.json({
+      success: false,
+      code: 300,
+      message: "OTP does not match."
+    });
+  }
+});
+
+
 module.exports = router;
 

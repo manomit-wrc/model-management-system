@@ -11,6 +11,7 @@ const userSchema = new Schema({
     description: { type: String, default: '' },
     location: { type: String, default: '' },
     industry: { type: Schema.Types.ObjectId, ref: 'Industry' },
+    otp: { type: Number},
     city: { type: String },
     videos: [String],
     images: [String],
