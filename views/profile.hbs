@@ -41,7 +41,7 @@
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs profile-tab" role="tablist">
                     <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#profile" role="tab">Basic</a> </li>
-                    <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#address" role="tab">Address</a> </li>
+                    <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#local-address" role="tab">Address</a> </li>
                 </ul>
                 <!-- Tab panes -->
                 <div class="tab-content">
@@ -112,7 +112,7 @@
                         </div>
                     </div>
 
-                    <div class="tab-pane" id="address" role="tabpanel">
+                    <div class="tab-pane" id="local-address" role="tabpanel">
                         <div class="card-body">
                             <form class="form-horizontal" id="frmAddress" name="frmAddress" method="POST">
                                 <input type="hidden" name="_csrf" value="{{_csrf}}" id="_csrf">
@@ -146,7 +146,7 @@
                                     <div class="col-md-12">
                                         <select name="state" id="state" class="form-control form-control-line">
                                             {{#each states}}
-                                                <option value="{{this._id}}">{{this.name}}</option>
+                                                <option value="{{this._id}}" {{#if_eq this._id ../user.state }} selected="selected" {{/if_eq}}>{{this.name}}</option>
                                             {{/each}}
                                         </select>
                                     </div>
@@ -374,6 +374,10 @@
                         url: "/address",
                         data: {
                             address: $("#address").val(),
+                            state: $("#state").val(),
+                            city: $("#city").val(),
+                            country: $("#country").val(),
+                            pincode: $("#pincode").val(),
                             _csrf: $("#_csrf").val()
                         },
                         beforeSend:function() {
