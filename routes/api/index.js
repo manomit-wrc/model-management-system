@@ -515,12 +515,20 @@ router.post('/profile/image-upload', passport.authenticate('jwt', {session: fals
   var uploadImage = base64ToImage(base64Str,path,optionalObj);
 
   var full_image_path = req.headers.host + '/app_profile_image/' + uploadImage.fileName;
+
   user.avatar = full_image_path;
+
   if(user.save()){
     res.json({
       success: true,
       code:200,
       message: "Profile image uploaded successfully."
+    });
+  }else{
+    res.json({
+      success: false,
+      code: 300,
+      message: "Something went wrong."
     });
   }
 });
