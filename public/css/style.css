@@ -1673,6 +1673,10 @@ label.error {
     opacity: 1;
     font-size: 12px;
 }
+.fa {
+    margin-left: -12px;
+    margin-right: 8px;
+}
 @-webkit-keyframes rotate{
     0%{
         -webkit-transform:rotate(0deg)

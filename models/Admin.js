@@ -10,9 +10,10 @@ const adminSchema = new Schema({
     avatar: { type: String },
     address: { type: String },
     city: { type: String },
-    state: { type: String },
-    country: { type: String },
-    pincode: { type: String }
+    state: { type: Schema.Types.ObjectId, ref: 'State' },
+    country: { type: Schema.Types.ObjectId, ref: 'Country' },
+    pincode: { type: String },
+    mobile_no: { type: String }
 });
 
 var Admin = mongoose.model('Admin', adminSchema);

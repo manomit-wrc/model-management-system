@@ -1,0 +1,412 @@
+
+<div class="container-fluid">
+                
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor m-b-0 m-t-0">Profile</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Profile</li>
+            </ol>
+        </div>
+        
+    </div>
+    
+    <div class="row">
+        <!-- Column -->
+        <div class="col-lg-4 col-xlg-3 col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <center class="m-t-30"> <img src="{{user.avatar}}" class="img-circle img-preview" width="150" />
+                        <h4 class="card-title m-t-10">{{user.first_name}}&nbsp;{{user.last_name}}</h4>
+                        <h6 class="card-subtitle">Administrator</h6>
+                        
+                    </center>
+                </div>
+                <div>
+                    <hr> </div>
+                <div class="card-body"> <small class="text-muted">Email address </small>
+                    <h6>{{user.email}}</h6> <small class="text-muted p-t-30 db">Mobile No</small>
+                    <h6>{{user.mobile_no}}</h6> <small class="text-muted p-t-30 db">Address</small>
+                    <h6>{{user.address}}</h6>
+                    
+                    
+                </div>
+            </div>
+        </div>
+        <!-- Column -->
+        <!-- Column -->
+        <div class="col-lg-8 col-xlg-9 col-md-7">
+            <div class="card">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs profile-tab" role="tablist">
+                    <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#profile" role="tab">Basic</a> </li>
+                    <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#address" role="tab">Address</a> </li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    
+                    <div class="tab-pane active" id="profile" role="tabpanel">
+                        <div class="card-body">
+                            <form class="form-horizontal" id="frmProfile" name="frmProfile" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="_csrf" value="{{_csrf}}" >
+                                
+                                <div class="form-group">
+                                    <label class="col-md-12">First Name</label>
+                                    <div class="col-md-12">
+                                        <input type="text" 
+                                            placeholder="Enter first name" 
+                                            name="first_name"
+                                            id="first_name" 
+                                            value="{{user.first_name}}"
+                                            class="form-control form-control-line"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-12">Last Name</label>
+                                    <div class="col-md-12">
+                                        <input type="text" 
+                                            placeholder="Enter last name" 
+                                            name="last_name"
+                                            id="last_name" 
+                                            value="{{user.last_name}}"
+                                            class="form-control form-control-line"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-12">Mobile No</label>
+                                    <div class="col-md-12">
+                                        <input type="text" 
+                                            placeholder="Enter mobile no" 
+                                            name="mobile_no"
+                                            id="mobile_no" 
+                                            value="{{user.mobile_no}}"
+                                            class="form-control form-control-line"
+                                            maxlength="10"
+                                            minlength="10"
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-12">Avatar</label>
+                                    <div class="col-md-12">
+                                        <input type="file"
+                                            name="avatar"
+                                            id="avatar" 
+                                            class="form-control form-control-line"
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <button class="btn btn-success" id="btnProfile">
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="address" role="tabpanel">
+                        <div class="card-body">
+                            <form class="form-horizontal" id="frmAddress" name="frmAddress" method="POST">
+                                <input type="hidden" name="_csrf" value="{{_csrf}}" id="_csrf">
+                                
+                                <div class="form-group">
+                                    <label class="col-md-12">Address</label>
+                                    <div class="col-md-12">
+                                        <textarea
+                                            placeholder="Enter address"
+                                            name="address"
+                                            id="address"
+                                            class="form-control form-control-line"
+                                        >{{user.address}}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-12">Country</label>
+                                    <div class="col-md-12">
+                                        
+                                        <select name="country" id="country" class="form-control form-control-line">
+                                            {{#each countries}}
+                                                <option value="{{this._id}}">{{this.name}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-12">State</label>
+                                    <div class="col-md-12">
+                                        <select name="state" id="state" class="form-control form-control-line">
+                                            {{#each states}}
+                                                <option value="{{this._id}}">{{this.name}}</option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-12">City</label>
+                                    <div class="col-md-12">
+                                        <input type="text" 
+                                            placeholder="Enter city" 
+                                            name="city"
+                                            id="city" 
+                                            value="{{user.city}}"
+                                            class="form-control form-control-line"
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-md-12">Pincode</label>
+                                    <div class="col-md-12">
+                                        <input type="text" 
+                                            placeholder="Enter pincode" 
+                                            name="pincode"
+                                            id="pincode" 
+                                            value="{{user.pincode}}"
+                                            class="form-control form-control-line"
+                                            maxlength="6"
+                                            minlength="6"
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <button class="btn btn-success" id="btnAddress">Update</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Column -->
+    </div>
+    
+                
+</div>
+{{#content "script" mode="append"}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/additional-methods.min.js"></script>
+    
+    <script>
+        $(document).ready(function(e) {
+
+            $("#avatar").change(function() {
+                var input = this;
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function(e) {
+                    $('.img-preview').attr('src', e.target.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            });
+
+            $("#frmProfile").validate({
+                rules: {
+                    first_name: {
+                        required: true
+                    },
+                    last_name: {
+                        required: true
+                    },
+                    mobile_no: {
+                        number: true,
+                        maxlength: 10,
+                        minlength: 10
+                    },
+                    avatar: {
+                        extension: "jpg|jpeg|png"
+                    }
+                },
+                messages: {
+                    first_name: {
+                        required: "Enter your first name"
+                    },
+                    last_name: {
+                        required: "Enter your last name"
+                    },
+                    mobile_no: {
+                        number: "Mobile no must be number",
+                        maxlength: "Mobile no must have 10 digits",
+                        minlength: "Mobile no must have 10 digits"
+                    },
+                    avatar: {
+                        extension: "Must be jpg or png file"
+                    }
+                },
+                highlight: function(element) {
+                    $(element).parent().addClass("has-danger");
+                    $(element).addClass('form-control-danger');
+                },
+                unhighlight: function(element) {
+                    $(element).parent().removeClass("has-danger");
+                    $(element).removeClass('form-control-danger');
+                },
+                errorElement: 'label',
+                errorClass: 'error',
+                errorPlacement: function(error, element) {
+                    if (element.parent('.input-group').length) {
+                        error.insertAfter(element.parent());
+                    } else if (element.parent('label').length) {
+                        error.insertAfter(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                submitHandler:function(form) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/profile",
+                        processData: false,
+                        contentType: false,
+                        data: new FormData($("#frmProfile").get(0)),
+                        beforeSend:function() {
+                            $("#btnProfile").html('<i class="fa fa-refresh fa-spin"></i>Loading');
+                        },
+                        success:function(response) {
+                            if(response.success == true) {
+                                $("#frmProfile").prepend('<div class="alert alert-success" role="alert"> \
+                                    '+response.message+'</div>');
+                            }
+                            else {
+                                $("#frmProfile").prepend('<div class="alert alert-danger" role="alert"> \
+                                    '+response.message+'</div>');
+                            }
+                            
+                            $("#btnProfile").html("Save");
+                            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                                $(".alert").slideUp(500);
+                                window.location.reload();
+                            });
+                        },
+                        error:function(xhr) {
+                            $("#frmProfile").prepend('<div class="alert alert-danger" role="alert"> \
+                                    '+response.message+'</div>');
+                            $("#btnProfile").html("Save");
+                            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                                $(".alert").slideUp(500);
+                                window.location.reload();
+                            });
+                        }
+                    })
+                }
+            });
+
+
+            $("#frmAddress").validate({
+                rules: {
+                    address: {
+                        required: true
+                    },
+                    country: {
+                        required: true
+                    },
+                    state: {
+                        required: true
+                    },
+                    city: {
+                        required: true
+                    },
+                    pincode: {
+                        required: true,
+                        number: true,
+                        maxlength: 6,
+                        minlength: 6
+                    }
+                },
+                messages: {
+                    address: {
+                        required: "Enter your address"
+                    },
+                    country: {
+                        required: "Select country"
+                    },
+                    state: {
+                        required: "Select state"
+                    },
+                    city: {
+                        required: "Enter city"
+                    },
+                    pincode: {
+                        required: "Enter pincode",
+                        number: "Pincode must be number",
+                        maxlength: "Pincode must be 6 digits",
+                        minlength: "Pincode must be 6 digits"
+                    }
+                },
+                highlight: function(element) {
+                    $(element).parent().addClass("has-danger");
+                    $(element).addClass('form-control-danger');
+                },
+                unhighlight: function(element) {
+                    $(element).parent().removeClass("has-danger");
+                    $(element).removeClass('form-control-danger');
+                },
+                errorElement: 'label',
+                errorClass: 'error',
+                errorPlacement: function(error, element) {
+                    if (element.parent('.input-group').length) {
+                        error.insertAfter(element.parent());
+                    } else if (element.parent('label').length) {
+                        error.insertAfter(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                submitHandler:function(form) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/address",
+                        data: {
+                            address: $("#address").val(),
+                            _csrf: $("#_csrf").val()
+                        },
+                        beforeSend:function() {
+                            $("#btnAddress").html('<i class="fa fa-refresh fa-spin"></i>Loading');
+                        },
+                        success:function(response) {
+                            if(response.success == true) {
+                                $("#frmAddress").prepend('<div class="alert alert-success" role="alert"> \
+                                    '+response.message+'</div>');
+                            }
+                            else {
+                                $("#frmAddress").prepend('<div class="alert alert-danger" role="alert"> \
+                                    '+response.message+'</div>');
+                            }
+                            
+                            $("#btnAddress").html("Save");
+                            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                                $(".alert").slideUp(500);
+                                window.location.reload();
+                            });
+                        },
+                        error:function(xhr) {
+                            $("#frmAddress").prepend('<div class="alert alert-danger" role="alert"> \
+                                    '+response.message+'</div>');
+                            $("#btnAddress").html("Save");
+                            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                                $(".alert").slideUp(500);
+                                window.location.reload();
+                            });
+                        }
+                    })
+                }
+            });
+        });
+    </script>
+{{/content}}
