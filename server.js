@@ -71,10 +71,11 @@ app.engine('.hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
 app.use(bodyParser.urlencoded({
+    limit: '50mb',
     extended: false
 }));
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 
 app.use(session({
     secret: 'W$q4=25*8%v-}UV',

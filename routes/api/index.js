@@ -500,47 +500,29 @@ router.post('/otp-verify-and-update-pw', async (req,res) => {
   }
 });
 
-
-var image = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/app_profile_image');
-  },
-  filename: function (req, file, cb) {
-    fileExt = file.mimetype.split('/')[1];
-    
-    fileName = req.user.id + '-' + Date.now() + '.' + fileExt;
-    cb(null, fileName);
-  }
-});
-
-var profile_image_upload = multer({ storage: image, limits: {fileSize:3000000} });
-
 router.post('/profile/image-upload', passport.authenticate('jwt', {session: false}), async (req,res) => {
   var user = await User.findOne({_id: req.user.id});
-  
-  var image_file = req.body.profile_image;
-  console.log('writing file...', image_file);
-
-  // fs.writeFile("/public/app_profile_image/out.png", image_file, 'base64', function(err) {
-  //     if (err) console.log(err);
-  //     fs.readFile("/public/app_profile_image/out.png", function(err, data) {
-  //         if (err) throw err;
-  //         console.log('reading file...', data.toString('base64'));
-  //         res.send(data);
-  //     });
-  // });
 
   var base64Str = req.body.profile_image;
+
+  let base64ImageMimeType = base64Str.split(';base64,');
+  var type = base64ImageMimeType[0].split(':image/');
+
   var path ='public/app_profile_image/';
 
   var imageFileName = req.user.id + '-' + Date.now();
-  var optionalObj = {'fileName': imageFileName, 'type':'jpg'};
+  var optionalObj = {'fileName': imageFileName, 'type': type[1]};
+  var uploadImage = base64ToImage(base64Str,path,optionalObj);
 
-      // base64ToImage(base64Str,path,optionalObj); 
-      
-  // Note base64ToImage function returns imageInfo which is an object with imageType and fileName.
-  var imageInfo = base64ToImage(base64Str,path,optionalObj); 
-  console.log(imageInfo);
+  var full_image_path = req.headers.host + '/app_profile_image/' + uploadImage.fileName;
+  user.avatar = full_image_path;
+  if(user.save()){
+    res.json({
+      success: true,
+      code:200,
+      message: "Profile image uploaded successfully."
+    });
+  }
 });
 
 
