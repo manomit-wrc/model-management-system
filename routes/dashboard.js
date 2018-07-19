@@ -69,6 +69,7 @@ router.post('/profile', profile.single('avatar'), csrfProtection, Auth, (req, re
 });
 
 router.post('/address', csrfProtection, Auth, (req, res) => {
+    console.log(req.body);
     Admin.findById(req.user._id)
         .then(user => {
             if(!user) {
