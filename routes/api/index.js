@@ -12,6 +12,9 @@ const cleanCache = require('../../middlewares/cleanCache');
 const User = require('../../models/User').User;
 const Industry = require('../../models/Industry').Industry;
 const Admin = require('../../models/Admin').Admin;
+var fs = require('fs');
+var multer = require('multer');
+var base64ToImage = require('base64-to-image');
 //for sending email
 // const sendmail = require('sendmail')();
 const Mailjet = require('node-mailjet').connect('f6419360e64064bc8ea8c4ea949e7eb8', 'fde7e8364b2ba00150f43eae0851cc85');
@@ -493,6 +496,31 @@ router.post('/otp-verify-and-update-pw', async (req,res) => {
       success: false,
       code: 300,
       message: "OTP does not match."
+    });
+  }
+});
+
+router.post('/profile/image-upload', passport.authenticate('jwt', {session: false}), async (req,res) => {
+  var user = await User.findOne({_id: req.user.id});
+
+  var base64Str = req.body.profile_image;
+
+  let base64ImageMimeType = base64Str.split(';base64,');
+  var type = base64ImageMimeType[0].split(':image/');
+
+  var path ='public/app_profile_image/';
+
+  var imageFileName = req.user.id + '-' + Date.now();
+  var optionalObj = {'fileName': imageFileName, 'type': type[1]};
+  var uploadImage = base64ToImage(base64Str,path,optionalObj);
+
+  var full_image_path = req.headers.host + '/app_profile_image/' + uploadImage.fileName;
+  user.avatar = full_image_path;
+  if(user.save()){
+    res.json({
+      success: true,
+      code:200,
+      message: "Profile image uploaded successfully."
     });
   }
 });
