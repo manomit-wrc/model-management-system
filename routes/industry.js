@@ -32,4 +32,40 @@ router.post('/add-industry', csrfProtection, Auth, async (req,res) => {
     }
 });
 
+router.post('/industry-delete' , Auth, async (req,res) => {
+    var result = await Industry.remove( { 
+        _id: req.body.row_id 
+    });
+    if(result){
+        res.json({
+            success: true,
+            messages: "Record deleted successfully."
+        });
+    }
+});
+
+router.post("/edit-industry", csrfProtection, Auth, async (req,res) => {
+    var industry = await Industry.findOne({name:req.body.industry_name});
+    if(industry){
+        res.json({
+            success: false,
+            messages: "Already exist." 
+        });
+    }else{
+        var update = await Industry.updateOne({
+            _id: req.body.row_id
+        },{
+            $set:{
+                name:req.body.industry_name
+            }
+        });
+        if(update){
+            res.json({
+                success: true,
+                messages: "Edit successfully."
+            });
+        }
+    }
+});
+
 module.exports = router;
