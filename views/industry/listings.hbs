@@ -149,19 +149,7 @@
                     success: function (resp) {
                         $("#industry_submit").html("Save");
                         if(resp.success == true) {
-                            $.confirm({
-                                theme: 'material',
-                                title: "Success!",
-                                content: resp.messages,
-                                animation: 'scale',
-                                type: 'orange',
-                                closeIcon: true,
-                                buttons: {
-                                    Okay : function () {
-                                        window.location.reload();
-                                    }
-                                }
-                            });
+                            jquery_confirm(resp.messages);
                         }
 
                         if(resp.success == false) {
@@ -226,19 +214,7 @@
                             },
                             success: function (resp) {
                                 if(resp.success == true) {
-                                    $.confirm({
-                                        theme: 'material',
-                                        title: "Success!",
-                                        content: resp.messages,
-                                        animation: 'scale',
-                                        type: 'orange',
-                                        closeIcon: true,
-                                        buttons: {
-                                            Okay : function () {
-                                                window.location.reload();
-                                            }
-                                        }
-                                    });
+                                    jquery_confirm(resp.messages);
                                 }
                             }
                         });
@@ -274,8 +250,7 @@
                     success: function (resp) {
                         $("#industry_edit_submit").html("Save");
                         if(resp.success == true) {
-                            alert(resp.messages);
-                            window.location.reload();
+                            jquery_confirm(resp.messages);
                         }
 
                         if(resp.success == false) {
@@ -321,6 +296,22 @@
             }
         });
     });
+
+    function jquery_confirm (content = '') {
+        $.confirm({
+            theme: 'material',
+            title: "Success!",
+            content: content,
+            animation: 'scale',
+            type: 'orange',
+            closeIcon: true,
+            buttons: {
+                Okay : function () {
+                    window.location.reload();
+                }
+            }
+        });
+    }
 </script>
 {{/content}}
 
