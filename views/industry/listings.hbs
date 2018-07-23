@@ -149,8 +149,19 @@
                     success: function (resp) {
                         $("#industry_submit").html("Save");
                         if(resp.success == true) {
-                            alert(resp.messages);
-                            window.location.reload();
+                            $.confirm({
+                                theme: 'material',
+                                title: "Success!",
+                                content: resp.messages,
+                                animation: 'scale',
+                                type: 'orange',
+                                closeIcon: true,
+                                buttons: {
+                                    Okay : function () {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
                         }
 
                         if(resp.success == false) {
