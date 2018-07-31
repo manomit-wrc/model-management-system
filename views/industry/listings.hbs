@@ -1,0 +1,320 @@
+
+<div class="container-fluid">
+<!-- ============================================================== -->
+<!-- Bread crumb and right sidebar toggle -->
+<!-- ============================================================== -->
+<div class="row page-titles">
+    <div class="col-md-5 col-8 align-self-center">
+        <h3 class="text-themecolor m-b-0 m-t-0">Industry Listings</h3>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+            <li class="breadcrumb-item active">Industry Listings</li>
+        </ol>
+    </div>
+</div>
+<!-- ============================================================== -->
+<!-- End Bread crumb and right sidebar toggle -->
+<!-- ============================================================== -->
+<!-- ============================================================== -->
+<!-- Start Page Content -->
+<!-- ============================================================== -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="pull-left">
+                  <h4 class="card-title">Listings</h4>
+                </div>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-rounded btn-block btn-primary pull-right" data-toggle="modal" data-target="#add_new_industry_modal">Add new Industry</button>
+                </div>
+                <div class="clearfix"></div>
+                <div class="table-responsive m-t-40">
+                    <table id="industry_table" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each all_industry}}
+                                <tr>
+                                    <td>{{this.name}}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ti-settings"></i>
+                                            </button>
+                                            <div class="dropdown-menu animated flipInX" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 37px, 0px); top: 0px; left: 0px; will-change: transform;">
+                                                <a class="dropdown-item industry_name_edit" href="#" row_id="{{this.id}}" result="{{this.name}}">Edit</a>
+                                                <a class="dropdown-item industry_name_delete" href="#" row_id="{{this.id}}">Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<div id="add_new_industry_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Industry</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" name="industry_add_form" id="industry_add_form" method="POST">
+                    <input type="hidden" name="_csrf" id="_csrf" value="{{_csrf}}" >
+
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">Industry Name:</label>
+                        <input type="text" class="form-control" id="industry_name" name="industry_name">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="industry_submit">
+                    Save
+                </button>
+
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="edit_industry_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Industry</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" name="industry_edit_form" id="industry_edit_form" method="POST">
+                    <input type="hidden" name="_csrf" id="_csrf" value="{{_csrf}}" >
+                    <input type="hidden" name="edit_row_id" id="edit_row_id" value="" >
+
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">Industry Name:</label>
+                        <input type="text" class="form-control" id="industry_edit_value" name="industry_edit_value" value="">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="industry_edit_submit">
+                    Edit
+                </button>
+
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+{{#content "script" mode="append"}}
+<script src="/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/additional-methods.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function (){
+        $('#industry_table').DataTable();
+
+        $('#industry_submit').on('click', function  () {
+            var valid = $("#industry_add_form").valid();
+            if(valid){
+                $.ajax({
+                    type: "POST",
+                    url: "/add-industry",
+                    data: {
+                        industry_name: $("#industry_name").val(),
+                        _csrf: $("#_csrf").val()
+                    }, 
+                    beforeSend:function() {
+                        $("#industry_submit").html('<i class="fa fa-refresh fa-spin"></i>Loading');
+                    },
+                    success: function (resp) {
+                        $("#industry_submit").html("Save");
+                        if(resp.success == true) {
+                            jquery_confirm(resp.messages);
+                        }
+
+                        if(resp.success == false) {
+                            alert(resp.messages);
+                            return false;
+                        }
+                        
+                        
+                    }
+                });
+            }
+        });
+
+        $("#industry_add_form").validate({
+            rules:{
+                industry_name:{
+                    required: true
+                }
+            },
+            messages:{
+                industry_name:{
+                    required: "Industry name can't be left blank."
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass("has-danger");
+                $(element).addClass('form-control-danger');
+            },
+            unhighlight: function(element) {
+                $(element).parent().removeClass("has-danger");
+                $(element).removeClass('form-control-danger');
+            },
+            errorElement: 'label',
+            errorClass: 'error',
+            errorPlacement: function(error, element) {
+                if (element.parent('.input-group').length) {
+                    error.insertAfter(element.parent());
+                } else if (element.parent('label').length) {
+                    error.insertAfter(element.parent());
+                } else {
+                    error.insertAfter(element);
+                }
+            }
+        });
+
+        $(".industry_name_delete").on('click', function () {
+            var row_id = $(this).attr('row_id');
+            $.confirm({
+                theme: 'material',
+                title: "Warning!",
+                content: "Are you sure to delete this record? ",
+                animation: 'scale',
+                type: 'orange',
+                closeIcon: true,
+                buttons: {
+                    Yes: function () {
+                        $.ajax({
+                            type: "POST",
+                            url: "/industry-delete",
+                            data:{
+                                row_id : row_id
+                            },
+                            success: function (resp) {
+                                if(resp.success == true) {
+                                    jquery_confirm(resp.messages);
+                                }
+                            }
+                        });
+                    },
+                    No: function () {
+                    }
+                }
+            });
+        });
+
+        $(".industry_name_edit").on('click', function () {
+            var row_id = $(this).attr('row_id');
+            var data = $(this).attr('result');
+            $("#edit_row_id").val(row_id);
+            $('#industry_edit_value').val(data);
+            $('#edit_industry_modal').modal('show');
+        });
+
+        $("#industry_edit_submit").on('click', function () {
+            var valid = $("#industry_edit_form").valid();
+            if(valid){
+                $.ajax({
+                    type: "POST",
+                    url: "/edit-industry",
+                    data: {
+                        row_id : $("#edit_row_id").val(),
+                        industry_name: $("#industry_edit_value").val(),
+                        _csrf: $("#_csrf").val()
+                    }, 
+                    beforeSend:function() {
+                        $("#industry_edit_submit").html('<i class="fa fa-refresh fa-spin"></i>Loading');
+                    },
+                    success: function (resp) {
+                        $("#industry_edit_submit").html("Save");
+                        if(resp.success == true) {
+                            jquery_confirm(resp.messages);
+                        }
+
+                        if(resp.success == false) {
+                            alert(resp.messages);
+                            return false;
+                        }
+                        
+                        
+                    }
+                });
+            }
+        });
+
+        $("#industry_edit_form").validate({
+            rules:{
+                industry_edit_value:{
+                    required: true
+                }
+            },
+            messages:{
+                industry_edit_value:{
+                    required: "Industry name can't be left blank."
+                }
+            },
+            highlight: function(element) {
+                $(element).parent().addClass("has-danger");
+                $(element).addClass('form-control-danger');
+            },
+            unhighlight: function(element) {
+                $(element).parent().removeClass("has-danger");
+                $(element).removeClass('form-control-danger');
+            },
+            errorElement: 'label',
+            errorClass: 'error',
+            errorPlacement: function(error, element) {
+                if (element.parent('.input-group').length) {
+                    error.insertAfter(element.parent());
+                } else if (element.parent('label').length) {
+                    error.insertAfter(element.parent());
+                } else {
+                    error.insertAfter(element);
+                }
+            }
+        });
+    });
+
+    function jquery_confirm (content = '') {
+        $.confirm({
+            theme: 'material',
+            title: "Success!",
+            content: content,
+            animation: 'scale',
+            type: 'orange',
+            closeIcon: true,
+            buttons: {
+                Okay : function () {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+</script>
+{{/content}}
+
+{{#content "style" mode="prepend"}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.css">
+{{/content}}

@@ -23,6 +23,7 @@ const dashboard = require('./routes/dashboard');
 const brand = require('./routes/brand');
 const banner = require('./routes/banner');
 const category = require('./routes/category');
+const industry = require('./routes/industry');
 
 const app = express();
 
@@ -109,5 +110,6 @@ app.use(dashboard);
 app.use(brand);
 app.use(banner);
 app.use(category);
+app.use(industry);
 /******* End **********/
 app.listen(port, () => console.log(`Server listening to port ${port}`));
