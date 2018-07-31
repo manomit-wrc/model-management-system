@@ -1,0 +1,246 @@
+{{#content "style" mode="append"}}
+    <link href="/assets/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+{{/content}}
+<div class="container-fluid">
+                
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Brands</li>
+            </ol>
+        </div>
+        
+    </div>
+                
+    <div class="row">
+        <div class="col-12">
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="pull-right">
+                        <button type="button" id="btnOpenModal" class="btn waves-effect waves-light btn-success">Add</button>
+                    </div>
+                    <h4 class="card-title">Brands</h4>
+                    
+                    <div class="table-responsive m-t-40">
+                        <table id="myTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Image</th>
+                                    <th>Action</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each brands}}
+                                    <tr>
+                                        <td>{{this.name}}</td>
+                                        <td><img src="{{this.image}}"  width="100px" height="100px"></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="ti-settings"></i>
+                                                </button>
+                                                <div class="dropdown-menu animated flipInX">
+                                                    <a class="dropdown-item edit" href="javascript:void(0)" data-brand-id="{{this._id}}">Edit</a>
+                                                    <a class="dropdown-item delete" href="javascript:void(0)" data-brand-id="{{this._id}}">Delete</a>
+                                                    
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {{/each}}
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <div id="responsive-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    
+                </div>
+                <div class="modal-body">
+                    <form id="frmBrandAdd">
+                        <input type="hidden" name="_csrf" value="{{_csrf}}" >
+                        <input type="hidden" name="_id" id="_id" value="" />
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">Name:</label>
+                            <input type="text" class="form-control" id="name" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">Image:</label>
+                            <input type="file" class="form-control" id="image" name="image">
+                            <div> 
+                                <img src="/assets/images/1.jpg" class="rounded" alt="user" width="50%" height="50%">         
+                            </div>  
+                            
+                        </div>
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnAdd" class="btn btn-danger waves-effect waves-light">Save</button>
+                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div>
+{{#content "script" mode="append"}}
+    <script src="/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/additional-methods.min.js"></script>
+    <script src="/assets/plugins/sweetalert/sweetalert.min.js"></script>
+    <script>
+        $(document).on('click', '.edit', function(){
+            var $tr = $(this).closest('tr');
+            $("#name").val($tr[0].cells[0].innerHTML);
+            $(".rounded").attr('src', $tr[0].cells[1].childNodes[0].currentSrc);
+            $("#_id").val($(this).data('brand-id'));
+            $("#responsive-modal").modal('show');
+        });
+
+        $(document).on("click", ".delete", function() {
+            var $this = $(this);
+            swal({   
+                title: "Are you sure?",   
+                text: "You will not be able to recover this record!",   
+                type: "warning",   
+                showCancelButton: true,   
+                confirmButtonColor: "#DD6B55",   
+                confirmButtonText: "Yes, delete it!",   
+                closeOnConfirm: false ,
+                allowOutsideClick: false
+            }, function(){
+                $.ajax({
+                    type: "POST",
+                    url: "/brand/delete",
+                    data: {
+                        brand_id: $this.data('brand-id'),
+                        _csrf: "{{_csrf}}"
+                    },
+                    beforeSend:function() {
+
+                    },
+                    success: function(response) {
+                        
+                    }
+                })
+                .done(function(data) {
+                    $this.closest('tr').remove();
+                    swal("Deleted!", "Your record has been deleted.", "success"); 
+                });
+            });
+        });
+        $(document).ready(function(){
+            
+            $('.table').DataTable();
+
+            $("#image").change(function() {
+                var input = this;
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function(e) {
+                    $('.rounded').attr('src', e.target.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            });
+            $("#btnOpenModal").click(function(){
+                $(".rounded").attr('src', '/assets/images/1.jpg');
+                $("#name").val('');
+                $("#_id").val('');
+                $("#responsive-modal").modal('show');
+            });
+
+            $("#btnAdd").click(function(){
+                $("#frmBrandAdd").submit();
+            });
+
+            $("#frmBrandAdd").validate({
+                rules: {
+                    name: {
+                        required: true
+                    },
+                    image: {
+                        extension: 'jpg|jpeg|png'
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Enter brand name"
+                    },
+                    image: {
+                        extension: 'Must be jpg or png'
+                    }
+                },
+                highlight: function(element) {
+                    $(element).parent().addClass("has-danger");
+                    $(element).addClass('form-control-danger');
+                },
+                unhighlight: function(element) {
+                    $(element).parent().removeClass("has-danger");
+                    $(element).removeClass('form-control-danger');
+                },
+                errorElement: 'label',
+                errorClass: 'error',
+                errorPlacement: function(error, element) {
+                    if (element.parent('label').length) {
+                        error.insertAfter(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                submitHandler:function(form) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/brand",
+                        data: new FormData($("#frmBrandAdd").get(0)),
+                        processData: false,
+                        contentType: false,
+                        beforeSend:function() {
+                            $("#btnAdd").html('<i class="fa fa-refresh fa-spin"></i>Loading');
+                        },
+                        success:function(response) {
+                            if(response.success == true) {
+                                $("#frmBrandAdd").prepend('<div class="alert alert-success" role="alert"> \
+                                    '+response.message+'</div>');
+                            }
+                            else {
+                                $("#frmBrandAdd").prepend('<div class="alert alert-danger" role="alert"> \
+                                    '+response.message+'</div>');
+                            }
+                            
+                            $("#btnAdd").html("Save");
+                            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                                $(".alert").slideUp(500);
+                                window.location.reload();
+                            });
+                        },
+                        error:function(xhr) {
+                            $("#frmBrandAdd").prepend('<div class="alert alert-danger" role="alert"> \
+                                    '+response.message+'</div>');
+                            $("#btnAdd").html("Save");
+                            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                                $(".alert").slideUp(500);
+                                window.location.reload();
+                            });
+                        }
+                    })
+                }
+            });
+        });
+    </script>
+{{/content}}

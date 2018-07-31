@@ -20,6 +20,9 @@ handlebars.registerHelper(layouts(handlebars));
 const api = require('./routes/api/index');
 const index = require('./routes/index');
 const dashboard = require('./routes/dashboard');
+const brand = require('./routes/brand');
+const banner = require('./routes/banner');
+const category = require('./routes/category');
 
 const app = express();
 
@@ -103,5 +106,8 @@ app.use(flash());
 app.use('/api/users', api);
 app.use(index);
 app.use(dashboard);
+app.use(brand);
+app.use(banner);
+app.use(category);
 /******* End **********/
 app.listen(port, () => console.log(`Server listening to port ${port}`));

@@ -1,0 +1,119 @@
+<div class="container-fluid">
+               
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/categories">Categories</a></li>
+                <li class="breadcrumb-item active">Add</li>
+            </ol>
+        </div>
+        
+    </div>
+                
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    
+                    <form class="m-t-40" id="frmAddCategory" name="frmAddCategory" method="POST" action="/categories/add" enctype="multipart/form-data">
+                        <input type="hidden" name="_csrf" value="{{_csrf}}" />
+                        <div class="form-group">
+                            <label>Category Name<span class="text-danger">*</span></label>
+                            <div class="controls">
+                                <input type="text" name="name" class="form-control form-control-line"> 
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Image <span class="text-danger">*</span></label>
+                            <div class="controls">
+                                <input type="file" name="image" id="image" class="form-control form-control-line"> 
+                                <div> 
+                                    <img src="/assets/images/1.jpg" class="rounded" alt="user" width="30%" height="30%">         
+                                </div> 
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="controls">
+                                
+                                <fieldset>
+                                    <label class="custom-control custom-checkbox">
+                                    <input type="checkbox" value="1"  name="is_new" class="custom-control-input"><span class="custom-control-label">Is New</span> </label>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="text-xs-right">
+                            <button type="submit" class="btn btn-info">Submit</button>
+                        </div>
+                    </form>
+                    </div>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+        
+    </div>
+               
+</div>
+
+{{#content "script" mode="append"}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/additional-methods.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#image").change(function() {
+                var input = this;
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function(e) {
+                    $('.rounded').attr('src', e.target.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            });
+            $("#frmAddCategory").validate({
+                rules: {
+                    name: {
+                        required: true
+                    },
+                    image: {
+                        required: true,
+                        extension: "jpg|jpeg|png"
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Enter name of the category"
+                    },
+                    image: {
+                        required: "Please select category image",
+                        extension: "Must be jpg or png file"
+                    }
+                },
+                highlight: function(element) {
+                    $(element).parent().addClass("has-danger");
+                    $(element).addClass('form-control-danger');
+                },
+                unhighlight: function(element) {
+                    $(element).parent().removeClass("has-danger");
+                    $(element).removeClass('form-control-danger');
+                },
+                errorElement: 'label',
+                errorClass: 'error',
+                errorPlacement: function(error, element) {
+                    if (element.parent('.input-group').length) {
+                        error.insertAfter(element.parent());
+                    } else if (element.parent('label').length) {
+                        error.insertAfter(element.parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+        });
+    </script>
+{{/content}}

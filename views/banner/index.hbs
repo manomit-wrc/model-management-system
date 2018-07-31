@@ -1,0 +1,121 @@
+{{#content "style" mode="append"}}
+    <link href="/assets/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+{{/content}}
+<div class="container-fluid">
+                
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Banners</li>
+            </ol>
+        </div>
+        
+    </div>
+                
+    <div class="row">
+        <div class="col-12">
+            
+            <div class="card">
+                <div class="card-body">
+                    {{#if msg}}
+                        <div class="alert alert-success" role="alert">{{msg}}</div>
+                    {{/if}}
+                    {{#if errorMsg}}
+                        <div class="alert alert-dangert" role="alert">{{errorMsg}}</div>
+                    {{/if}}
+                    <div class="pull-right">
+                        
+                        <a href="/banners/add" class="btn waves-effect waves-light btn-success">Add</a>
+                    </div>
+                    <h4 class="card-title">Banners</h4>
+                    
+                    <div class="table-responsive m-t-40">
+                        <table id="myTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Title 1</th>
+                                    <th>Title 2</th>
+                                    <th>Image</th>
+                                    <th>Action</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each banners}}
+                                    <tr>
+                                        <td>{{this.title_1}}</td>
+                                        <td>{{this.title_2}}</td>
+                                        <td><img src="{{this.image}}"  width="100px" height="100px"></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="ti-settings"></i>
+                                                </button>
+                                                <div class="dropdown-menu animated flipInX">
+                                                    <a class="dropdown-item edit" href="/banners/edit/{{this._id}}">Edit</a>
+                                                    <a class="dropdown-item delete" href="javascript:void(0)" data-banner-id="{{this._id}}">Delete</a>
+                                                    
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {{/each}}
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{{#content "script" mode="append"}}
+    <script src="/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/assets/plugins/sweetalert/sweetalert.min.js"></script>
+    <script>
+
+        $(document).on("click", ".delete", function() {
+            var $this = $(this);
+            swal({   
+                title: "Are you sure?",   
+                text: "You will not be able to delete this record!",   
+                type: "warning",   
+                showCancelButton: true,   
+                confirmButtonColor: "#DD6B55",   
+                confirmButtonText: "Yes, delete it!",   
+                closeOnConfirm: false ,
+                allowOutsideClick: false
+            }, function(){
+                $.ajax({
+                    type: "POST",
+                    url: "/banners/delete",
+                    data: {
+                        banner_id: $this.data('banner-id'),
+                        _csrf: "{{_csrf}}"
+                    },
+                    beforeSend:function() {
+
+                    },
+                    success: function(response) {
+                        
+                    }
+                })
+                .done(function(data) {
+                    $this.closest('tr').remove();
+                    swal("Deleted!", "Your record has been deleted.", "success"); 
+                });
+            });
+        });
+        $(document).ready(function(){
+            
+            $('.table').DataTable();
+            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                $(".alert").slideUp(500);
+            });
+            
+        });
+    </script>
+{{/content}}
