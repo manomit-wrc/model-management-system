@@ -7,6 +7,7 @@ const exphbs = require("express-handlebars");
 const passport = require("passport");
 const path = require("path");
 const flash = require("connect-flash");
+require('dotenv').config({path: 'variables.env'});
 const dbURI = require("./config/keys").mongoURI;
 
 const port = process.env.PORT || 8000;

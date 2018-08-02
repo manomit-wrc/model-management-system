@@ -39,7 +39,7 @@ router.post('/banners/add', banner.single('image'), csrfProtection, Auth, (req, 
     const banner = new Banner({
         title_1: req.body.title_1,
         title_2: req.body.title_2,
-        image: `/banners/${req.file.filename}`
+        image: `${process.env.BASE_URL}/banners/${req.file.filename}`
     })
     banner.save();
     req.flash('bannerSuccessMessage', "Banner added successfully");
@@ -56,7 +56,7 @@ router.post('/banners/edit/:id', banner.single('image'), csrfProtection, Auth, (
             if(banner) {
                 banner.title_1 = req.body.title_1;
                 banner.title_2 = req.body.title_2;
-                banner.image = (req.file === undefined) ? banner.image : `/banners/${req.file.filename}`;
+                banner.image = (req.file === undefined) ? banner.image : `${process.env.BASE_URL}/banners/${req.file.filename}`;
                 banner.save();
                 req.flash('bannerSuccessMessage', "Banner updated successfully");
             }

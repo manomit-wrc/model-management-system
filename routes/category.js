@@ -41,7 +41,7 @@ router.post('/categories/add', category.single('image'), csrfProtection, Auth, (
     const category = new Category({
         name: req.body.name,
         is_new: req.body.is_new ? req.body.is_new : 0,
-        image: `/categories/${req.file.filename}`
+        image: `${process.env.BASE_URL}/categories/${req.file.filename}`
     })
     category.save();
     req.flash('categorySuccessMessage', "Category added successfully");
@@ -59,7 +59,7 @@ router.post('/categories/edit/:id', category.single('image'), csrfProtection, Au
             if(category) {
                 category.name = req.body.name;
                 category.is_new = req.body.is_new ? req.body.is_new : 0;
-                category.image = (req.file === undefined) ? category.image : `/categories/${req.file.filename}`;
+                category.image = (req.file === undefined) ? category.image : `${process.env.BASE_URL}/categories/${req.file.filename}`;
                 category.save();
                 req.flash('categorySuccessMessage', "Category updated successfully");
             }

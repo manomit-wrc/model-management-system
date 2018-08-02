@@ -5,6 +5,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const gravatar = require('gravatar');
+const _ = require('lodash');
 const secretOrKey = require('../../config/keys').secretOrKey;
 
 const cleanCache = require('../../middlewares/cleanCache');
@@ -12,6 +13,9 @@ const cleanCache = require('../../middlewares/cleanCache');
 const User = require('../../models/User').User;
 const Industry = require('../../models/Industry').Industry;
 const Admin = require('../../models/Admin').Admin;
+const Banner = require('../../models/Banner');
+const Category = require('../../models/Category');
+const Brand = require('../../models/Brand');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -21,7 +25,6 @@ const Mailjet = require('node-mailjet').connect('f6419360e64064bc8ea8c4ea949e7eb
 //end
 
 router.post('/signup',  async (req, res) => {
-
     User.findOne({ email: req.body.email }).then(user => {
         if (user) {
          return res.json({ success: false, code: 403, message: 'Email already exists'});
@@ -58,7 +61,8 @@ router.post('/signup',  async (req, res) => {
                         return res.json({
                         success: true,
                         token: 'Bearer ' + token,
-                        code: 200
+                        code: 200,
+                        message: 'Registration completed successfully'
                         });
                     }
                     );
@@ -531,6 +535,18 @@ router.post('/profile/image-upload', passport.authenticate('jwt', {session: fals
       message: "Something went wrong."
     });
   }
+});
+
+router.get('/home-page-details', async (req, res) => {
+  const banner = await Banner.find({});
+  const categories = await Category.find({});
+  const brands = await Brand.find({});
+  res.json({
+    success: true,
+    banner: banner,
+    categories: categories,
+    brands: brands
+  });
 });
 
 

@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Switch, Route, Redirect } from 'react-router-dom';
+import AppRoutes from './components/hoc/AppRoutes';
+import Layout from './components/layout/Layout';
+import Blank from './components/layout/Blank';
+import Home from './components/Home/Main';
+import Signup from './components/signup/Signup';
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
+       <Switch>
+         <AppRoutes exact path="/" layout={Layout} component={Home} />
+         <AppRoutes exact path="/signup" layout={Blank} component={Signup} />
+       </Switch>
+
     );
   }
 }

@@ -32,7 +32,7 @@ router.post('/brand', brand.single('image'), csrfProtection, Auth, (req, res) =>
         .then(brand => {
             if(brand) {
                 brand.name = req.body.name;
-                brand.image = (req.file === undefined) ? brand.image : `/brands/${req.file.filename}`;
+                brand.image = (req.file === undefined) ? brand.image : `${process.env.BASE_URL}/brands/${req.file.filename}`;
                 brand.save();
                 res.json({
                     success: true,
@@ -44,7 +44,7 @@ router.post('/brand', brand.single('image'), csrfProtection, Auth, (req, res) =>
     else {
         const newBrand = new Brand({
             name: req.body.name,
-            image: (req.file === undefined) ? "/assets/images/1.jpg" : `/brands/${req.file.filename}`
+            image: (req.file === undefined) ? "/assets/images/1.jpg" : `${process.env.BASE_URL}/brands/${req.file.filename}`
         });
     
         newBrand.save();
