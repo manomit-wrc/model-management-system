@@ -30,11 +30,10 @@ router.post('/signup',  async (req, res) => {
             s: '200', // Size
             r: 'pg', // Rating
             d: 'mm' // Default
-          });
+        });
     
           const newUser = new User({
             first_name: req.body.first_name,
-            last_name: req.body.last_name,
             email: req.body.email,
             avatar,
             password: req.body.password
@@ -104,7 +103,7 @@ router.post('/login', (req, res) => {
           }
         );
       } else {
-        return res.json({ success: false, code: 404, message: 'Password not found'});
+        return res.json({ success: false, code: 404, message: 'Username or Password is wrong.'});
       }
     });
   });
