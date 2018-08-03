@@ -44,8 +44,9 @@ const userSchema = new Schema({
             video: { type: String },
             petite: { type: String }
         }
-    ]
-
+    ],
+    status: { type: Number, default: 0},
+    reg_type: { type: String }
 });
 
 var User = mongoose.model('User', userSchema);
