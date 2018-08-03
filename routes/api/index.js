@@ -75,6 +75,210 @@ router.post('/signup',  async (req, res) => {
     
 });
 
+//for registration from app
+router.post('/signup/mobile',  async (req, res) => {
+  User.findOne({ email: req.body.email }).then(user => {
+      if (user) {
+       return res.json({ success: false, code: 403, message: 'Email already exists'});
+      } else {
+        const avatar = gravatar.url(req.body.email, {
+          s: '200', // Size
+          r: 'pg', // Rating
+          d: 'mm' // Default
+      });
+  
+      const newUser = new User({
+        first_name: req.body.first_name,
+        last_name: '',
+        email: req.body.email,
+        avatar,
+        password: req.body.password,
+        reg_type: 'R'
+      });
+  
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            newUser.password = hash;
+            newUser
+              .save()
+              .then(user => {
+                  // const payload = { id: user._id, email: user.email, avatar: user.avatar }; // Create JWT Payload
+
+                  // // Sign Token
+                  // jwt.sign(
+                  // payload,
+                  // secretOrKey,
+                  // { expiresIn: 3600 },
+                  // (err, token) => {
+                  //     return res.json({
+                  //     success: true,
+                  //     token: 'Bearer ' + token,
+                  //     code: 200,
+                  //     message: 'Registration completed successfully'
+                  //     });
+                  // }
+                  // );
+
+                  var digits = 7;	
+                  var numfactor = Math.pow(10, parseInt(digits-1));	
+                  var randomNum =  Math.floor(Math.random() * numfactor) + 1;	
+
+                  var email_body = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+                    <html xmlns="http://www.w3.org/1999/xhtml">
+                    
+                    <head>
+                    
+                        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                    
+                        <title>Forgot Password</title>
+                    
+                        <style>
+                    
+                            body {
+                    
+                                background-color: #FFFFFF; padding: 0; margin: 0;
+                    
+                            }
+                    
+                        </style>
+                    
+                    </head>
+                    
+                    <body style="background-color: #FFFFFF; padding: 0; margin: 0;">
+                    
+                    <table border="0" cellpadding="0" cellspacing="10" height="100%" bgcolor="#FFFFFF" width="100%" style="max-width: 650px;" id="bodyTable">
+                    
+                        <tr>
+                    
+                            <td align="center" valign="top">
+                    
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" id="emailContainer" style="font-family:Arial; color: #333333;">
+                    
+                                    <!-- Logo -->
+                    
+                                    <tr>
+                    
+                                        <td align="left" valign="top" colspan="2" style="border-bottom: 1px solid #CCCCCC; padding-bottom: 10px;">
+                    
+                                            <img alt="" border="0" src="/assets/images/common/demo/logo.png" title="" class="sitelogo" width="60%" style="max-width:250px;" />
+                    
+                                        </td>
+                    
+                                    </tr>
+                    
+                                    <!-- Title -->
+                    
+                                    <tr>
+                    
+                                        <td align="left" valign="top" colspan="2" style="border-bottom: 1px solid #CCCCCC; padding: 20px 0 10px 0;">
+                    
+                                            <span style="font-size: 18px; font-weight: normal;">Registration</span>
+                    
+                                        </td>
+                    
+                                    </tr>
+                    
+                                    <!-- Messages -->
+                    
+                                    <tr>
+                    
+                                        <td align="left" valign="top" colspan="2" style="padding-top: 10px;">
+                    
+                                            <span style="font-size: 12px; line-height: 1.5; color: #333333;">
+                    
+                                              Hi ${req.body.first_name}, <br/>    
+                                              We have sent you this email with OTP in response to your request to registration on Model Management System.
+                    
+                                                <br/><br/>
+                    
+                                                To complete the registration process for Model Management System login, please copy the below OTP: 
+                                                <br/>
+
+                                                <b>${randomNum}</b>
+                    
+                                                <br/><br/>
+                    
+                                                <br/><br/>
+                    
+                                                If you need help, or you have any other questions, feel free to email info@wrctpl.com, or call customer service toll-free at +91-1234567890.
+                    
+                                                <br/><br/>
+                    
+                                                Model Management System Customer Service
+                    
+                                            </span>
+                    
+                                        </td>
+                    
+                                    </tr>
+                    
+                                </table>
+                    
+                            </td>
+                    
+                        </tr>
+                    
+                    </table>
+                    
+                    </body>
+                    
+                    </html> `;
+
+                var sendEmail = Mailjet.post('send');
+            
+                var emailData = {
+                    'FromEmail': 'info@wrctpl.com',
+                    'FromName': 'Model Management System',
+                    'Subject': 'Registration OTP',
+                    'Html-part': email_body,
+                    'Recipients': [{'Email': req.body.email}]
+                };
+                
+                if(sendEmail.request(emailData)) {
+                  newUser.otp = randomNum;
+                  if(newUser.save()) {
+                    res.json({
+                      success: true, 
+                      code: 200, 
+                      message: 'Registration email with OTP send successfully to the user.'
+                    });
+                  }
+                }
+              })
+              .catch(err => console.log(err));
+          });
+        });
+      }
+    });
+  
+  
+});
+
+router.post('/registration-otp-varification', async (req,res) => {
+  var otp = req.body.otp;
+
+  var verify_otp_result = await User.findOne({otp});
+  if(verify_otp_result){
+    verify_otp_result.status = 1;
+
+    if(verify_otp_result.save()){
+      return res.json({
+        success: true,
+        code:200,
+        message: "Registration completed successfully."
+      });
+    }
+  }else{
+    res.json({
+      success: false,
+      code: 300,
+      message: "OTP does not match."
+    });
+  }
+});
+
 router.post('/login', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
