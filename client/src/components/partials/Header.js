@@ -104,9 +104,7 @@ const Header = () => (
                                             <Link to="/signup" className="nav-link waves-effect waves-light">Sign Up</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <a href="login.html" className="nav-link waves-effect waves-light">
-                                                Log In
-                                            </a>
+                                            <Link to="/login" className="nav-link waves-effect waves-light">Login</Link>
                                         </li>
                                         <li className="nav-item">
                                             <a href="jobs-list.html" className="nav-link waves-effect waves-light">

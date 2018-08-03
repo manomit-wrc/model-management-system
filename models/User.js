@@ -46,7 +46,8 @@ const userSchema = new Schema({
         }
     ],
     status: { type: Number, default: 0},
-    reg_type: { type: String }
+    reg_type: { type: String },
+    activation_link: { type: String }
 });
 
 var User = mongoose.model('User', userSchema);
