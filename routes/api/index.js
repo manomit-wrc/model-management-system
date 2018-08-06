@@ -216,23 +216,6 @@ router.post('/signup/mobile',  async (req, res) => {
             newUser
               .save()
               .then(user => {
-                  // const payload = { id: user._id, email: user.email, avatar: user.avatar }; // Create JWT Payload
-
-                  // // Sign Token
-                  // jwt.sign(
-                  // payload,
-                  // secretOrKey,
-                  // { expiresIn: 3600 },
-                  // (err, token) => {
-                  //     return res.json({
-                  //     success: true,
-                  //     token: 'Bearer ' + token,
-                  //     code: 200,
-                  //     message: 'Registration completed successfully'
-                  //     });
-                  // }
-                  // );
-
                   var digits = 7;	
                   var numfactor = Math.pow(10, parseInt(digits-1));	
                   var randomNum =  Math.floor(Math.random() * numfactor) + 1;	
@@ -411,17 +394,23 @@ router.post('/login', (req, res) => {
           return res.json({ success: false, code: 404, message: 'Account is not activated. Please contact systemd administrator'});
         }
         // User Matched
-        const payload = { id: user._id, email: user.email, avatar: user.avatar }; // Create JWT Payload
+        const payload = { 
+          id: user._id, 
+          email: user.email, 
+          avatar: user.avatar,
+          first_name: user.first_name,
+          last_name: user.last_name 
+        }; // Create JWT Payload
 
         // Sign Token
         jwt.sign(
           payload,
           secretOrKey,
-          { expiresIn: 3600 },
+          { expiresIn: 60 * 60 },
           (err, token) => {
             return res.json({
               success: true,
-              token: 'Bearer ' + token,
+              token: token,
               code: 200
             });
           }
@@ -917,15 +906,10 @@ router.post('/verify-activation', async(req, res) => {
 });
 
 router.post('/user-auth-token', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  let user = {};
-  user.first_name = req.user.first_name;
-  user.last_name = req.user.last_name;
-  user.avatar = req.user.avatar;
-  user._id = req.user._id;
-
+  
   res.json({
     success: true,
-    user
+    user: req.user
   });
 })
 

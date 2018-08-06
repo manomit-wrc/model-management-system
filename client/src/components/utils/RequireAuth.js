@@ -5,7 +5,7 @@ import { userAuthToken } from '../../actions/profile';
 export default function(ComposedComponent) {
     class Authenticate extends Component {
 
-        componentWillMount() {
+        componentDidMount() {
             this.props.userAuthToken(this.props.history);
         }
 

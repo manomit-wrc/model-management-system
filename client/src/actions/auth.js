@@ -1,4 +1,5 @@
 import axios from 'axios';
+import jwt_decode from 'jwt-decode';
 import { API_ROOT } from '../components/utils/ApiConfig';
 import { 
     SIGN_UP_SUCCESS, 
@@ -7,7 +8,8 @@ import {
     ACTIVATION_FAIL, 
     VERIFY_ACTIVATION,
     LOGIN_FAIL,
-    LOGIN_SUCCESS
+    LOGIN_SUCCESS,
+    SET_CURRENT_USER
 } from './types';
 
 export function signup(data) {
@@ -43,10 +45,10 @@ export function login(data) {
             const response = await axios.post(`${API_ROOT}/login`, data);
             if(response.data.success === true) {
                 localStorage.setItem('token', response.data.token);
-                dispatch({
-                    type: LOGIN_SUCCESS,
-                    payload: response.data
-                });
+                const decoded = jwt_decode(response.data.token);
+                // Set current user
+                dispatch(setCurrentUser(decoded));
+                
             }
             else {
                 dispatch({
@@ -58,11 +60,25 @@ export function login(data) {
         catch(error) {
             dispatch({
                 type: LOGIN_FAIL,
-                payload: "Please try again"
+                payload: error.response.data
             });
         }
     }
 }
+
+export const setCurrentUser = decoded => {
+    return {
+      type: SET_CURRENT_USER,
+      payload: decoded
+    };
+};
+
+export const logoutUser = () => dispatch => {
+    // Remove token from localStorage
+    localStorage.removeItem('token');
+    // Set current user to {} which will set isAuthenticated to false
+    dispatch(setCurrentUser({}));
+  };
 
 export function checkActivation(data) {
     return async (dispatch) => {

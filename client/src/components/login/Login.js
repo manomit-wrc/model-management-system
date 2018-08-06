@@ -38,20 +38,25 @@ class Login extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    componentWillReceiveProps(nexProps) {
-        if(nexProps.data !== undefined) {
-            this.setState({
-                showMessage: true,
-                isLoading: false
-            })
-            
-            if(nexProps.data.success === true) {
-                
-                nexProps.history.push("/profile");
-            }
+    componentDidMount() {
+        console.log(this.props);
+        if (this.props.auth.isAuthenticated) {
+          this.props.history.push('/profile');
         }
-        
+      }
+    
+      componentWillReceiveProps(nextProps) {
+        this.setState({
+            showMessage: true,
+            isLoading: false
+        });
+        if (nextProps.auth.isAuthenticated) {
+            this.props.history.push('/profile');
+        }
+    
+       
     }
+
 
     handleSubmit(e) {
         this.setState({ isLoading: true });
@@ -60,10 +65,14 @@ class Login extends Component {
 
     renderMessage() {
         if(this.state.showMessage === true) {
-            if(this.props.data.success === false) {
-                return (
-                    <div className="alert alert-danger login">{this.props.data.message}</div>
-                );
+            if(this.props.auth.isAuthenticated === false) {
+                
+                if(this.props.auth.user.success === false) {
+                    return (
+                        <div className="alert alert-danger login">{this.props.auth.user.message}</div>
+                    );
+                }
+                
             }
             
         }
@@ -147,7 +156,7 @@ class Login extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        data: state.auth.data
+        auth: state.auth
     };
 }
 

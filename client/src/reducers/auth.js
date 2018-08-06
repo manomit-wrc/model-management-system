@@ -5,8 +5,15 @@ import {
     ACTIVATION_FAIL, 
     VERIFY_ACTIVATION,
     LOGIN_FAIL,
-    LOGIN_SUCCESS 
+    LOGIN_SUCCESS,
+    SET_CURRENT_USER
 } from '../actions/types';
+import isEmpty from '../components/utils/is-empty';
+
+const initialState = {
+    isAuthenticated: false,
+    user: {}
+};
 
 const authReducer = (state = {}, action) => {
     switch(action.type) {
@@ -43,8 +50,15 @@ const authReducer = (state = {}, action) => {
         case LOGIN_FAIL:
             return {
                 ...state,
-                data: action.payload
+              isAuthenticated: false,
+              user: action.payload
             }
+        case SET_CURRENT_USER:
+            return {
+              ...state,
+              isAuthenticated: !isEmpty(action.payload),
+              user: action.payload
+            };
         default:
             return state
     }

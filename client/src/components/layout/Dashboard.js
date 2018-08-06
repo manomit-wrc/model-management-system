@@ -1,23 +1,45 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import Aux from '../hoc/Aux';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
 import InnerBanner from '../partials/InnerBanner';
 import Toolbar from '../partials/Toolbar';
 import Sidebar from '../partials/Sidebar';
+import { logoutUser } from '../../actions/auth';
 
 class Dashboard extends Component {
 
-    componentWillReceiveProps(nextProps) {
-        alert("Next Props");
-        console.log(nextProps);
+    constructor(props) {
+        super(props);
+        this.state = {
+            isAuthenticated: false,
+            user: {}
+        }
+        this.loggedOut = this.loggedOut.bind(this);
+    }
+    
+    componentWillMount() {
+        this.setState({
+            isAuthenticated: this.props.auth.isAuthenticated,
+            user: this.props.auth.user
+        });
+    }
+
+    loggedOut() {
+        
+        this.props.logoutUser();
     }
 
     render() {
         return (
             <Aux>
-                <Header />
+                <Header 
+                    isAuthenticated={this.state.isAuthenticated}
+                    user={this.state.user}
+                    logout={this.loggedOut}
+                />
                 <main className="main-content">
                     <InnerBanner />
                     <div className="profile">
@@ -41,8 +63,9 @@ class Dashboard extends Component {
 }
 
 const mapStateToProps = (state) => {
+    
     return {
-        user: state.profile.data
+        auth: state.auth
     }
 }
-export default connect(mapStateToProps, null)(Dashboard);
+export default connect(mapStateToProps, { logoutUser })(Dashboard);

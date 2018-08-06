@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
-const Header = () => (
+const Header = (props) => (
     <header>
         <div className="header-top">
             <div className="container">
@@ -94,18 +94,17 @@ const Header = () => (
                                 </button>
                                 <div id="navbarSupportedContent-3" className="collapse navbar-collapse">
                                     <ul className="navbar-nav mr-auto">
-                                        <li className="nav-item active">
-                                            <a href="profile.html" className="nav-link waves-effect waves-light">
-                                                Profile
-                                            </a>
-                                        </li>
+                                        
+                                        { props.isAuthenticated === false ? 
+                                        <Fragment>
                                         <li className="nav-item">
                                             
                                             <Link to="/signup" className="nav-link waves-effect waves-light">Sign Up</Link>
                                         </li>
                                         <li className="nav-item">
                                             <Link to="/login" className="nav-link waves-effect waves-light">Login</Link>
-                                        </li>
+                                        </li></Fragment> : null}
+                                        
                                         <li className="nav-item">
                                             <a href="jobs-list.html" className="nav-link waves-effect waves-light">
                                                 Jobs List
@@ -155,24 +154,24 @@ const Header = () => (
                                                 <a href="#" className="dropdown-item waves-effect waves-light">Industry professionals</a>
                                             </div>
                                         </li>
-                                        <li className="nav-item dropdown profile-dropdown">
-                                            <a aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="navbarDropdownMenuLink-3" className="nav-link dropdown-toggle waves-effect waves-light">
-                                                <img src="/img/model-avatar.jpg" className="rounded-circle" alt="" />
-                                            </a>
-                                            <div aria-labelledby="navbarDropdownMenuLink-3" className="dropdown-menu dropdown-default">
-                                                <h4>
-                                                    Sneha Roy
-                                                </h4>
-                                                <a href="#" className="dropdown-item waves-effect waves-light">Success stories</a>
-                                                <a href="#" className="dropdown-item waves-effect waves-light">modelStyle</a>
-                                                <a href="#" className="dropdown-item waves-effect waves-light">myNews</a>
-                                                <a href="#" className="dropdown-item waves-effect waves-light">Blog</a>
-                                                <a href="#" className="dropdown-item waves-effect waves-light">Modeling advice</a>
-                                                <a href="#" className="dropdown-item waves-effect waves-light">Fresh Faces</a>
-                                                <a href="#" className="dropdown-item waves-effect waves-light">Apps</a>
-                                                <a href="#" className="dropdown-item waves-effect waves-light">About us</a>
-                                            </div>
-                                        </li>
+                                        {
+                                            props.isAuthenticated ? 
+                                                <li className="nav-item dropdown profile-dropdown">
+                                                    <a aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="navbarDropdownMenuLink-3" className="nav-link dropdown-toggle waves-effect waves-light">
+                                                        <img src={props.user.avatar} className="rounded-circle" alt="" />
+                                                    </a>
+                                                    <div aria-labelledby="navbarDropdownMenuLink-3" className="dropdown-menu dropdown-default">
+                                                        <h4>
+                                                            {props.user.first_name}&nbsp;{props.user.last_name}
+                                                        </h4>
+                                                        <Link to="/profile" className="dropdown-item waves-effect waves-light">Profile</Link>
+                                                        
+                                                        <a href="javascript:void(0)" onClick={props.logout}>Logout</a>
+                                                    </div>
+                                                </li>
+                                                : null
+                                        }
+                                        
                                     </ul>
                                 </div>
                             </nav>

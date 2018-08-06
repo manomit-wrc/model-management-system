@@ -3934,3 +3934,42 @@ figure.effect-ming:hover ul {
 /*Starts on Confirm Mail */ 
 .confirmation button { position: relative !important; } .confirmation .card { margin: 0; position: relative; } .confirmation .mail-box .banner img { width: 100%; } .confirmation .mail-box { text-align: center; } .confirmation .mail-box .bottom { padding: 25px 185px; } .confirmation .mail-box .bottom h2 { margin-bottom: 25px; } .confirmation .mail-box .bottom p { margin-bottom: 25px; } 
 /*Ends on on Confirm Mail */
+
+/* Loader on page */
+
+	.se-pre-con {
+		position: fixed;
+		left: 0px;
+		top: 0px;
+		width: 100%;
+		height: 100%;
+		z-index: 9999;
+		background: url(/img/loading-1.gif) center no-repeat #fff;
+	}
+
+	
+	.se-pre-con img {
+		left: 45%;
+		margin: 0;
+		position: fixed;
+		right: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	
+	.se-pre-con p {
+		border-bottom: 1px solid #000;
+		color: #000;
+		font-size: 14px;
+		left: 48%;
+		margin: 0;
+		padding-bottom: 5px;
+		padding-top: 5px;
+		position: fixed;
+		right: 50%;
+		top: 56%;
+		transform: translate(-50%, -50%);
+		width: 140px;
+	}
+/* End */

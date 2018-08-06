@@ -32,8 +32,12 @@
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
+    <div class="se-pre-con">
+		<img src="/img/logo-loader.png" alt="logo">
+		<p>Loading. Please Wait...</p>
+	</div>
     <div id="root" style="height:100%!important;"></div>
-
+    
     <a href="#" class="scrollup">
       <i class="fa fa-long-arrow-up"></i>
     </a>
@@ -96,6 +100,7 @@
     <!-- SCRIPTS -->
     <!-- JQuery -->
     <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+    
     <!-- Bootstrap tooltips -->
     <script type="text/javascript" src="/js/popper.min.js"></script>
     <!-- Bootstrap core JavaScript -->
@@ -109,7 +114,9 @@
     
 
     <script>
+        
         $(function () {
+            
             $('a[href="#search"]').on('click', function (event) {
                 event.preventDefault();
                 $('#search').addClass('open');
@@ -130,7 +137,7 @@
             })
         });
     </script>
-
+    
     <script>
         $(document).ready(function () {
             
@@ -196,6 +203,13 @@
             });
 
         });
+    </script>
+    <script type="text/javascript">
+        $(window).on('load', function(){ 
+            
+            $(".se-pre-con").fadeOut("slow");
+        });
+       
     </script>
   </body>
 </html>
