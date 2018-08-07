@@ -20,7 +20,6 @@ var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
 //for sending email
-// const sendmail = require('sendmail')();
 const Mailjet = require('node-mailjet').connect('f6419360e64064bc8ea8c4ea949e7eb8', 'fde7e8364b2ba00150f43eae0851cc85');
 //end
 
@@ -91,7 +90,7 @@ router.post('/signup/mobile',  async (req, res) => {
         first_name: req.body.first_name,
         last_name: '',
         email: req.body.email,
-        avatar,
+        avatar : 'http:'+avatar,
         password: req.body.password,
         reg_type: 'R'
       });
@@ -103,22 +102,6 @@ router.post('/signup/mobile',  async (req, res) => {
             newUser
               .save()
               .then(user => {
-                  // const payload = { id: user._id, email: user.email, avatar: user.avatar }; // Create JWT Payload
-
-                  // // Sign Token
-                  // jwt.sign(
-                  // payload,
-                  // secretOrKey,
-                  // { expiresIn: 3600 },
-                  // (err, token) => {
-                  //     return res.json({
-                  //     success: true,
-                  //     token: 'Bearer ' + token,
-                  //     code: 200,
-                  //     message: 'Registration completed successfully'
-                  //     });
-                  // }
-                  // );
 
                   var digits = 7;	
                   var numfactor = Math.pow(10, parseInt(digits-1));	
@@ -264,10 +247,20 @@ router.post('/registration-otp-varification', async (req,res) => {
     verify_otp_result.status = 1;
 
     if(verify_otp_result.save()){
-      return res.json({
-        success: true,
-        code:200,
-        message: "Registration completed successfully."
+      const payload = { id: verify_otp_result._id, email: verify_otp_result.email, avatar: verify_otp_result.avatar }; // Create JWT Payload
+
+      // Sign Token
+      jwt.sign(
+      payload,
+      secretOrKey,
+      { expiresIn: 3600 },
+      (err, token) => {
+          return res.json({
+          success: true,
+          token: 'Bearer ' + token,
+          code: 200,
+          message: 'Registration completed successfully'
+          });
       });
     }
   }else{
@@ -276,6 +269,124 @@ router.post('/registration-otp-varification', async (req,res) => {
       code: 300,
       message: "OTP does not match."
     });
+  }
+});
+
+router.post('/login-mobile', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  // Find user by email
+  User.findOne({ email }).then(user => {
+    // Check for user
+    if (!user) {
+        return res.json({ success: false, code: 404, message: 'User not found'});
+    }
+
+    // Check Password
+    
+    bcrypt.compare(password, user.password).then(isMatch => {
+      if (isMatch) {
+        // User Matched
+        const payload = { id: user._id, email: user.email, avatar: user.avatar }; // Create JWT Payload
+
+        // Sign Token
+        jwt.sign(
+          payload,
+          secretOrKey,
+          { expiresIn: 3600 },
+          (err, token) => {
+            return res.json({
+              success: true,
+              token: 'Bearer ' + token,
+              code: 200
+            });
+          }
+        );
+      } else {
+        return res.json({ success: false, code: 404, message: 'Username or Password is wrong.'});
+      }
+    });
+  });
+  
+});
+
+router.post('/social-login', async (req,res) => {
+  var email = req.body.email;
+  var reg_type = req.body.reg_type;
+
+  var user = await User.findOne({email, reg_type: 'R'});
+
+  if(user){
+    res.json({
+      success: false, 
+      code: 300, 
+      message: 'Email already exist.'
+    });
+  }else{
+
+    var already_login_with_social_app = await User.findOne({
+      email,
+      reg_type:{
+        $nin: 'R'
+      }
+    });
+
+    if(already_login_with_social_app) {
+      already_login_with_social_app.first_name = req.body.full_name;
+      already_login_with_social_app.last_name = '';
+      already_login_with_social_app.email = req.body.email;
+      already_login_with_social_app.avatar = req.body.profile_image;
+
+      if(already_login_with_social_app.save()){
+        const payload = {id: already_login_with_social_app._id, email: req.body.email, avatar: req.body.profile_image }; // Create JWT Payload
+      
+      // console.log(payload);
+      // return false;
+        // Sign Token
+        jwt.sign(
+        payload,
+        secretOrKey,
+        { expiresIn: 3600 },
+        (err, token) => {
+            return res.json({
+              success: true,
+              token: 'Bearer ' + token,
+              code: 200,
+              message: 'Social login successfully.'
+            });
+        });
+      }
+    }else{
+      const newUser = new User({
+        first_name: req.body.full_name,
+        last_name: '',
+        email: req.body.email,
+        avatar: req.body.profile_image,
+        password: ' ',
+        reg_type: reg_type,
+        status: 1
+      });
+  
+      if(newUser.save()){
+        const payload = {id:newUser._id, first_name: req.body.full_name, email: req.body.email, avatar: req.body.profile_image }; // Create JWT Payload
+  
+        // Sign Token
+        jwt.sign(
+        payload,
+        secretOrKey,
+        { expiresIn: 3600 },
+        (err, token) => {
+            return res.json({
+              success: true,
+              token: 'Bearer ' + token,
+              code: 200,
+              message: 'Social login successfully.'
+            });
+        });
+      }
+    }
+    
   }
 });
 
@@ -332,6 +443,7 @@ router.get('/industries', async (req, res) => {
     const data = await Industry.find({});
     res.send({
       success: true,
+      code: 200,
       industries: data
     });
 });
@@ -411,8 +523,8 @@ router.post('/profile/trust', passport.authenticate('jwt', {session:false}), asy
 router.post('/profile/general-info-edit', passport.authenticate('jwt', {session: false}), async (req,res) =>{
   var user = await User.findOne({ _id: req.user.id});
   user.first_name = req.body.first_name;
-  user.last_name = req.body.last_name;
-  user.email = req.body.email;
+  user.last_name = '';
+  // user.email = req.body.email;
   user.description = req.body.description;
   user.location = req.body.location;
   user.city = req.body.city;
@@ -421,7 +533,7 @@ router.post('/profile/general-info-edit', passport.authenticate('jwt', {session:
     res.json({
       success: true,
       code: 200,
-      message: "Edit successfully"
+      message: "Profile updated successfully."
     });
   }else{
     res.json({
@@ -467,25 +579,62 @@ router.post('/change-password', passport.authenticate('jwt', {session : false}),
   });
 });
 
-router.post('/all-user-list', passport.authenticate('jwt', {session: false}), async (req,res) =>{
-  var user = await User.findOne({_id: req.user.id});
-  var user_list = await User.find({
-    _id :{
-      $nin: user.id
-    }
-  });
+router.post('/all-user-list', async (req,res) =>{
 
-  if(user_list.length > 0) {
-    res.json({
-      success: true,
-      all_model_list: user_list
-    });
+  var token = req.headers['authorization'];
+  console.log(token);
+  // return false;
+  var new_token;
+  if(token == undefined || token == ''){
+    new_token = '';
   }else{
-    res.json({
-      success: false,
-      message: "No users found."
+    new_token = req.headers['authorization'].replace(/^Bearer\s/, '');
+  }
+
+  if(new_token == '') {
+    var user_list = await User.find({
+      status: 1
+    },
+    {
+      password: 0, status: 0, otp: 0, activation_link: 0, reg_type:0 
+    });
+
+    if(user_list.length > 0) {
+      res.json({
+        success: true,
+        all_model_list: user_list
+      });
+    }else{
+      res.json({
+        success: false,
+        message: "No users found."
+      });
+    }
+  }else{
+    jwt.verify(new_token, secretOrKey, async function (err, decoded) {
+
+      var user = await User.findOne({_id: decoded.id});
+      var user_list = await User.find({
+        _id :{
+          $nin: decoded.id
+        },
+        status: 1
+      }, {password: 0, status: 0, otp: 0, activation_link: 0, reg_type:0 });
+      
+      if(user_list.length > 0) {
+        res.json({
+          success: true,
+          all_model_list: user_list
+        });
+      }else{
+        res.json({
+            success: false,
+            message: "No users found."
+        });
+      }
     });
   }
+  
 });
 
 router.post('/user-serach-result' , passport.authenticate('jwt', {session : false}), async (req,res) => {
@@ -711,19 +860,22 @@ router.post('/profile/image-upload', passport.authenticate('jwt', {session: fals
   var user = await User.findOne({_id: req.user.id});
 
   var base64Str = req.body.profile_image;
+  
+  // var base64Str = req.body.profile_image.replace(/^data:image\/jpeg+;base64,/, "");
+  base64Str1 = base64Str.replace(/ /g, '+');
 
-  let base64ImageMimeType = base64Str.split(';base64,');
+  let base64ImageMimeType = base64Str1.split(';base64,');
   var type = base64ImageMimeType[0].split(':image/');
 
   var path ='public/app_profile_image/';
 
   var imageFileName = req.user.id + '-' + Date.now();
   var optionalObj = {'fileName': imageFileName, 'type': type[1]};
-  var uploadImage = base64ToImage(base64Str,path,optionalObj);
+  var uploadImage = base64ToImage(base64Str1,path,optionalObj);
 
   var full_image_path = req.headers.host + '/app_profile_image/' + uploadImage.fileName;
 
-  user.avatar = full_image_path;
+  user.avatar = 'http://'+full_image_path;
 
   if(user.save()){
     res.json({
