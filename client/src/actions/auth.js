@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../axios-order';
 import jwt_decode from 'jwt-decode';
 import { API_ROOT } from '../components/utils/ApiConfig';
 import { 
@@ -43,6 +43,36 @@ export function login(data) {
     return async (dispatch) => {
         try {
             const response = await axios.post(`${API_ROOT}/login`, data);
+            if(response.data.success === true) {
+                
+                localStorage.setItem('token', response.data.token);
+                const decoded = jwt_decode(response.data.token);
+                decoded.info = response.data.info;
+               
+                // Set current user
+                dispatch(setCurrentUser(decoded));
+                
+            }
+            else {
+                dispatch({
+                    type: LOGIN_FAIL,
+                    payload: response.data
+                });
+            }
+        }
+        catch(error) {
+            dispatch({
+                type: LOGIN_FAIL,
+                payload: error.response.data
+            });
+        }
+    }
+}
+
+export function loginWithGoogle(data) {
+    return async (dispatch) => {
+        try {
+            const response = await axios.post(`${API_ROOT}/login-with-google`, data);
             if(response.data.success === true) {
                 localStorage.setItem('token', response.data.token);
                 const decoded = jwt_decode(response.data.token);
@@ -115,5 +145,19 @@ export function verifyActivation(data) {
                 payload: response.data
             });
         }
+    }
+}
+
+export function uploadProfileImage(data) {
+    let formdata = new FormData();
+    formdata.append('avatar', data);
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/upload-profile-image`, formdata);
+        localStorage.setItem('token', response.data.token);
+        const decoded = jwt_decode(response.data.token);
+        decoded.info = response.data.info;
+        
+        // Set current user
+        dispatch(setCurrentUser(decoded));
     }
 }

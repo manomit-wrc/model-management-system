@@ -20,7 +20,9 @@ class Dashboard extends Component {
         this.loggedOut = this.loggedOut.bind(this);
     }
     
+    
     componentWillMount() {
+        
         this.setState({
             isAuthenticated: this.props.auth.isAuthenticated,
             user: this.props.auth.user

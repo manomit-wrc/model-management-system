@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import { login } from '../../actions/auth';
+import { GoogleLogin } from 'react-google-login';
+import { login, loginWithGoogle } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
 
 
@@ -39,7 +40,7 @@ class Login extends Component {
     }
 
     componentDidMount() {
-        console.log(this.props);
+        
         if (this.props.auth.isAuthenticated) {
           this.props.history.push('/profile');
         }
@@ -57,6 +58,20 @@ class Login extends Component {
        
     }
 
+    responseGoogle = (response) => {
+        let data = {};
+        if(response.hasOwnProperty('profileObj')) {
+            
+            data.first_name = response.profileObj.givenName;
+            data.last_name = response.profileObj.familyName;
+            data.email = response.profileObj.email;
+            data.avatar = response.profileObj.imageUrl;
+            data.social_id = response.profileObj.googleId;
+            this.props.loginWithGoogle(data);
+        }
+        
+        
+    }
 
     handleSubmit(e) {
         this.setState({ isLoading: true });
@@ -133,10 +148,14 @@ class Login extends Component {
                                     <button type="button" className="btn btn-fb">
                                         <i className="fa fa-facebook pr-1"></i>  Facebook Login
                                     </button>
-                                
-                                    <button type="button" className="btn btn-gplus waves-effect waves-light">
-                                        <i className="fa fa-google-plus pr-1"></i>  Google + Login
-                                    </button>
+                                    <GoogleLogin
+                                        clientId="422270959343-2qtta1f03ll8n6ajs4iue0ng8og3mkre.apps.googleusercontent.com"
+                                        className="btn btn-gplus waves-effect waves-light"
+                                        onSuccess={this.responseGoogle}
+                                        onFailure={this.responseGoogle}
+                                    >
+                                    <i className="fa fa-google-plus pr-1"></i>  Google + Login
+                                    </GoogleLogin>
                                     <p className="font-small grey-text d-flex justify-content-end mt-3">Not a member? <Link to="/signup" className="blue-text ml-1">Register</Link></p>
                                 </div>
 
@@ -160,7 +179,7 @@ const mapStateToProps = (state) => {
     };
 }
 
-Login = connect(mapStateToProps, { login })(reduxForm({
+Login = connect(mapStateToProps, { login, loginWithGoogle })(reduxForm({
     form: 'login',
     validate,
     destroyOnUnmount: true

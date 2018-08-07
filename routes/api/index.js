@@ -24,6 +24,19 @@ var base64ToImage = require('base64-to-image');
 // const sendmail = require('sendmail')();
 const Mailjet = require('node-mailjet').connect('f6419360e64064bc8ea8c4ea949e7eb8', 'fde7e8364b2ba00150f43eae0851cc85');
 //end
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/profile');
+  },
+  filename: function (req, file, cb) {
+    fileExt = file.mimetype.split('/')[1];
+    if (fileExt == 'jpeg'){ fileExt = 'jpg';}
+    fileName = Math.floor(new Date() / 1000) + '-' + Date.now() + '.' + fileExt;
+    cb(null, fileName);
+  }
+})
+
+var profile = multer({ storage: storage });
 
 router.post('/signup',  async (req, res) => {
     User.findOne({ email: req.body.email }).then(user => {
@@ -411,6 +424,7 @@ router.post('/login', (req, res) => {
             return res.json({
               success: true,
               token: token,
+              info:user,
               code: 200
             });
           }
@@ -911,6 +925,99 @@ router.post('/user-auth-token', passport.authenticate('jwt', { session: false })
     success: true,
     user: req.user
   });
+})
+
+router.post('/upload-profile-image', profile.single('avatar'), passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const user = await User.findById(req.user.id);
+  user.avatar = `${process.env.BASE_URL}/profile/${req.file.filename}`;
+  user.save();
+  const payload = { 
+    id: user._id, 
+    email: user.email, 
+    avatar: user.avatar,
+    first_name: user.first_name,
+    last_name: user.last_name 
+  }; // Create JWT Payload
+
+  // Sign Token
+  jwt.sign(
+    payload,
+    secretOrKey,
+    { expiresIn: 60 * 60 },
+    (err, token) => {
+      return res.json({
+        success: true,
+        token: token,
+        info: user,
+        code: 200
+      });
+    }
+  );
+
+});
+
+router.post('/login-with-google', async(req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+  if(user) {
+    const payload = { 
+      id: user._id, 
+      email: user.email, 
+      avatar: user.avatar,
+      first_name: user.first_name,
+      last_name: user.last_name 
+    }; // Create JWT Payload
+
+    // Sign Token
+    jwt.sign(
+      payload,
+      secretOrKey,
+      { expiresIn: 60 * 60 },
+      (err, token) => {
+        return res.json({
+          success: true,
+          token: token,
+          info: user,
+          code: 200
+        });
+      }
+    );
+  }
+  else {
+    const newUser = new User({
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      email: req.body.email,
+      avatar: req.body.avatar,
+      password: '',
+      reg_type: 'G',
+      social_id: req.body.social_id
+    });
+
+    newUser.save().then(user => {
+      const payload = { 
+        id: user._id, 
+        email: user.email, 
+        avatar: user.avatar,
+        first_name: user.first_name,
+        last_name: user.last_name 
+      }; // Create JWT Payload
+
+      // Sign Token
+      jwt.sign(
+        payload,
+        secretOrKey,
+        { expiresIn: 60 * 60 },
+        (err, token) => {
+          return res.json({
+            success: true,
+            token: token,
+            info: user,
+            code: 200
+          });
+        }
+      );
+    })
+  }
 })
 
 module.exports = router;

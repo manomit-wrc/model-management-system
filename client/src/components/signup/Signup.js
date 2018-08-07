@@ -152,13 +152,7 @@ class Signup extends Component {
                                 
                                 <div className="modal-footer text-center">
                                     
-                                    <button type="button" className="btn btn-fb">
-                                            <i className="fa fa-facebook pr-1"></i>  Facebook Login
-                                        </button>
                                     
-                                        <button type="button" className="btn btn-gplus waves-effect waves-light">
-                                            <i className="fa fa-google-plus pr-1"></i>  Google + Login
-                                        </button>
                                     <p className="font-small grey-text d-flex justify-content-end mt-3">Already have an account?
                                         
                                         <Link to="/login" className="blue-text ml-1">Login</Link>

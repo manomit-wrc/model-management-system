@@ -1,17 +1,18 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Sidebar = () => (
     <div className="col-md-3">
         <div className="sidebar">
             <ul>
                 <li className="active">
-                    <a href="profile.html">
+                    
+                    <Link to="/profile">
                         <i className="material-icons">
-                            person
+                                person
                         </i>
-
                         Basic Information
-                    </a>
+                    </Link>
                 </li>
                 <li>
                     <a href="profile2.html">
@@ -22,12 +23,13 @@ const Sidebar = () => (
                     </a>
                 </li>
                 <li>
-                    <a href="profile3.html">
+                    <Link to="/images">
                         <i className="material-icons">
-                            add_a_photo
+                        add_a_photo
                         </i>
                         Images
-                    </a>
+                    </Link>
+                    
                 </li>
                 <li>
                     <a href="profile4.html">

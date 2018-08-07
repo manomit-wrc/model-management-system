@@ -12,6 +12,7 @@ import Signup from './components/signup/Signup';
 import Login from './components/login/Login';
 import Activation from './components/signup/Activation';
 import Basic from './components/profile/Basic';
+import ImageGallery from './components/profile/ImageGallery';
 import RequireAuth from './components/utils/RequireAuth';
 
 import { setCurrentUser, logoutUser } from './actions/auth';
@@ -50,12 +51,8 @@ class App extends Component {
             <AppRoutes exact path="/signup" layout={Blank} component={Signup} />
             <AppRoutes exact path="/verify/:activation_id" layout={Layout} component={Activation} />
             <AppRoutes exact path="/login" layout={Blank} component={Login} />
-            <PrivateRoute
-              exact
-              path="/profile"
-              layout={Dashboard} 
-              component={Basic}
-          />
+            <PrivateRoute exact path="/profile" layout={Dashboard} component={Basic} />
+          <PrivateRoute exact path="/images" layout={Dashboard} component={ImageGallery} />
           </Switch>
         </BrowserRouter>
       </Provider>

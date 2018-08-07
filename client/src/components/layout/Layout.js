@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { logoutUser } from '../../actions/auth';
 import Aux from '../hoc/Aux';
 import Header from '../partials/Header';
@@ -17,11 +18,18 @@ class Layout extends Component {
     }
 
     componentWillMount() {
-        console.log(this.props);
         this.setState({
             isAuthenticated: this.props.auth.isAuthenticated !== undefined ? this.props.auth.isAuthenticated : false,
             user: this.props.auth.user !== undefined ? this.props.auth.user : {}
         });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.auth.isAuthenticated === false) {
+            
+            nextProps.children.props.history.push("/login");
+        }
+        
     }
 
     loggedOut() {

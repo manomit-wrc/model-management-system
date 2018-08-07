@@ -79,9 +79,10 @@ const Header = (props) => (
                 <div className="row">
                     <div className="col-md-2">
                         <div className="logo">
-                            <Link to="/">
-                                <img src="/img/logo.png" alt="logo" />  
-                            </Link>
+                            
+                            <a href="/">
+                                <img src="/img/logo.png" alt="logo" />
+                            </a>
                             
                         </div>
                     </div>
