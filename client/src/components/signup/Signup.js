@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Field, reduxForm } from 'redux-form';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { signup } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
@@ -77,12 +78,12 @@ class Signup extends Component {
         if(this.state.showMessage === true) {
             if(this.props.data.success === true) {
                 return (
-                    <div className="alert alert-success signup">Registration completed successfully</div>
+                    <div className="alert alert-success signup">{this.props.data.message}</div>
                 );
             }
             else {
                 return (
-                    <div className="alert alert-danger signup">Email already exists</div>
+                    <div className="alert alert-danger signup">{this.props.data.message}</div>
                 );
             }
         }
@@ -101,7 +102,7 @@ class Signup extends Component {
                     <div className="row justify-content-md-center">
 
                         
-                        <div className="col-md-4">
+                        <div className="col-md-5">
 
                             <div className="card mx-xl-5">
                                 <div className="card-body">
@@ -151,15 +152,10 @@ class Signup extends Component {
                                 
                                 <div className="modal-footer text-center">
                                     
-                                    <button type="button" className="btn btn-fb">
-                                            <i className="fa fa-facebook pr-1"></i>  Facebook Login
-                                        </button>
                                     
-                                        <button type="button" className="btn btn-gplus waves-effect waves-light">
-                                            <i className="fa fa-google-plus pr-1"></i>  Google + Login
-                                        </button>
                                     <p className="font-small grey-text d-flex justify-content-end mt-3">Already have an account?
-                                        <a href="login.html" className="blue-text ml-1"> Login</a>
+                                        
+                                        <Link to="/login" className="blue-text ml-1">Login</Link>
                                     </p>
                                 </div>
 
@@ -180,6 +176,7 @@ const mapStateToProps = (state) => {
         data: state.auth.data
     };
 }
+
 Signup = connect(mapStateToProps, { signup })(reduxForm({
     form: 'signup',
     validate,

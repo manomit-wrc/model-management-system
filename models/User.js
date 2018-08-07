@@ -6,7 +6,7 @@ const userSchema = new Schema({
     first_name: { type: String, required: true },
     last_name: { type: String},
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
     avatar: { type: String },
     description: { type: String, default: '' },
     location: { type: String, default: '' },
@@ -46,7 +46,9 @@ const userSchema = new Schema({
         }
     ],
     status: { type: Number, default: 0},
-    reg_type: { type: String }
+    reg_type: { type: String },
+    activation_link: { type: String },
+    social_id: { type: String }
 });
 
 var User = mongoose.model('User', userSchema);
