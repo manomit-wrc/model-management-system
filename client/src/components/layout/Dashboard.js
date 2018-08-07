@@ -19,6 +19,13 @@ class Dashboard extends Component {
         }
         this.loggedOut = this.loggedOut.bind(this);
     }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            isAuthenticated: nextProps.auth.isAuthenticated,
+            user: nextProps.auth.user
+        });
+    }
     
     
     componentWillMount() {
@@ -50,7 +57,7 @@ class Dashboard extends Component {
                                 <div className="card-body">
                                     <Toolbar />
                                     <div className="row">
-                                        <Sidebar />
+                                        <Sidebar pathName={this.props.children.props.location.pathname}/>
                                         {this.props.children}
                                     </div>
                                 </div>

@@ -1,5 +1,6 @@
 import axios from '../axios-order';
 import jwt_decode from 'jwt-decode';
+import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { API_ROOT } from '../components/utils/ApiConfig';
 import { 
     SIGN_UP_SUCCESS, 
@@ -152,12 +153,20 @@ export function uploadProfileImage(data) {
     let formdata = new FormData();
     formdata.append('avatar', data);
     return async (dispatch) => {
-        const response = await axios.post(`${API_ROOT}/upload-profile-image`, formdata);
-        localStorage.setItem('token', response.data.token);
-        const decoded = jwt_decode(response.data.token);
-        decoded.info = response.data.info;
+        try {
+            dispatch(showLoading())
+            const response = await axios.post(`${API_ROOT}/upload-profile-image`, formdata);
+            localStorage.setItem('token', response.data.token);
+            const decoded = jwt_decode(response.data.token);
+            decoded.info = response.data.info;
+            
+            // Set current user
+            dispatch(setCurrentUser(decoded));
+        }
+        finally {
+            
+            //dispatch(hideLoading());
+        }
         
-        // Set current user
-        dispatch(setCurrentUser(decoded));
     }
 }

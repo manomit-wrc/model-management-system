@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Swal from 'sweetalert2'
 import { uploadProfileImage } from '../../actions/auth';
 import { ClipLoader } from 'react-spinners';
 import _ from 'lodash';
+import { showLoading, hideLoading } from 'react-redux-loading-bar'
 
 
 
@@ -23,7 +23,6 @@ class ImageGallery extends Component {
     }
 
     componentWillMount() {
-        //console.log(this.props.auth.user);
         this.setState({
             avatar: this.props.auth.user.avatar
         });
@@ -32,16 +31,7 @@ class ImageGallery extends Component {
     componentWillReceiveProps(nextProps) {
         if(nextProps.auth.isAuthenticated) {
         this.setState({ isLoading: false });
-        Swal({
-            title: 'Profile Image',
-            text: 'Image uploaded successfully',
-            type: 'success',
-            confirmButtonText: 'Ok'
-          }).then((result) => {
-            if (result.value) {
-              window.location.reload();
-            }
-          })
+        
         }
     }
 
