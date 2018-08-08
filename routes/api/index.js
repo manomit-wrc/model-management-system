@@ -228,10 +228,7 @@ router.post('/signup/mobile',  async (req, res) => {
             newUser
               .save()
               .then(user => {
-<<<<<<< HEAD
 
-=======
->>>>>>> 8412ed1d4ff234b1beb3df2f2c139c3778b3c4ea
                   var digits = 7;	
                   var numfactor = Math.pow(10, parseInt(digits-1));	
                   var randomNum =  Math.floor(Math.random() * numfactor) + 1;	
