@@ -3973,3 +3973,9 @@ figure.effect-ming:hover ul {
 		width: 140px;
 	}
 /* End */
+.close {
+    padding:2px 5px;
+	background:#ccc;
+	text-align: center;
+	font-size: 13px;
+}

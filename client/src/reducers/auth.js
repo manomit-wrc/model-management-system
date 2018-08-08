@@ -6,7 +6,8 @@ import {
     VERIFY_ACTIVATION,
     LOGIN_FAIL,
     LOGIN_SUCCESS,
-    SET_CURRENT_USER
+    SET_CURRENT_USER,
+    USER_DETAILS
 } from '../actions/types';
 import isEmpty from '../components/utils/is-empty';
 
@@ -15,7 +16,7 @@ const initialState = {
     user: {}
 };
 
-const authReducer = (state = {}, action) => {
+const authReducer = (state = initialState, action) => {
     switch(action.type) {
         case SIGN_UP_SUCCESS:
             return {
@@ -59,6 +60,11 @@ const authReducer = (state = {}, action) => {
               isAuthenticated: !isEmpty(action.payload),
               user: action.payload
             };
+        case USER_DETAILS:
+            return {
+                ...state,
+                user_details: action.payload
+            }
         default:
             return state
     }

@@ -20,13 +20,17 @@ class Activation extends Component {
         this.props.checkActivation(data);
     }
 
-    componentWillReceiveProps(nexProps) {
-        console.log(nexProps);
-        this.setState({
-            success: nexProps.data.success,
-            message: nexProps.data.message
-        });
-        
+    componentWillReceiveProps(nextProps) {
+        console.log(nextProps);
+        if(nextProps.auth.hasOwnProperty('isAuthenticated') && nextProps.auth.isAuthenticated) {
+            nextProps.history.push("/profile");
+        }
+        else {
+            this.setState({
+                success: nextProps.auth.data.success,
+                message: nextProps.auth.data.message
+            });
+        }
     }
 
     verifyToken() {
@@ -104,7 +108,7 @@ class Activation extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        data: state.auth.data
+        auth: state.auth
     };
 }
 

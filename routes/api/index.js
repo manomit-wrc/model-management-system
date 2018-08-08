@@ -37,6 +37,20 @@ var storage = multer.diskStorage({
 
 var profile = multer({ storage: storage });
 
+var PortfolioStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/portfolio');
+  },
+  filename: function (req, file, cb) {
+    fileExt = file.mimetype.split('/')[1];
+    if (fileExt == 'jpeg'){ fileExt = 'jpg';}
+    fileName = Math.floor(new Date() / 1000) + '-' + Date.now() + '.' + fileExt;
+    cb(null, fileName);
+  }
+});
+
+var portfolio = multer({ storage: PortfolioStorage });
+
 router.post('/signup',  async (req, res) => {
     User.findOne({ email: req.body.email }).then(user => {
         if (user) {
@@ -1075,10 +1089,28 @@ router.post('/verify-activation', async(req, res) => {
   if(user) {
     user.status = 1;
     user.save();
-    res.json({
-      success: false,
-      message: "Email verified successfully. Please login to continue"
-    });
+    const payload = { 
+      id: user._id, 
+      email: user.email, 
+      avatar: user.avatar,
+      first_name: user.first_name,
+      last_name: user.last_name 
+    }; // Create JWT Payload
+  
+    // Sign Token
+    jwt.sign(
+      payload,
+      secretOrKey,
+      { expiresIn: 60 * 60 },
+      (err, token) => {
+        return res.json({
+          success: true,
+          token: token,
+          info: user,
+          code: 200
+        });
+      }
+    );
   }
   else {
     res.json({
@@ -1124,6 +1156,24 @@ router.post('/upload-profile-image', profile.single('avatar'), passport.authenti
   );
 
 });
+
+router.post('/upload-portfolio-images', portfolio.any('images'), passport.authenticate('jwt', { session: false }), async(req, res) => {
+  let portfolio_arr = [];
+  const user = await User.findById(req.user.id);
+  if(user) {
+    for(var i=0; i<req.files.length; i++) {
+      portfolio_arr.push(`${process.env.BASE_URL}/portfolio/${req.files[i].filename}`)
+    }
+    user.images = portfolio_arr;
+    user.save();
+    return res.json({
+      success: true,
+      user_details: user
+    });
+    
+  }
+
+})
 
 router.post('/login-with-google', async(req, res) => {
   const user = await User.findOne({ email: req.body.email });
@@ -1187,6 +1237,32 @@ router.post('/login-with-google', async(req, res) => {
       );
     })
   }
+})
+
+router.get('/user-details', passport.authenticate('jwt', { session: false }), async(req, res) => {
+  const user = await User.findById(req.user.id);
+  res.json({
+    success: true,
+    user_details: user
+  });
+})
+
+router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: false }), async(req, res) => {
+  const user = await User.findById(req.user.id);
+  
+  var index = user.images.indexOf(req.body.imageUri);
+  if(index > -1) {
+    user.images.splice(index, 1);
+    user.save();
+    
+    res.json({
+      success: true,
+      user_details: user
+    });
+  }
+  
+
+
 })
 
 module.exports = router;

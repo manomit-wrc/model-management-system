@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { uploadProfileImage } from '../../actions/auth';
+import { 
+    uploadProfileImage, 
+    uploadPortfolioImage, 
+    userDetails, 
+    removePortfolioImage 
+} from '../../actions/auth';
 import { ClipLoader } from 'react-spinners';
 import _ from 'lodash';
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
@@ -15,24 +20,35 @@ class ImageGallery extends Component {
             avatar: '',
             image_gallery: [],
             file: null,
-            gallery: [],
             isLoading: false
         }
         this.handleProfileImage = this.handleProfileImage.bind(this);
         this.handleImageGallery = this.handleImageGallery.bind(this);
+        this.removeImage = this.removeImage.bind(this);
     }
 
     componentWillMount() {
+        this.props.userDetails();
         this.setState({
             avatar: this.props.auth.user.avatar
         });
     }
 
     componentWillReceiveProps(nextProps) {
+        console.log(nextProps);
         if(nextProps.auth.isAuthenticated) {
-        this.setState({ isLoading: false });
+        this.setState({ 
+            isLoading: false,
+            image_gallery: nextProps.auth.user_details.images
+        });
         
         }
+    }
+
+    removeImage(image) {
+        let data = {};
+        data.imageUri = image;
+        this.props.removePortfolioImage(data);
     }
 
     handleProfileImage(event) {
@@ -49,17 +65,15 @@ class ImageGallery extends Component {
     handleImageGallery(event) {
         
         let arr = [];
-        let file_arr = [];
         _.map(event.target.files, (file, index) => {
-            file_arr.push(file);
             arr.push(URL.createObjectURL(file))
         });
         arr.push.apply(arr, this.state.image_gallery)
-        file_arr.push.apply(file_arr, this.state.gallery)
         this.setState({
             image_gallery: arr,
-            gallery: file_arr
+            isLoading: true
         })
+        this.props.uploadPortfolioImage(event.target.files);
         
     }
 
@@ -106,6 +120,10 @@ class ImageGallery extends Component {
                                         <span>Choose file</span>
                                         <input type="file" multiple onChange={this.handleImageGallery} />
                                     </div>
+                                    <ClipLoader
+                                        color={'#44C2F7'} 
+                                        loading={this.state.isLoading} 
+                                    />
                                 </div>
                             </div>
 
@@ -117,7 +135,9 @@ class ImageGallery extends Component {
                                             <div className="col-md-4" key={index}>
                                                 <div className="file-field">
                                                     <div className="z-depth-1-half mb-4">
+                                                    
                                                         <img src={img} className="img-fluid" alt="example placeholder" />
+                                                        <span className='close' onClick={() => this.removeImage(img)}>Remove</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -142,4 +162,9 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, { uploadProfileImage })(ImageGallery);
+export default connect(mapStateToProps, { 
+    uploadProfileImage, 
+    uploadPortfolioImage, 
+    userDetails,
+    removePortfolioImage
+})(ImageGallery);

@@ -10,7 +10,8 @@ import {
     VERIFY_ACTIVATION,
     LOGIN_FAIL,
     LOGIN_SUCCESS,
-    SET_CURRENT_USER
+    SET_CURRENT_USER,
+    USER_DETAILS
 } from './types';
 
 export function signup(data) {
@@ -77,6 +78,7 @@ export function loginWithGoogle(data) {
             if(response.data.success === true) {
                 localStorage.setItem('token', response.data.token);
                 const decoded = jwt_decode(response.data.token);
+                decoded.info = response.data.info;
                 // Set current user
                 dispatch(setCurrentUser(decoded));
                 
@@ -141,10 +143,12 @@ export function verifyActivation(data) {
     return async (dispatch) => {
         const response = await axios.post(`${API_ROOT}/verify-activation`, data);
         if(response.data.success) {
-            dispatch({
-                type: VERIFY_ACTIVATION,
-                payload: response.data
-            });
+            localStorage.setItem('token', response.data.token);
+            const decoded = jwt_decode(response.data.token);
+            decoded.info = response.data.info;
+            
+            // Set current user
+            dispatch(setCurrentUser(decoded));
         }
     }
 }
@@ -168,5 +172,41 @@ export function uploadProfileImage(data) {
             //dispatch(hideLoading());
         }
         
+    }
+}
+
+export function uploadPortfolioImage(data) {
+    
+    let formdata = new FormData();
+    for(var i=0;i<data.length;i++) {
+        formdata.append('images', data[i]);
+    }
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/upload-portfolio-images`, formdata);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
+        
+    }
+}
+
+export function userDetails() {
+    return async (dispatch) => {
+        const response = await axios.get(`${API_ROOT}/user-details`);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
+    }
+}
+
+export function removePortfolioImage(data) {
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/remove-portfolio-image`, data);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
     }
 }
