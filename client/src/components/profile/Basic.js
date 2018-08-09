@@ -1,6 +1,25 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { userDetails } from '../../actions/auth';
 
 class Basic extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: {}
+        }
+    }
+    componentDidMount() {
+        
+        console.log("In Basic",this.props);
+        this.props.userDetails();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({ user: nextProps.auth.user_details})
+    }
+
     render() {
         return (
             <div className="col-md-9">
@@ -90,4 +109,10 @@ class Basic extends Component {
     }
 }
 
-export default Basic;
+const mapStateToProps = (state) => {
+    return {
+        auth: state.auth
+    }
+}
+
+export default connect(mapStateToProps, { userDetails })(Basic);

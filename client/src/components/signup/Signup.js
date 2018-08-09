@@ -2,8 +2,9 @@ import React, { Component, Fragment } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { signup } from '../../actions/auth';
+import { signup, getIndustries } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
+import _ from 'lodash';
 
 
 const validate = values => {
@@ -37,6 +38,9 @@ const validate = values => {
     if(values.password !== values.confirm_password) {
         errors.confirm_password = 'Password and confirm password must be same'
     }
+    if(!values.industries) {
+        errors.industries = 'Please select who you are';
+    }
     return errors
 }
 
@@ -49,6 +53,8 @@ const renderField = ({ input, label, type, meta: { touched, error, warning } }) 
     
 )
 
+const renderSelectField = ({ })
+
 class Signup extends Component {
 
     constructor(props) {
@@ -58,6 +64,10 @@ class Signup extends Component {
             isLoading: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentWillMount() {
+        this.props.getIndustries();
     }
 
     componentWillReceiveProps(nexProps) {
@@ -71,6 +81,7 @@ class Signup extends Component {
     }
 
     handleSubmit(e) {
+        console.log(e);
         this.setState({ isLoading: true });
         this.props.signup(e);
     }
@@ -93,7 +104,8 @@ class Signup extends Component {
     }
     render() {
 
-        const { handleSubmit } = this.props;
+        const { handleSubmit, touched, error, warning } = this.props;
+        
 
         return (
             <div className="common-form-box register-box">
@@ -138,6 +150,20 @@ class Signup extends Component {
                                     <div className="md-form font-weight-light">
                                         <Field name="confirm_password" component={renderField} label="Confirm Password" type="password" />
                                     </div>
+
+                                    <div className="md-form font-weight-light">
+                                    <Field name="industries" component="select" className="form-control">
+                                        
+                                    {
+                                        _.map(this.props.industries, (ind, index) => {
+                                            return <option key={index} value={ind._id}>{ind.name}</option>
+                                        })
+                                    }
+                                    
+                                    </Field>
+                                        
+                                    {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
+                                    </div>
                                     <div className="text-center mt-4">
                                     <LoaderButton
                                         type="submit"
@@ -173,11 +199,12 @@ class Signup extends Component {
 }
 const mapStateToProps = (state) => {
     return {
-        data: state.auth.data
+        data: state.auth.data,
+        industries: state.auth.industries
     };
 }
 
-Signup = connect(mapStateToProps, { signup })(reduxForm({
+Signup = connect(mapStateToProps, { signup, getIndustries })(reduxForm({
     form: 'signup',
     validate,
     destroyOnUnmount: true

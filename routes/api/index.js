@@ -68,6 +68,7 @@ router.post('/signup',  async (req, res) => {
             email: req.body.email,
             avatar,
             password: req.body.password,
+            industry: req.body.industries,
             reg_type: 'R',
             activation_link
           });
@@ -1161,6 +1162,8 @@ router.post('/upload-portfolio-images', portfolio.any('images'), passport.authen
   let portfolio_arr = [];
   const user = await User.findById(req.user.id);
   if(user) {
+    portfolio_arr = user.images;
+    console.log(portfolio_arr);
     for(var i=0; i<req.files.length; i++) {
       portfolio_arr.push(`${process.env.BASE_URL}/portfolio/${req.files[i].filename}`)
     }

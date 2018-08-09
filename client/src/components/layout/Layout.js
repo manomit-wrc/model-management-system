@@ -25,10 +25,10 @@ class Layout extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.auth.isAuthenticated === false) {
+        /*if(nextProps.auth.isAuthenticated === false) {
             
             nextProps.children.props.history.push("/login");
-        }
+        }*/
         
     }
 

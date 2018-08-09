@@ -11,7 +11,8 @@ import {
     LOGIN_FAIL,
     LOGIN_SUCCESS,
     SET_CURRENT_USER,
-    USER_DETAILS
+    USER_DETAILS,
+    INDUSTRIES
 } from './types';
 
 export function signup(data) {
@@ -192,13 +193,19 @@ export function uploadPortfolioImage(data) {
 }
 
 export function userDetails() {
-    return async (dispatch) => {
-        const response = await axios.get(`${API_ROOT}/user-details`);
-        dispatch({
-            type: USER_DETAILS,
-            payload: response.data.user_details
-        });
+    try {
+        return async (dispatch) => {
+            const response = await axios.get(`${API_ROOT}/user-details`);
+            dispatch({
+                type: USER_DETAILS,
+                payload: response.data.user_details
+            });
+        }
     }
+    catch(error) {
+        window.location.href = "/login"
+    }
+    
 }
 
 export function removePortfolioImage(data) {
@@ -208,5 +215,15 @@ export function removePortfolioImage(data) {
             type: USER_DETAILS,
             payload: response.data.user_details
         });
+    }
+}
+
+export function getIndustries() {
+    return async (dispatch) => {
+        const response = await axios.get(`${API_ROOT}/industries`);
+        dispatch({
+            type: INDUSTRIES,
+            payload: response.data.industries
+        })
     }
 }

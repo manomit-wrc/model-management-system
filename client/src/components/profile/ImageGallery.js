@@ -100,8 +100,8 @@ class ImageGallery extends Component {
                             </div>
                             <div className="mb-4"></div>
                             <div className="row">
-                                <div className="col-md-6">
-                                    <div className="file-field">
+                                <div className="col-md-3">
+                                    <div className="file-field profile-img">
                                         <div className="z-depth-1-half mb-4">
                                             <img src={this.state.avatar} className="img-fluid" alt="example placeholder" />
                                         </div>
@@ -132,12 +132,21 @@ class ImageGallery extends Component {
                                 {
                                     _.map(this.state.image_gallery, (img, index) => {
                                         return (
-                                            <div className="col-md-4" key={index}>
-                                                <div className="file-field">
+                                            <div className="col-md-3" key={index}>
+                                                <div className="file-field portfolio-img">
                                                     <div className="z-depth-1-half mb-4">
                                                     
                                                         <img src={img} className="img-fluid" alt="example placeholder" />
-                                                        <span className='close' onClick={() => this.removeImage(img)}>Remove</span>
+                                                        <div className="middle">
+                                                            
+                                                            <span className="spn-text">
+                                                                <i onClick={() => this.removeImage(img)}
+                                                                className="fa fa-close" 
+                                                                style={{fontSize: '48px', color: '#FF0000'}} 
+                                                                aria-hidden="true">
+                                                                </i>
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
