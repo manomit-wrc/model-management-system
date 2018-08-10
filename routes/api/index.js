@@ -1263,10 +1263,19 @@ router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: f
       user_details: user
     });
   }
-  
+});
 
-
-})
+// router.get('/test', (req, res) => {
+//   const Ethnticity = require('../../models/HairColor');
+//   let arr = ['Auburn', 'Black', 'Blonde', 'Brown', 'Cendre', 'Chestnut', 'Dark', 'Dark Blonde', 'Dark Brown', 'Grey', 'Hazel', 'Light Blonde', 'Light Brown', 'Medium Blonde', 'Platinum Blonde', 'Red', 'Red Blonde', 'Red Brown', 'Salt and Pepper', 'Strawberry Blonde'];
+//   for(var i=0; i<arr.length; i++) {
+//     const ethn = new Ethnticity({
+//       name: arr[i]
+//     });
+//     ethn.save();
+//   }
+//   res.send("Done");
+// });
 
 module.exports = router;
 

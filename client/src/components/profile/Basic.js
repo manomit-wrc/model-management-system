@@ -11,12 +11,11 @@ class Basic extends Component {
         }
     }
     componentDidMount() {
-        
-        console.log("In Basic",this.props);
         this.props.userDetails();
     }
 
     componentWillReceiveProps(nextProps) {
+        console.log(nextProps);
         this.setState({ user: nextProps.auth.user_details})
     }
 
