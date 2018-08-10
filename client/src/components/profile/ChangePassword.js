@@ -1,7 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Field, reduxForm } from 'redux-form';
+import { Field, reduxForm, reset } from 'redux-form';
 import { connect } from 'react-redux';
 import { changePassword } from '../../actions/auth';
+import LoaderButton from '../../components/utils/LoaderButton';
+
+import $ from 'jquery';
 
 
 const validate = values => {
@@ -55,7 +58,10 @@ class ChangePassword extends Component{
 
     componentWillReceiveProps(nexProps) {
         if(nexProps.data !== undefined) {
-            console.log(nexProps.data)
+            this.props.dispatch(reset('change-password'))
+            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                $(".alert").slideUp(500);
+            });
             this.setState({
                 showMessage: true,
                 isLoading: false
@@ -63,6 +69,7 @@ class ChangePassword extends Component{
         }
         
     }
+
 
     handleSubmit(e) {
         this.setState({ isLoading: true });
@@ -73,12 +80,18 @@ class ChangePassword extends Component{
         if(this.state.showMessage === true) {
             if(this.props.data.success === true) {
                 return (
-                    <div className="alert alert-success change-password">{this.props.data.message}</div>
+                    <div className="alert alert-success alert-dismissible">
+                            
+                        {this.props.data.message}
+                    </div>
                 );
             }
             else {
                 return (
-                    <div className="alert alert-danger change-password">{this.props.data.message}</div>
+                    <div className="alert alert-danger alert-dismissible">
+                            
+                     {this.props.data.message}
+                    </div>
                 );
             }
         }
@@ -96,6 +109,7 @@ class ChangePassword extends Component{
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
                             {this.renderMessage()}
+                            
                             <div className="md-form">
                                 <Field name="old_password" component={renderField} label="Old Password" type="password" />
                             </div>
@@ -107,7 +121,12 @@ class ChangePassword extends Component{
                             </div>
                             
                             <div className="md-form">
-                                <button className="btn btn-primary waves-effect waves-light" type="submit">Save</button>
+                                <LoaderButton
+                                    type="submit"
+                                    isLoading={this.state.isLoading}
+                                    text="Submit"
+                                    loadingText="Loading..."
+                                />
                             </div>
                         </form>
                     </div>

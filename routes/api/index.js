@@ -1163,7 +1163,7 @@ router.post('/upload-portfolio-images', portfolio.any('images'), passport.authen
   const user = await User.findById(req.user.id);
   if(user) {
     portfolio_arr = user.images;
-    console.log(portfolio_arr);
+    
     for(var i=0; i<req.files.length; i++) {
       portfolio_arr.push(`${process.env.BASE_URL}/portfolio/${req.files[i].filename}`)
     }

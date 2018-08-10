@@ -85,7 +85,11 @@ class Login extends Component {
                 
                 if(this.props.auth.user.success === false) {
                     return (
-                        <div className="alert alert-danger login">{this.props.auth.user.message}</div>
+                        
+                        <div class="alert alert-danger alert-dismissible">
+                            
+                            {this.props.auth.user.message}
+                        </div>
                     );
                 }
                 

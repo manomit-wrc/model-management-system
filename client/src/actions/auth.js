@@ -48,7 +48,6 @@ export function changePassword(data){
     return async (dispatch) => {
         try{
             const response = await axios.post(`${API_ROOT}/change-password`, data);
-            console.log(response)
             if(response.data.success === true){
                 dispatch({
                     type: CHANGE_PASSWORD_SUCCESS,

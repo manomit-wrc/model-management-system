@@ -38,8 +38,8 @@ const validate = values => {
     if(values.password !== values.confirm_password) {
         errors.confirm_password = 'Password and confirm password must be same'
     }
-    if(!values.industries) {
-        errors.industries = 'Please select who you are';
+    if(!values.industry) {
+        errors.industry = 'Please select who you are';
     }
     return errors
 }
@@ -53,7 +53,15 @@ const renderField = ({ input, label, type, meta: { touched, error, warning } }) 
     
 )
 
-const renderSelectField = ({ })
+const renderSelectField = ({ input, label, meta: { touched, error, warning }, children }) => (
+    <Fragment>
+        <select {...input} className="form-control">
+          <option value="">Please select who you are</option>  
+          {children}
+        </select>
+        {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
+    </Fragment>
+)
 
 class Signup extends Component {
 
@@ -89,12 +97,18 @@ class Signup extends Component {
         if(this.state.showMessage === true) {
             if(this.props.data.success === true) {
                 return (
-                    <div className="alert alert-success signup">{this.props.data.message}</div>
+                    <div class="alert alert-success alert-dismissible">
+                            
+                    {this.props.data.message}
+                    </div>
                 );
             }
             else {
                 return (
-                    <div className="alert alert-danger signup">{this.props.data.message}</div>
+                    <div class="alert alert-danger alert-dismissible">
+                            
+                    {this.props.data.message}
+                    </div>
                 );
             }
         }
@@ -152,17 +166,13 @@ class Signup extends Component {
                                     </div>
 
                                     <div className="md-form font-weight-light">
-                                    <Field name="industries" component="select" className="form-control">
-                                        
-                                    {
-                                        _.map(this.props.industries, (ind, index) => {
-                                            return <option key={index} value={ind._id}>{ind.name}</option>
-                                        })
-                                    }
-                                    
-                                    </Field>
-                                        
-                                    {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
+                                        <Field name="industry" component={renderSelectField}>
+                                        { 
+                                            _.map(this.props.industries, (ind, index) => {
+                                                return <option key={index} value={ind._id}>{ind.name}</option>
+                                            })
+                                        }
+                                        </Field>
                                     </div>
                                     <div className="text-center mt-4">
                                     <LoaderButton
