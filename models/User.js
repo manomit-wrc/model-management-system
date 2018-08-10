@@ -14,6 +14,14 @@ const userSchema = new Schema({
     industry: { type: Schema.Types.ObjectId, ref: 'Industry' },
     otp: { type: Number},
     city: { type: String },
+    state: { type: Schema.Types.ObjectId, ref: 'State' },
+    country: { type: Schema.Types.ObjectId, ref: 'Country' },
+    ethnicity: { type: Schema.Types.ObjectId, ref: 'Ethnicity'},
+    catalog: [{ type: Schema.Types.ObjectId, ref: 'Catalog'}],
+    discipline: [{ type: Schema.Types.ObjectId, ref: 'Discipline'}],
+    eye: { type: Schema.Types.ObjectId, ref: 'Eyes'},
+    hair_color: { type: Schema.Types.ObjectId, ref: 'HairColor'},
+    gender: { type: String },
     videos: [String],
     images: [String],
     trust: [
@@ -25,25 +33,12 @@ const userSchema = new Schema({
     ],
     info: [
         {
-            ethencity: { type: String },
-            gender: { type: String },
             height: { type: String },
-            eyes: { type: String },
             dress: { type: String },
-            shoes: { type: String }
-        }
-    ],
-    discipline: [
-        {
-            lingerie: { type: String },
-            actors: { type: String },
-            glamour: { type: String },
-            catalog: { type: String },
-            commercial: { type: String },
-            event: { type: String },
-            foot: { type: String },
-            video: { type: String },
-            petite: { type: String }
+            shoes: { type: String },
+            weight: { type: String },
+            heap: { type: String },
+            age: { type: Number }
         }
     ],
     status: { type: Number, default: 0},

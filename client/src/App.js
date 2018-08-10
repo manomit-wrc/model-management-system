@@ -12,6 +12,7 @@ import Signup from './components/signup/Signup';
 import Login from './components/login/Login';
 import Activation from './components/signup/Activation';
 import Basic from './components/profile/Basic';
+import ChangePassword from './components/profile/ChangePassword';
 import ImageGallery from './components/profile/ImageGallery';
 import RequireAuth from './components/utils/RequireAuth';
 
@@ -21,20 +22,12 @@ import jwt_decode from 'jwt-decode';
 
 
 if (localStorage.token) {
-  
-  // Decode token and get user info and exp
   const decoded = jwt_decode(localStorage.token);
-  // Set user and isAuthenticated
   store.dispatch(setCurrentUser(decoded));
-
-  // Check for expired token
   const currentTime = Date.now() / 1000;
   if (decoded.exp < currentTime) {
-    // Logout user
     store.dispatch(logoutUser());
-    // Clear current Profile
     store.dispatch(clearCurrentProfile());
-    // Redirect to login
     window.location.href = '/login';
   }
 }
@@ -53,6 +46,7 @@ class App extends Component {
             <AppRoutes exact path="/login" layout={Blank} component={Login} />
             <PrivateRoute exact path="/profile" layout={Dashboard} component={Basic} />
           <PrivateRoute exact path="/images" layout={Dashboard} component={ImageGallery} />
+          <PrivateRoute exact path="/change-password" layout={Dashboard} component={ChangePassword}/>
           </Switch>
         </BrowserRouter>
       </Provider>

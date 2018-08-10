@@ -47,6 +47,7 @@ class Login extends Component {
       }
     
       componentWillReceiveProps(nextProps) {
+        
         this.setState({
             showMessage: true,
             isLoading: false

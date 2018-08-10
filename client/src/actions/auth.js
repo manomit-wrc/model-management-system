@@ -4,13 +4,17 @@ import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { API_ROOT } from '../components/utils/ApiConfig';
 import { 
     SIGN_UP_SUCCESS, 
-    SIGN_UP_FAIL, 
+    SIGN_UP_FAIL,
+    CHANGE_PASSWORD_SUCCESS,
+    CHANGE_PASSWORD_FAIL, 
     ACTIVATION_SUCCESS, 
     ACTIVATION_FAIL, 
     VERIFY_ACTIVATION,
     LOGIN_FAIL,
     LOGIN_SUCCESS,
-    SET_CURRENT_USER
+    SET_CURRENT_USER,
+    USER_DETAILS,
+    INDUSTRIES
 } from './types';
 
 export function signup(data) {
@@ -34,6 +38,31 @@ export function signup(data) {
         catch(error) {
             dispatch({
                 type: SIGN_UP_FAIL,
+                payload: "Please try again"
+            });
+        }
+    }
+}
+
+export function changePassword(data){
+    return async (dispatch) => {
+        try{
+            const response = await axios.post(`${API_ROOT}/change-password`, data);
+            console.log(response)
+            if(response.data.success === true){
+                dispatch({
+                    type: CHANGE_PASSWORD_SUCCESS,
+                    payload: response.data
+                });
+            }else{
+                dispatch({
+                    type: CHANGE_PASSWORD_FAIL,
+                    payload: response.data
+                });
+            }
+        }catch(error){
+            dispatch({
+                type: CHANGE_PASSWORD_FAIL,
                 payload: "Please try again"
             });
         }
@@ -77,6 +106,7 @@ export function loginWithGoogle(data) {
             if(response.data.success === true) {
                 localStorage.setItem('token', response.data.token);
                 const decoded = jwt_decode(response.data.token);
+                decoded.info = response.data.info;
                 // Set current user
                 dispatch(setCurrentUser(decoded));
                 
@@ -141,10 +171,12 @@ export function verifyActivation(data) {
     return async (dispatch) => {
         const response = await axios.post(`${API_ROOT}/verify-activation`, data);
         if(response.data.success) {
-            dispatch({
-                type: VERIFY_ACTIVATION,
-                payload: response.data
-            });
+            localStorage.setItem('token', response.data.token);
+            const decoded = jwt_decode(response.data.token);
+            decoded.info = response.data.info;
+            
+            // Set current user
+            dispatch(setCurrentUser(decoded));
         }
     }
 }
@@ -168,5 +200,57 @@ export function uploadProfileImage(data) {
             //dispatch(hideLoading());
         }
         
+    }
+}
+
+export function uploadPortfolioImage(data) {
+    
+    let formdata = new FormData();
+    for(var i=0;i<data.length;i++) {
+        formdata.append('images', data[i]);
+    }
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/upload-portfolio-images`, formdata);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
+        
+    }
+}
+
+export function userDetails() {
+    try {
+        return async (dispatch) => {
+            const response = await axios.get(`${API_ROOT}/user-details`);
+            dispatch({
+                type: USER_DETAILS,
+                payload: response.data.user_details
+            });
+        }
+    }
+    catch(error) {
+        window.location.href = "/login"
+    }
+    
+}
+
+export function removePortfolioImage(data) {
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/remove-portfolio-image`, data);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
+    }
+}
+
+export function getIndustries() {
+    return async (dispatch) => {
+        const response = await axios.get(`${API_ROOT}/industries`);
+        dispatch({
+            type: INDUSTRIES,
+            payload: response.data.industries
+        })
     }
 }

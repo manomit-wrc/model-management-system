@@ -1391,6 +1391,40 @@ figure.effect-ming:hover ul {
 	display: none;
 }
 
+.profile .card-body .content-box form .file-field.profile-img img {
+    width: 200px;
+	height: 200px;
+}
+
+.middle {
+	transition: .5s ease;
+	opacity: 0;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	text-align: center;
+  }
+.portfolio-img:hover .img-fluid {
+	opacity: 0.3;
+  }
+  
+  .portfolio-img:hover .middle {
+	opacity: 1;
+  }
+
+
+  
+  .text {
+	background-color: #4CAF50;
+	color: white;
+	font-size: 16px;
+	padding: 16px 32px;
+  }
+
+
+
 @media only screen and (min-width: 1008px) {
 	.materialSelect .select {
 		transition: background 0.2s ease, border 0.2s ease, top 0.2s ease, height 0.2s ease, box-shadow 0.2s ease;
@@ -3973,3 +4007,9 @@ figure.effect-ming:hover ul {
 		width: 140px;
 	}
 /* End */
+.close {
+    padding:2px 5px;
+	background:#ccc;
+	text-align: center;
+	font-size: 13px;
+}

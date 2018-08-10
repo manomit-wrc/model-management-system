@@ -6,7 +6,11 @@ import {
     VERIFY_ACTIVATION,
     LOGIN_FAIL,
     LOGIN_SUCCESS,
-    SET_CURRENT_USER
+    SET_CURRENT_USER,
+    USER_DETAILS,
+    INDUSTRIES,
+    CHANGE_PASSWORD_SUCCESS,
+    CHANGE_PASSWORD_FAIL
 } from '../actions/types';
 import isEmpty from '../components/utils/is-empty';
 
@@ -15,7 +19,7 @@ const initialState = {
     user: {}
 };
 
-const authReducer = (state = {}, action) => {
+const authReducer = (state = initialState, action) => {
     switch(action.type) {
         case SIGN_UP_SUCCESS:
             return {
@@ -24,6 +28,16 @@ const authReducer = (state = {}, action) => {
             }
         case SIGN_UP_FAIL:
             return {
+                ...state,
+                data: action.payload
+            }
+        case CHANGE_PASSWORD_SUCCESS:
+            return{
+                ...state,
+                data: action.payload
+            }
+        case CHANGE_PASSWORD_FAIL:
+            return{
                 ...state,
                 data: action.payload
             }
@@ -59,6 +73,16 @@ const authReducer = (state = {}, action) => {
               isAuthenticated: !isEmpty(action.payload),
               user: action.payload
             };
+        case USER_DETAILS:
+            return {
+                ...state,
+                user_details: action.payload
+            }
+        case INDUSTRIES:
+            return {
+                ...state,
+                industries: action.payload
+            }
         default:
             return state
     }
