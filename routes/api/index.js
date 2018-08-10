@@ -23,6 +23,11 @@ var base64ToImage = require('base64-to-image');
 //for sending email
 const Mailjet = require('node-mailjet').connect('f6419360e64064bc8ea8c4ea949e7eb8', 'fde7e8364b2ba00150f43eae0851cc85');
 //end
+
+//for twilio
+const twilio = require('../../config/keys').twilio;
+//end
+
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'public/profile');
@@ -655,20 +660,42 @@ router.post('/profile/discipline', passport.authenticate('jwt', {session:false})
 
 router.post('/profile/trust', passport.authenticate('jwt', {session:false}), async (req,res) => {
   var user = await User.findOne({ _id: req.user.id});
-  
-  const trust = {
-    social_verification: req.body.social_verification,
-    mobile_verification: req.body.mobile_verification,
-    reviews: req.body.reviews
-  };
+  // console.log(user);
+  // return false;
+  if(user){
+    // console.log(user.phone_number);
+    // return false;
+    if(user.phone_number != '' && user.phone_number !== undefined) {
+      user.trust.mobile_verification = true;
+      
+      user.save();
+      res.json({
+        success: true,
+        code: 200,
+        message: "Trust uploaded successfully",
+        trust:{
+          mobile_verification: 1
+        }
+      });
+    }else{
+      res.json({
+        success: true,
+        code: 200,
+        // message: "Trust uploaded successfully",
+        trust:{
+          mobile_verification: 0
+        }
+      });
+    }
+  }else{
+    res.json({
+      success: false,
+      code: 300,
+      message: "Trust uploaded failed."
+    });
+  }
 
-  user.trust.unshift(trust);
-  user.save();
-  res.json({
-    success: true,
-    code: 200,
-    message: "Trust uploaded successfully"
-  });
+  
 });
 
 router.post('/profile/general-info-edit', passport.authenticate('jwt', {session: false}), async (req,res) =>{
@@ -1242,6 +1269,81 @@ router.post('/login-with-google', async(req, res) => {
   }
 })
 
+<<<<<<< HEAD
+router.post('/mobile_number_verification', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({_id: req.user.id});
+  if(user){
+    var user_phone_number;
+    var str1 = req.body.phone_number;
+    var str2 = "+";
+    if(str1.indexOf(str2) != -1){
+      user_phone_number = str1;
+    }else{
+      user_phone_number = "+" + str1;
+    }
+
+    var digits = 7;	
+    var numfactor = Math.pow(10, parseInt(digits-1));	
+    var randomNum =  Math.floor(Math.random() * numfactor) + 1;	
+
+    const accountSid = twilio.TWILIO_ACCOUNT_SID;
+    const authToken = twilio.TWILIO_AUTH_TOKEN;
+    var client = require('twilio')(accountSid,authToken);
+
+    try{
+      var send_sms = await client.messages.create({
+        from: '+12564877913', //twilio trail number
+        to: user_phone_number, //twilio verified number
+        body: `Your OTP is ${randomNum} for mobile number verification.`,
+        statusCallback: 'http://requestb.in/1234abcd'
+      });
+
+      if(send_sms.status == 'queued'){
+        user.otp = randomNum;
+        if(user.save()){
+          res.json({
+            status: true,
+            code: 200,
+            message: "OTP send successfully."
+          });
+        }
+      }
+    }catch(e){
+      console.log(e);
+      res.json({
+        status: false,
+        code: 300,
+        message: "Mobile number is wrong."
+      });
+    }
+  }
+});
+
+router.post('/mobile_number_otp_verification', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({_id : req.user.id});
+  var otp = req.body.otp;
+  var ph_no = req.body.phone_number;
+
+  var ph_no_match = await User.findOne({otp : otp});
+  if(ph_no_match){
+    user.phone_number = ph_no;
+    if(user.save()){
+      res.json({
+        status: true,
+        code: 200,
+        message : "Mobile number verification successfully."
+      })
+    }
+  }else{
+    res.json({
+      status: false,
+      code: 300,
+      message : "OTP doesn't match."
+    })
+  }
+});
+
+=======
 router.get('/user-details', passport.authenticate('jwt', { session: false }), async(req, res) => {
   const user = await User.findById(req.user.id);
   res.json({
@@ -1277,5 +1379,6 @@ router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: f
 //   res.send("Done");
 // });
 
+>>>>>>> 7cf0bd8500f36d91c68e3f7a0b5f4c2940c72f67
 module.exports = router;
 
