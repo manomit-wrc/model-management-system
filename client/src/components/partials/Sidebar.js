@@ -61,13 +61,14 @@ class Sidebar extends Component {
                                 Followers
                             </a>
                         </li>
-                        <li>
-                            <a href="profile7.html">
+                        <li className={"" + (this.props.pathName === "/change-password" ? 'active' : '')}>
+                            <Link to="/change-password">
                                 <i className="material-icons">
                                     lock
                                 </i>
                                 Change Password
-                            </a>
+                            </Link>
+                            
                         </li>
                         <li>
                             <a href="profile8.html">

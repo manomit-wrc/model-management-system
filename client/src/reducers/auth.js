@@ -8,7 +8,9 @@ import {
     LOGIN_SUCCESS,
     SET_CURRENT_USER,
     USER_DETAILS,
-    INDUSTRIES
+    INDUSTRIES,
+    CHANGE_PASSWORD_SUCCESS,
+    CHANGE_PASSWORD_FAIL
 } from '../actions/types';
 import isEmpty from '../components/utils/is-empty';
 
@@ -26,6 +28,16 @@ const authReducer = (state = initialState, action) => {
             }
         case SIGN_UP_FAIL:
             return {
+                ...state,
+                data: action.payload
+            }
+        case CHANGE_PASSWORD_SUCCESS:
+            return{
+                ...state,
+                data: action.payload
+            }
+        case CHANGE_PASSWORD_FAIL:
+            return{
                 ...state,
                 data: action.payload
             }

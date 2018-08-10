@@ -4,7 +4,9 @@ import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { API_ROOT } from '../components/utils/ApiConfig';
 import { 
     SIGN_UP_SUCCESS, 
-    SIGN_UP_FAIL, 
+    SIGN_UP_FAIL,
+    CHANGE_PASSWORD_SUCCESS,
+    CHANGE_PASSWORD_FAIL, 
     ACTIVATION_SUCCESS, 
     ACTIVATION_FAIL, 
     VERIFY_ACTIVATION,
@@ -36,6 +38,31 @@ export function signup(data) {
         catch(error) {
             dispatch({
                 type: SIGN_UP_FAIL,
+                payload: "Please try again"
+            });
+        }
+    }
+}
+
+export function changePassword(data){
+    return async (dispatch) => {
+        try{
+            const response = await axios.post(`${API_ROOT}/change-password`, data);
+            console.log(response)
+            if(response.data.success === true){
+                dispatch({
+                    type: CHANGE_PASSWORD_SUCCESS,
+                    payload: response.data
+                });
+            }else{
+                dispatch({
+                    type: CHANGE_PASSWORD_FAIL,
+                    payload: response.data
+                });
+            }
+        }catch(error){
+            dispatch({
+                type: CHANGE_PASSWORD_FAIL,
                 payload: "Please try again"
             });
         }

@@ -81,10 +81,10 @@ class Signup extends Component {
     }
 
     handleSubmit(e) {
-        console.log(e);
         this.setState({ isLoading: true });
         this.props.signup(e);
     }
+    
     renderMessage() {
         if(this.state.showMessage === true) {
             if(this.props.data.success === true) {
