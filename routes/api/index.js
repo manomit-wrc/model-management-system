@@ -1269,7 +1269,6 @@ router.post('/login-with-google', async(req, res) => {
   }
 })
 
-<<<<<<< HEAD
 router.post('/mobile_number_verification', passport.authenticate('jwt', {session : false}), async (req,res) => {
   var user = await User.findOne({_id: req.user.id});
   if(user){
@@ -1343,7 +1342,6 @@ router.post('/mobile_number_otp_verification', passport.authenticate('jwt', {ses
   }
 });
 
-=======
 router.get('/user-details', passport.authenticate('jwt', { session: false }), async(req, res) => {
   const user = await User.findById(req.user.id);
   res.json({
@@ -1379,6 +1377,5 @@ router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: f
 //   res.send("Done");
 // });
 
->>>>>>> 7cf0bd8500f36d91c68e3f7a0b5f4c2940c72f67
 module.exports = router;
 
