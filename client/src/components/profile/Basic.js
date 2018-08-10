@@ -12,7 +12,6 @@ class Basic extends Component {
     }
     componentDidMount() {
         
-        console.log("In Basic",this.props);
         this.props.userDetails();
     }
 
