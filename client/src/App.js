@@ -24,6 +24,8 @@ const Activation = asyncComponent(() => { return import('./components/signup/Act
 
 const Basic = asyncComponent(() => { return import('./components/profile/Basic'); });
 
+const Additional = asyncComponent(() => { return import('./components/profile/Additional'); });
+
 const ChangePassword = asyncComponent(() => { return import('./components/profile/ChangePassword'); });
 
 const ImageGallery = asyncComponent(() => { return import('./components/profile/ImageGallery'); });
@@ -44,6 +46,7 @@ if (localStorage.token) {
 class App extends Component {
   
   
+  
   render() {
     return (
       <Provider store={store}>
@@ -53,7 +56,8 @@ class App extends Component {
             <AppRoutes exact path="/signup" layout={Blank} component={Signup} />
             <AppRoutes exact path="/verify/:activation_id" layout={Layout} component={Activation} />
             <AppRoutes exact path="/login" layout={Blank} component={Login} />
-            <PrivateRoute exact path="/profile" layout={Dashboard} component={Basic} />
+          <PrivateRoute exact path="/profile" layout={Dashboard} component={Basic} />
+          <PrivateRoute exact path="/profile2" layout={Dashboard} component={Additional} />
           <PrivateRoute exact path="/images" layout={Dashboard} component={ImageGallery} />
           <PrivateRoute exact path="/change-password" layout={Dashboard} component={ChangePassword}/>
           </Switch>

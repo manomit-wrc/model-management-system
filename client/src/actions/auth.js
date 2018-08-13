@@ -16,7 +16,8 @@ import {
     USER_DETAILS,
     INDUSTRIES,
     COUNTRIES,
-    STATES
+    STATES,
+    UPDATE_USER_DETAILS
 } from './types';
 
 export function signup(data) {
@@ -273,5 +274,15 @@ export function getStates(data) {
             type: STATES,
             payload: response.data.states
         })
+    }
+}
+
+export function updateUserDetails(data) {
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/update-user-details`, data);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
     }
 }

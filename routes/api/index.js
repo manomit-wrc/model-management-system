@@ -75,7 +75,7 @@ router.post('/signup',  async (req, res) => {
             email: req.body.email,
             avatar,
             password: req.body.password,
-            industry: req.body.industries,
+            industry: req.body.industry,
             reg_type: 'R',
             activation_link
           });
@@ -1386,6 +1386,26 @@ router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: f
     });
   }
 });
+
+router.post('/update-user-details', passport.authenticate('jwt', { session: false }), async(req, res) => {
+  const user = await User.findById(req.user.id);
+  user.first_name = req.body.first_name;
+  user.last_name = req.body.last_name;
+  user.city = req.body.city;
+  user.state = req.body.state;
+  user.country = req.body.country;
+  user.pincode = parseInt(req.body.pincode);
+  user.industry = req.body.industry
+  user.gender = req.body.gender;
+  user.description = req.body.description;
+  user.location = req.body.location;
+  user.phone_number = parseInt(req.body.phone_number)
+  user.save();
+  res.json({
+    success: true,
+    user_details: user
+  });
+})
 
 // router.get('/test', (req, res) => {
 //   const Ethnticity = require('../../models/HairColor');
