@@ -3,7 +3,12 @@ import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import _ from 'lodash';
 import LoaderButton from '../../components/utils/LoaderButton';
-import { userDetails, getIndustries } from '../../actions/auth';
+import { 
+    userDetails, 
+    getIndustries, 
+    getCountries,
+    getStates 
+} from '../../actions/auth';
 
 
 const validate = values => {
@@ -28,10 +33,11 @@ const validate = values => {
 }
 
 
-const renderField = ({ input, label, type, value, meta: { touched, error, warning } }) => (
+const renderField = ({ input, label, type, meta: { touched, error, warning } }) => (
+    
     <Fragment>
         <label className="">{label}</label>
-        <input {...input} type={type} className="form-control" value={value} />
+        <input {...input} type={type} className="form-control"/>
         {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
     </Fragment>
     
@@ -47,8 +53,8 @@ const renderTextArea = ({ input, label, value, meta: { touched, error, warning }
 
 const renderSelectField = ({ input, label, meta: { touched, error, warning }, children }) => (
     <Fragment>
+        <label>{label}</label>
         <select {...input} className="form-control">
-          <option value="">Please select who you are</option>  
           {children}
         </select>
         {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
@@ -60,42 +66,46 @@ class Basic extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: {}
+            isLoading:false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
+        
     }
+    
     componentWillMount() {
-        this.props.getIndustries();
-    }
-    componentDidMount() {
         this.props.userDetails();
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({ user: nextProps.auth.user_details})
+        this.props.getIndustries();
+        this.props.getCountries();
+        let data = {};
+        data.country = "5b4f4c85a8b5d36b2eda9cad";
+        this.props.getStates(data);
     }
 
     handleSubmit(e) {
         
     }
 
+    
     render() {
-
+        
         const { handleSubmit } = this.props;
+        
+        
         return (
             <div className="col-md-9">
                 <div className="main">
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
-                            <div className="md-form">
-                                <Field name="first_name" component={renderField} label="First Name" type="text" value="Manomit" />
+                           
+                            <div>
+                                <Field name="first_name" component={renderField} label="First Name" type="text" />
                             </div>
-                            <div className="md-form">
-                                <Field name="last_name" component={renderField} label="Last Name" type="text" value="Manomit" />
+                            <div>
+                                <Field name="last_name" component={renderField} label="Last Name" type="text" />
                             </div>
-                            <div className="md-form">
+                            <div>
                                 
-                                <Field name="description" component={renderTextArea} label="About Me" value="" />
+                                <Field name="description" component={renderTextArea} label="About Me"/>
                             </div>
                             <div className="custom-control custom-radio custom-control-inline">
                                 <input type="radio" className="custom-control-input" id="defaultInline1" name="inlineDefaultRadiosExample" />
@@ -105,8 +115,12 @@ class Basic extends Component {
                                 <input type="radio" className="custom-control-input" id="defaultInline2" name="inlineDefaultRadiosExample" />
                                 <label className="custom-control-label" htmlFor="defaultInline2">Female</label>
                             </div>
-                            <div className="md-form">
-                                <Field name="industry" component={renderSelectField}>
+                            <div>
+                                
+                                <Field name="location" component={renderTextArea} label="Location"/>
+                            </div>
+                            <div>
+                                <Field name="industry" component={renderSelectField} label="Please select who you are">
                                     { 
                                         _.map(this.props.industries, (ind, index) => {
                                             return <option key={index} value={ind._id}>{ind.name}</option>
@@ -114,10 +128,34 @@ class Basic extends Component {
                                     }
                                 </Field>
                             </div>
+
+                            <div>
+                                <Field name="country" id="country" ref="country" component={renderSelectField} label="Select Country">
+                                    { 
+                                        _.map(this.props.countries, (ind, index) => {
+                                            return <option key={index} value={ind._id}>{ind.name}</option>
+                                        })
+                                    }
+                                </Field>
+                            </div>
+
+                            <div>
+                                <Field name="state" id="state" component={renderSelectField} label="Select State">
+                                    { 
+                                        _.map(this.props.states, (ind, index) => {
+                                            return <option key={index} value={ind._id}>{ind.name}</option>
+                                        })
+                                    }
+                                </Field>
+                            </div>
+
+                            <div>
+                                <Field name="city" component={renderField} label="City" type="text" value="" />
+                            </div>
                             
                             
                             
-                            <div className="md-form">
+                            <div>
                             <LoaderButton
                                 type="submit"
                                 isLoading={this.state.isLoading}
@@ -133,14 +171,23 @@ class Basic extends Component {
     }
 }
 
+
 const mapStateToProps = (state) => {
     return {
+        initialValues: state.auth.user_details,
         auth: state.auth,
-        industries: state.auth.industries
+        industries: state.auth.industries,
+        countries: state.auth.countries,
+        states: state.auth.states
     }
 }
 
-Basic = connect(mapStateToProps, { userDetails, getIndustries })(reduxForm({
+Basic = connect(mapStateToProps, { 
+    userDetails, 
+    getIndustries, 
+    getCountries,
+    getStates 
+})(reduxForm({
     form: 'basic_profile',
     validate,
     destroyOnUnmount: true

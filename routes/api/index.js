@@ -17,6 +17,8 @@ const Admin = require('../../models/Admin').Admin;
 const Banner = require('../../models/Banner');
 const Category = require('../../models/Category');
 const Brand = require('../../models/Brand');
+const State = require('../../models/State');
+const Country = require('../../models/Country');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -603,6 +605,26 @@ router.get('/industries', async (req, res) => {
       industries: data
     });
 });
+
+router.get('/countries', async(req, res) => {
+  const data = await Country.find({});
+  res.send({
+    success: true,
+    code: 200,
+    countries: data
+  })
+});
+
+router.post('/states', async(req, res) => {
+  const data = await State.find({
+    country: req.body.country
+  });
+  res.send({
+    success: true,
+    code: 200,
+    states: data
+  })
+})
 
 router.post('/profile/videos', passport.authenticate('jwt', { session: false }) , async (req, res) => {
   var user = await User.findOne({ _id: req.user.id});
