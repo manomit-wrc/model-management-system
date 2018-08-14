@@ -17,6 +17,12 @@ const Admin = require('../../models/Admin').Admin;
 const Banner = require('../../models/Banner');
 const Category = require('../../models/Category');
 const Brand = require('../../models/Brand');
+const Country = require('../../models/Country');
+const State = require('../../models/State');
+const Discipline = require('../../models/Discipline');
+const Ethnicity = require('../../models/Ethnicity');
+const Eyes = require('../../models/Eyes');
+const HairColor = require('../../models/HairColor');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -238,7 +244,8 @@ router.post('/signup/mobile',  async (req, res) => {
         email: req.body.email,
         avatar : 'http:'+avatar,
         password: req.body.password,
-        reg_type: 'R'
+        reg_type: 'R',
+        industry : req.body.industry
       });
   
         bcrypt.genSalt(10, (err, salt) => {
@@ -421,9 +428,10 @@ router.post('/registration-otp-varification', async (req,res) => {
 router.post('/login-mobile', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const industry = req.body.industry;
 
   // Find user by email
-  User.findOne({ email }).then(user => {
+  User.findOne({ email, industry:industry }).then(user => {
     // Check for user
     if (!user) {
         return res.json({ success: false, code: 404, message: 'User not found'});
@@ -604,59 +612,112 @@ router.get('/industries', async (req, res) => {
     });
 });
 
-router.post('/profile/videos', passport.authenticate('jwt', { session: false }) , async (req, res) => {
+router.post('/profile/video-upload', passport.authenticate('jwt', { session: false }) , async (req, res) => {
   var user = await User.findOne({ _id: req.user.id});
-  user.videos = req.body.videos;
+
+  var videos_link = req.body.video;
+  var new_link = videos_link.replace('watch?v=', 'embed/');
+  user.videos.unshift(new_link);
   user.save();
   res.json({
     success: true,
     code: 200,
-    message: "Videos uploaded successfully"
+    message: "Video link uploaded successfully"
   });
 });
 
-router.post('/profile/info', passport.authenticate('jwt', { session: false }), async (req, res) => {
+router.post('/profile/fetch-allUploadedVideo', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({ _id: req.user.id});
+  if(user.videos != ''){
+    res.json({
+      status: true,
+      code : 200,
+      data : user.videos
+    });
+  }else{
+    res.json({
+      status: false,
+      code : 300,
+      message : "No recent videos link found."
+    });
+  }
+});
+
+router.post('/profile/delete-uploadedVideos', passport.authenticate('jwt', {session : false}), async (req,res) => {
   var user = await User.findOne({ _id: req.user.id});
 
-  const user_info = {
-    ethencity: req.body.ethencity,
-    gender: req.body.gender,
-    height: req.body.height,
-    eyes: req.body.eyes,
-    dress: req.body.dress,
-    shoes: req.body.shoes
-  };
-  user.info.unshift(user_info);
-  user.save();
-  res.json({
-    success: true,
-    code: 200,
-    message: "Info uploaded successfully"
-  });
+  var video_url = req.body.video_url;
+
+  var video_url_array = video_url.split(",");
+
+  for(var i = 0; i < video_url_array.length; i++){
+    var index = await user.videos.indexOf(video_url_array[i]);
+    if(index > -1) {
+      user.videos.splice(index, 1);
+      
+    }
+    
+
+    if(i == video_url_array.length - 1) {
+      user.save();
+
+      res.json({
+        success: true,
+        code: 200,
+        data: user.videos,
+        message: "Video link deleted successfully. "
+      });
+    }
+  }
 });
 
-router.post('/profile/discipline', passport.authenticate('jwt', {session:false}), async (req,res) => {
-  var user = await User.findOne({ _id: req.user.id});
+// router.post('/profile/info', passport.authenticate('jwt', { session: false }), async (req, res) => {
+//   var user = await User.findOne({ _id: req.user.id},{
+//     password: 0, otp: 0, activation_link: 0
+//   });
 
-  const discipline = {
-    lingerie: req.body.lingerie,
-    actors: req.body.actors,
-    glamour: req.body.glamour,
-    catalog: req.body.catalog,
-    commercial: req.body.commercial,
-    event: req.body.event,
-    foot: req.body.foot,
-    video: req.body.video,
-    petite: req.body.petite
-  };
-  user.discipline.unshift(discipline);
-  user.save();
-  res.json({
-    success: true,
-    code: 200,
-    message: "Discipline uploaded successfully"
-  });
-});
+//   console.log(user);
+//   return false;
+
+//   const user_info = {
+//     ethencity: req.body.ethencity,
+//     gender: req.body.gender,
+//     height: req.body.height,
+//     eyes: req.body.eyes,
+//     dress: req.body.dress,
+//     shoes: req.body.shoes
+//   };
+//   user.info.unshift(user_info);
+//   user.save();
+//   res.json({
+//     success: true,
+//     code: 200,
+//     message: "Info uploaded successfully"
+//   });
+// });
+
+// router.post('/profile/discipline', passport.authenticate('jwt', {session:false}), async (req,res) => {
+//   var user = await User.findOne({ _id: req.user.id});
+
+//   const discipline = {
+//     lingerie: req.body.lingerie,
+//     actors: req.body.actors,
+//     glamour: req.body.glamour,
+//     catalog: req.body.catalog,
+//     commercial: req.body.commercial,
+//     event: req.body.event,
+//     foot: req.body.foot,
+//     video: req.body.video,
+//     petite: req.body.petite
+//   };
+//   user.discipline.unshift(discipline);
+//   user.save();
+//   res.json({
+//     success: true,
+//     code: 200,
+//     message: "Discipline uploaded successfully"
+//   });
+// });
 
 router.post('/profile/trust', passport.authenticate('jwt', {session:false}), async (req,res) => {
   var user = await User.findOne({ _id: req.user.id});
@@ -698,29 +759,29 @@ router.post('/profile/trust', passport.authenticate('jwt', {session:false}), asy
   
 });
 
-router.post('/profile/general-info-edit', passport.authenticate('jwt', {session: false}), async (req,res) =>{
-  var user = await User.findOne({ _id: req.user.id});
-  user.first_name = req.body.first_name;
-  user.last_name = '';
-  // user.email = req.body.email;
-  user.description = req.body.description;
-  user.location = req.body.location;
-  user.city = req.body.city;
+// router.post('/profile/general-info-edit', passport.authenticate('jwt', {session: false}), async (req,res) =>{
+//   var user = await User.findOne({ _id: req.user.id});
+//   user.first_name = req.body.first_name;
+//   user.last_name = '';
+//   // user.email = req.body.email;
+//   user.description = req.body.description;
+//   user.location = req.body.location;
+//   user.city = req.body.city;
 
-  if(user.save()){
-    res.json({
-      success: true,
-      code: 200,
-      message: "Profile updated successfully."
-    });
-  }else{
-    res.json({
-      success: false,
-      code: 300,
-      message: "Edit failed."
-    });
-  }
-});
+//   if(user.save()){
+//     res.json({
+//       success: true,
+//       code: 200,
+//       message: "Profile updated successfully."
+//     });
+//   }else{
+//     res.json({
+//       success: false,
+//       code: 300,
+//       message: "Edit failed."
+//     });
+//   }
+// });
 
 router.post('/change-password', passport.authenticate('jwt', {session : false}), (req,res) => {
   var new_password_with_hashing;
@@ -781,6 +842,10 @@ router.post('/all-user-list', async (req,res) =>{
       res.json({
         success: true,
         all_model_list: user_list
+        // height: user_list.info['height'] ? user_list.info['height'] : '0.0',
+        // age : user_list.info['age'] ? user_list.info['age'] : '0',
+        // weight : user_list.info['weight'] ? user_list.info['weight'] : '0',
+        // heap : user_list.info['heap'] ? user_list.info['heap'] : '0'
       });
     }else{
       res.json({
@@ -1070,6 +1135,90 @@ router.post('/profile/image-upload', passport.authenticate('jwt', {session: fals
   }
 });
 
+router.post('/profile/portfolio-image-upload', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  // let portfolio_arr = [];
+
+  var user = await User.findOne({_id: req.user.id});
+
+  var base64Str = req.body.profile_portfolio_image;
+  
+  // var base64Str = req.body.profile_image.replace(/^data:image\/jpeg+;base64,/, "");
+  base64Str1 = base64Str.replace(/ /g, '+');
+
+  let base64ImageMimeType = base64Str1.split(';base64,');
+  var type = base64ImageMimeType[0].split(':image/');
+
+  var path ='public/app_portfolio_image/';
+
+  var imageFileName = req.user.id + '-' + Date.now();
+  var optionalObj = {'fileName': imageFileName, 'type': type[1]};
+  var uploadImage = base64ToImage(base64Str1,path,optionalObj);
+
+  var full_image_path = req.headers.host + '/app_portfolio_image/' + uploadImage.fileName;
+
+  var final_link = 'http://'+full_image_path;
+
+  user.images.unshift(final_link);
+
+  if(user.save()){
+    res.json({
+      success: true,
+      code:200,
+      message: "Image uploaded successfully."
+    });
+  }else{
+    res.json({
+      success: false,
+      code: 300,
+      message: "Something went wrong."
+    });
+  }
+});
+
+router.get('/profile/fetch-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({_id: req.user.id});
+  if(user){
+    if(user.images != '') {
+      res.json({
+        status: true,
+        code: 200,
+        data: user.images
+      });
+    }else{
+      res.json({
+        status: false,
+        code: 300,
+        message : "No records found."
+      });
+    }
+  }
+});
+
+router.post('/profile/delete-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  const user = await User.findById(req.user.id);
+  var image_url = req.body.imageUri;
+
+  var make_image_array = image_url.split(",");
+
+  for(var i = 0; i < make_image_array.length; i++){
+    var index = await user.images.indexOf(make_image_array[i]);
+    if(index > -1) {
+      user.images.splice(index, 1);
+      
+    }
+    user.save();
+
+    if(i == make_image_array.length - 1) {
+      res.json({
+        success: true,
+        code: 200,
+        data: user.images,
+        message: "Image deleted successfully. "
+      });
+    }
+  }
+});
+
 router.get('/home-page-details', async (req, res) => {
   const banner = await Banner.find({});
   const categories = await Category.find({});
@@ -1190,7 +1339,7 @@ router.post('/upload-portfolio-images', portfolio.any('images'), passport.authen
   const user = await User.findById(req.user.id);
   if(user) {
     portfolio_arr = user.images;
-    
+    console.log(portfolio_arr);
     for(var i=0; i<req.files.length; i++) {
       portfolio_arr.push(`${process.env.BASE_URL}/portfolio/${req.files[i].filename}`)
     }
@@ -1376,6 +1525,151 @@ router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: f
 //   }
 //   res.send("Done");
 // });
+
+router.get('/Country' , async (req,res) => {
+  var all_country = await Country.find();
+  if(all_country){
+    res.json({
+      status : true,
+      code : 200,
+      data : all_country
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "No countries found."
+    });
+  }
+});
+
+router.get('/State' , async (req,res) => {
+  var all_state = await State.find();
+  if(all_state){
+    res.json({
+      status : true,
+      code : 200,
+      data : all_state
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "No states found."
+    });
+  }
+});
+
+router.get('/Discipline' , async (req,res) => {
+  var all_Discipline = await Discipline.find();
+  if(all_Discipline){
+    res.json({
+      status : true,
+      code : 200,
+      data : all_Discipline
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "No Disciplines found."
+    });
+  }
+});
+
+router.get('/Ethnicity' , async (req,res) => {
+  var all_Ethnicity = await Ethnicity.find();
+  if(all_Ethnicity){
+    res.json({
+      status : true,
+      code : 200,
+      data : all_Ethnicity
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "No Ethnicity found."
+    });
+  }
+});
+
+router.get('/Eyes' , async (req,res) => {
+  var all_Eyes = await Eyes.find();
+  if(all_Eyes){
+    res.json({
+      status : true,
+      code : 200,
+      data : all_Eyes
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "No Eyes found."
+    });
+  }
+});
+
+router.get('/HairColor' , async (req,res) => {
+  var all_HairColor = await HairColor.find();
+  if(all_HairColor){
+    res.json({
+      status : true,
+      code : 200,
+      data : all_HairColor
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "No HairColor found."
+    });
+  }
+});
+
+router.post('/profile/edit-details', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({_id : req.user.id});
+
+  user.first_name = req.body.first_name;
+  user.description = req.body.description;
+  user.location = req.body.location;
+  user.city = req.body.city;
+  user.gender = req.body.gender;
+  user.country = req.body.country;
+  user.industry = req.body.industry;
+  user.state = req.body.state;
+  user.pincode = req.body.pincode;
+  user.ethnicity = req.body.ethnicity;
+  user.discipline = req.body.discipline;
+  user.eye = req.body.eye;
+  user.hair_color = req.body.hair_color;
+
+  user.info = {
+    height: req.body.height,
+    dress: req.body.dress,
+    shoes: req.body.shoes,
+    weight: req.body.weight,
+    heap: req.body.heap,
+    age: req.body.age,
+    chest: req.body.chest
+  };
+
+  if(user.save()){
+    res.json({
+      status : true,
+      code : 200,
+      data : user,
+      message : "Profile updated successfully."
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "Profile update failed."
+    });
+  }
+});
 
 module.exports = router;
 

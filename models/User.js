@@ -38,7 +38,8 @@ const userSchema = new Schema({
             shoes: { type: String },
             weight: { type: String },
             heap: { type: String },
-            age: { type: Number }
+            age: { type: Number },
+            chest: { type: Number }
         }
     ],
     status: { type: Number, default: 0},
