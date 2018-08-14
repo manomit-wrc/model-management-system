@@ -37,9 +37,11 @@ const validate = values => {
 
 const renderField = ({ input, label, type, meta: { touched, error, warning } }) => (
     <Fragment>
-        <label className="">{label}</label>
-        <input {...input} type={type} className="form-control" />
-        {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
+        <div className={touched && error ? "has-danger": ""}>
+            <label className="">{label}</label>
+            <input {...input} type={type} className="form-control" />
+            {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
+        </div>
     </Fragment>
     
 )
@@ -110,17 +112,17 @@ class ChangePassword extends Component{
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
                             {this.renderMessage()}
                             
-                            <div className="md-form">
+                            <div className="form-group">
                                 <Field name="old_password" component={renderField} label="Old Password" type="password" />
                             </div>
-                            <div className="md-form">
+                            <div className="form-group">
                                 <Field name="new_password" component={renderField} label="New Password" type="password" />
                             </div>
-                            <div className="md-form">
+                            <div className="form-group">
                                 <Field name="confirm_password" component={renderField} label="Confirm Password" type="password" />
                             </div>
                             
-                            <div className="md-form">
+                            <div className="form-group">
                                 <LoaderButton
                                     type="submit"
                                     isLoading={this.state.isLoading}

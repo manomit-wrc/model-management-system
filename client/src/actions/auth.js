@@ -14,7 +14,10 @@ import {
     LOGIN_SUCCESS,
     SET_CURRENT_USER,
     USER_DETAILS,
-    INDUSTRIES
+    INDUSTRIES,
+    COUNTRIES,
+    STATES,
+    UPDATE_USER_DETAILS
 } from './types';
 
 export function signup(data) {
@@ -251,5 +254,35 @@ export function getIndustries() {
             type: INDUSTRIES,
             payload: response.data.industries
         })
+    }
+}
+
+export function getCountries() {
+    return async (dispatch) => {
+        const response = await axios.get(`${API_ROOT}/countries`);
+        dispatch({
+            type: COUNTRIES,
+            payload: response.data.countries
+        })
+    }
+}
+
+export function getStates(data) {
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/states`, data);
+        dispatch({
+            type: STATES,
+            payload: response.data.states
+        })
+    }
+}
+
+export function updateUserDetails(data) {
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/update-user-details`, data);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
     }
 }

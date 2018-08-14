@@ -12,6 +12,7 @@ import {
 } from '../../actions/auth';
 
 
+
 const validate = values => {
     const errors = {}
     if (!values.first_name) {
@@ -113,7 +114,7 @@ const renderRadio = ({ input, label, type, id, meta: { touched, error, warning }
     </Fragment>
 )
 
-class Basic extends Component {
+class Additional extends Component {
 
     constructor(props) {
         super(props);
@@ -154,7 +155,15 @@ class Basic extends Component {
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
                            
                             <div className="form-group">
-                                <Field name="first_name" component={renderField} label="First Name" type="text" />
+                            <select className="mdb-select colorful-select dropdown-primary" multiple searchable="Search here..">
+                                <option value="" disabled defaultValue>Choose your country</option>
+                                <option value="1">USA</option>
+                                <option value="2">Germany</option>
+                                <option value="3">France</option>
+                                <option value="4">Poland</option>
+                                <option value="5">Japan</option>
+                            </select>
+                            <label>Label example</label>
                             </div>
                             <div>
                                 <Field name="last_name" component={renderField} label="Last Name" type="text" />
@@ -244,7 +253,7 @@ const mapStateToProps = (state) => {
     }
 }
 
-Basic = connect(mapStateToProps, { 
+Additional = connect(mapStateToProps, { 
     userDetails, 
     getIndustries, 
     getCountries,
@@ -254,6 +263,6 @@ Basic = connect(mapStateToProps, {
     form: 'basic_profile',
     validate,
     destroyOnUnmount: true
-})(Basic))
+})(Additional))
 
-export default Basic;
+export default Additional;

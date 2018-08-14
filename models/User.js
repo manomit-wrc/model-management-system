@@ -14,6 +14,7 @@ const userSchema = new Schema({
     industry: { type: Schema.Types.ObjectId, ref: 'Industry' },
     otp: { type: Number},
     city: { type: String },
+    pincode: { type: Number },
     state: { type: Schema.Types.ObjectId, ref: 'State' },
     country: { type: Schema.Types.ObjectId, ref: 'Country' },
     ethnicity: { type: Schema.Types.ObjectId, ref: 'Ethnicity'},

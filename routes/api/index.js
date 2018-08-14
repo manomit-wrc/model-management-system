@@ -17,12 +17,12 @@ const Admin = require('../../models/Admin').Admin;
 const Banner = require('../../models/Banner');
 const Category = require('../../models/Category');
 const Brand = require('../../models/Brand');
-const Country = require('../../models/Country');
 const State = require('../../models/State');
-const Discipline = require('../../models/Discipline');
-const Ethnicity = require('../../models/Ethnicity');
-const Eyes = require('../../models/Eyes');
+const Country = require('../../models/Country');
 const HairColor = require('../../models/HairColor');
+const Eyes = require('../../models/Eyes');
+const Ethnicity = require('../../models/Ethnicity');
+const Discipline = require('../../models/Discipline');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -79,7 +79,7 @@ router.post('/signup',  async (req, res) => {
             email: req.body.email,
             avatar,
             password: req.body.password,
-            industry: req.body.industries,
+            industry: req.body.industry,
             reg_type: 'R',
             activation_link
           });
@@ -1514,6 +1514,26 @@ router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: f
   }
 });
 
+router.post('/update-user-details', passport.authenticate('jwt', { session: false }), async(req, res) => {
+  const user = await User.findById(req.user.id);
+  user.first_name = req.body.first_name;
+  user.last_name = req.body.last_name;
+  user.city = req.body.city;
+  user.state = req.body.state;
+  user.country = req.body.country;
+  user.pincode = parseInt(req.body.pincode);
+  user.industry = req.body.industry
+  user.gender = req.body.gender;
+  user.description = req.body.description;
+  user.location = req.body.location;
+  user.phone_number = parseInt(req.body.phone_number)
+  user.save();
+  res.json({
+    success: true,
+    user_details: user
+  });
+})
+
 // router.get('/test', (req, res) => {
 //   const Ethnticity = require('../../models/HairColor');
 //   let arr = ['Auburn', 'Black', 'Blonde', 'Brown', 'Cendre', 'Chestnut', 'Dark', 'Dark Blonde', 'Dark Brown', 'Grey', 'Hazel', 'Light Blonde', 'Light Brown', 'Medium Blonde', 'Platinum Blonde', 'Red', 'Red Blonde', 'Red Brown', 'Salt and Pepper', 'Strawberry Blonde'];
@@ -1525,6 +1545,26 @@ router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: f
 //   }
 //   res.send("Done");
 // });
+
+router.get('/countries', async(req, res) => {
+  const data = await Country.find({});
+  res.send({
+    success: true,
+    code: 200,
+    countries: data
+  })
+});
+
+router.post('/states', async(req, res) => {
+  const data = await State.find({
+    country: req.body.country
+  });
+  res.send({
+    success: true,
+    code: 200,
+    states: data
+  })
+})
 
 router.get('/Country' , async (req,res) => {
   var all_country = await Country.find();

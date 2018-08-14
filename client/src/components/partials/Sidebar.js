@@ -21,12 +21,12 @@ class Sidebar extends Component {
                             </Link>
                         </li>
                         <li className={"" + (this.props.pathName === "/profile2" ? 'active' : '')}>
-                            <a href="profile2.html">
+                            <Link to="/profile2">
                                 <i className="material-icons">
-                                    info
+                                        info
                                 </i>
-                                Additional Details
-                            </a>
+                                Addtional Information
+                            </Link>
                         </li>
                         <li className={"" + (this.props.pathName === "/images" ? 'active' : '')}>
                             <Link to="/images">
