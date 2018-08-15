@@ -19,6 +19,11 @@ const Category = require('../../models/Category');
 const Brand = require('../../models/Brand');
 const State = require('../../models/State');
 const Country = require('../../models/Country');
+const Ethnicity = require('../../models/Ethnicity');
+const Catalog = require('../../models/Catalog');
+const Discipline = require('../../models/Discipline');
+const Eyes = require('../../models/Eyes');
+const HairColor = require('../../models/HairColor');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -1404,6 +1409,23 @@ router.post('/update-user-details', passport.authenticate('jwt', { session: fals
   res.json({
     success: true,
     user_details: user
+  });
+})
+
+router.get('/additional-masters', async(req, res) => {
+  const ethnicity = await Ethnicity.find({});
+  const catalog = await Catalog.find({});
+  const discipline = await Discipline.find({});
+  const eyes = await Eyes.find({});
+  const hair_color = await HairColor.find({});
+
+  res.json({
+    success: true,
+    ethnicity: ethnicity,
+    catalog: catalog,
+    discipline: discipline,
+    eyes: eyes,
+    hair_color: hair_color
   });
 })
 

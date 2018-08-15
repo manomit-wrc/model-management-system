@@ -1,6 +1,8 @@
 import axios from '../axios-order';
+import { API_ROOT } from '../components/utils/ApiConfig';
 
-import { USER_AUTH_TOKEN, CLEAR_CURRENT_PROFILE } from './types';
+import { USER_AUTH_TOKEN, CLEAR_CURRENT_PROFILE, ADDITIONAL_MASTERS } from './types';
+
 
 export function userAuthToken(history) {
     return async (dispatch) => {
@@ -24,3 +26,13 @@ export const clearCurrentProfile = () => {
       type: CLEAR_CURRENT_PROFILE
     };
 };
+
+export function getAdditionalMasters() {
+    return async (dispatch) => {
+        const response = await axios.get(`${API_ROOT}/additional-masters`);
+        dispatch({
+            type: ADDITIONAL_MASTERS,
+            payload: response.data
+        })
+    }
+}

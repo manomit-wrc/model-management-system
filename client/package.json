@@ -31,6 +31,7 @@
     "jquery": "^3.3.1",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.10",
+    "material-ui-superselectfield": "^1.9.8",
     "mdbreact": "^4.6.1",
     "object-assign": "4.1.1",
     "postcss-flexbugs-fixes": "3.2.0",

@@ -1,7 +1,8 @@
-import { USER_AUTH_TOKEN, CLEAR_CURRENT_PROFILE } from '../actions/types';
+import { USER_AUTH_TOKEN, CLEAR_CURRENT_PROFILE, ADDITIONAL_MASTERS } from '../actions/types';
 
 const initialState = {
-    profile: null
+    profile: null,
+    additional_masters: {}
   };
 
 
@@ -18,6 +19,11 @@ const profileReducer = (state = initialState, action) => {
               ...state,
               profile: null
             };
+        case ADDITIONAL_MASTERS:
+            return {
+                ...state,
+                additional_masters: action.payload
+            }
         default:
             return state;
     }

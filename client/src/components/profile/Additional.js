@@ -1,66 +1,40 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
+import SuperSelectField from 'material-ui-superselectfield';
+import FlatButton from 'material-ui/FlatButton/FlatButton';
+import Slider from 'react-rangeslider';
 import _ from 'lodash';
 import LoaderButton from '../../components/utils/LoaderButton';
-import { 
-    userDetails, 
-    getIndustries, 
-    getCountries,
-    getStates,
-    updateUserDetails 
-} from '../../actions/auth';
+import { getAdditionalMasters } from '../../actions/profile';
+import { userDetails } from '../../actions/auth';
+
 
 
 
 const validate = values => {
     const errors = {}
-    if (!values.first_name) {
-      errors.first_name = 'Please enter first name'
-    } else if (values.first_name.length < 2) {
-      errors.first_name = 'Minimum be 2 characters or more'
+    if (values.discipline && values.discipline.length === 0 || (values.discipline === undefined)) {
+        errors.discipline = 'Please select one or more discipline'
     }
-    if (!values.last_name) {
-        errors.last_name = 'Please enter last name'
-    } else if (values.last_name.length < 2) {
-        errors.last_name = 'Minimum be 2 characters or more'
+    if(values.catalog && values.catalog.length === 0 || (values.catalog === undefined)) {
+        errors.catalog = 'Please select one or more category';
     }
-    if (!values.description) {
-        errors.description = 'Please enter description'
+    if(!values.ethnicity) {
+        errors.ethnicity = "Please select your enthncity"
     }
-    if(!values.industry) {
-        errors.industry = 'Please select who you are';
+    if(!values.eye) {
+        errors.eye = "Please select your eye color"
     }
-    if(!values.location) {
-        errors.location = "Please enter your address"
-    }
-    if(!values.country) {
-        errors.country = "Please select your country"
-    }
-    if(!values.state) {
-        errors.state = "Please select your state"
+    if(!values.hair_color) {
+        errors.hair_color = "Please select your hair color"
     }
 
-    if(!values.city) {
-        errors.city = "Please enter your city"
+    if(!values.age) {
+        errors.age = "Please enter your age"
     }
-    if(!values.pincode) {
-        errors.pincode = "Please enter your pincode"
-    }
-    if(values.pincode && values.pincode.length !== 6) {
-        errors.pincode = "Should have 6 digits";
-    }
-    if(values.pincode && isNaN(values.pincode)) {
-        errors.pincode = "Should be number";
-    }
-    if(!values.phone_number) {
-        errors.phone_number = "Please enter your mobile no";
-    }
-    if(values.phone_number && values.phone_number.length !== 10) {
-        errors.phone_number = "Should have 10 digits";
-    }
-    if(values.phone_number && isNaN(values.phone_number)) {
-        errors.phone_number = "Should be number";
+    if(values.age && isNaN(values.age)) {
+        errors.age = "Should be number";
     }
    
     return errors
@@ -79,16 +53,6 @@ const renderField = ({ input, label, type, meta: { touched, error, warning } }) 
     
 )
 
-const renderTextArea = ({ input, label, value, meta: { touched, error, warning } }) => (
-    <Fragment>
-        <div className={touched && error ? "has-danger": ""}>
-            <label className="">{label}</label>
-            <textarea {...input} className="md-textarea form-control" rows="3">{value}</textarea>
-            {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
-        </div>
-    </Fragment>
-)
-
 const renderSelectField = ({ input, label, meta: { touched, error, warning }, children }) => (
     <Fragment>
         <div className={touched && error ? "has-danger": ""}>
@@ -103,35 +67,49 @@ const renderSelectField = ({ input, label, meta: { touched, error, warning }, ch
     </Fragment>
 )
 
-const renderRadio = ({ input, label, type, id, meta: { touched, error, warning }, children }) => (
+const renderMultiSelectField = ({ input, onselect, hintText, meta: { touched, error, warning }, children }) => (
     <Fragment>
         <div className={touched && error ? "has-danger": ""}>
             
-            <input {...input} id={id} type={type} className={"custom-control-input " + (touched && error ? "form-control-danger": "") }/>
-            <label className="custom-control-label" htmlFor={id}>{label}</label>
+            <SuperSelectField
+                {...input}
+                multiple
+                checkPosition='left'
+                className="form-control"
+                hintText={hintText}
+                onSelect={onselect}
+                style={{ minWidth: 150, marginTop: 40 }}
+                                menuCloseButton={<FlatButton label='close' hoverColor='lightSalmon' />}
+                >
+                {children}
+            </SuperSelectField>
             {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
         </div>
     </Fragment>
 )
+
+
+
 
 class Additional extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            isLoading:false
+            isLoading:false,
+            weight: 40,
+            height: 152,
+            heap: 36
         }
         this.handleSubmit = this.handleSubmit.bind(this);
-        
+        this.handleWeight = this.handleWeight.bind(this);
+        this.handleHeight = this.handleHeight.bind(this);
+        this.handleHeap = this.handleHeap.bind(this);
     }
     
     componentWillMount() {
         this.props.userDetails();
-        this.props.getIndustries();
-        this.props.getCountries();
-        let data = {};
-        data.country = "5b4f4c85a8b5d36b2eda9cad";
-        this.props.getStates(data);
+        this.props.getAdditionalMasters();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -139,15 +117,40 @@ class Additional extends Component {
     }
 
     handleSubmit(e) {
+        console.log(e);
         this.setState({ isLoading: true })
-        this.props.updateUserDetails(e);
+        
     }
+
+    handleWeight = value => {
+        this.setState({
+          weight: value
+        })
+      };
+
+
+    handleHeight = value => {
+        this.setState({
+            height: value
+        })
+    };
+
+    handleHeap = value => {
+        this.setState({
+            heap: value
+        })
+    }
+
+    handleSelection = (values, name) => console.log(values, name);
+
+
 
     
     render() {
         const { handleSubmit } = this.props;
-        
-        
+
+       
+
         return (
             <div className="col-md-9">
                 <div className="main">
@@ -155,77 +158,96 @@ class Additional extends Component {
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
                            
                             <div className="form-group">
-                            <select className="mdb-select colorful-select dropdown-primary" multiple searchable="Search here..">
-                                <option value="" disabled defaultValue>Choose your country</option>
-                                <option value="1">USA</option>
-                                <option value="2">Germany</option>
-                                <option value="3">France</option>
-                                <option value="4">Poland</option>
-                                <option value="5">Japan</option>
-                            </select>
-                            <label>Label example</label>
-                            </div>
-                            <div>
-                                <Field name="last_name" component={renderField} label="Last Name" type="text" />
-                            </div>
-                            <div>
-                                
-                                <Field name="description" component={renderTextArea} label="About Me"/>
-                            </div>
-                            <div className="custom-control custom-radio custom-control-inline">
-                                
-                                <Field name="gender" component={renderRadio} label="Male" id="defaultInline1" type="radio" value="M" />
-                            </div>
-                            <div className="custom-control custom-radio custom-control-inline">
-                                <Field name="gender" component={renderRadio} label="Female" id="defaultInline2" type="radio" value="F" />
-                            </div>
-                            <div>
-                                <Field name="phone_number" component={renderField} label="Mobile No" type="text" />
-                            </div>
-                            <div>
-                                
-                                <Field name="location" component={renderTextArea} label="Location"/>
-                            </div>
-                            <div>
-                                <Field name="industry" component={renderSelectField} label="Please select who you are">
+                            <Field name="discipline" 
+                                component={renderMultiSelectField} 
+                                hintText="Please select one or more disciplines"
+                                onselect={this.handleSelection.bind(this)}
+                            >
                                     { 
-                                        _.map(this.props.industries, (ind, index) => {
+                                        _.map(this.props.additional_masters.discipline, (ind, index) => {
+                                            return <div key={ind._id} label={ind.name} value={ind._id}>{ind.name}</div>
+                                        })
+                                    }
+                            </Field>  
+                            
+                            </div>
+                            <div className="form-group">
+                            <Field name="catalog" 
+                                component={renderMultiSelectField} 
+                                hintText="Please select one or more categories"
+                                onselect={this.handleSelection.bind(this)}
+                            >
+                                    { 
+                                        _.map(this.props.additional_masters.catalog, (ind, index) => {
+                                            return <div key={ind._id} label={ind.name} value={ind._id}>{ind.name}</div>
+                                        })
+                                    }
+                            </Field>  
+                            
+                            </div>
+                            <div className="form-group">
+                                <Field name="ethnicity" component={renderSelectField} label="Please select ethnticity">
+                                    { 
+                                        _.map(this.props.additional_masters.ethnicity, (ind, index) => {
                                             return <option key={index} value={ind._id}>{ind.name}</option>
                                         })
                                     }
                                 </Field>
                             </div>
-
-                            <div>
-                                <Field name="country" id="country" ref="country" component={renderSelectField} label="Select Country">
+                            <div className="form-group">
+                                <Field name="eye" component={renderSelectField} label="Please select your eye color">
                                     { 
-                                        _.map(this.props.countries, (ind, index) => {
+                                        _.map(this.props.additional_masters.eyes, (ind, index) => {
                                             return <option key={index} value={ind._id}>{ind.name}</option>
                                         })
                                     }
                                 </Field>
                             </div>
-
-                            <div>
-                                <Field name="state" id="state" component={renderSelectField} label="Select State">
+                            <div className="form-group">
+                                <Field name="hair_color" component={renderSelectField} label="Please select your hair color">
                                     { 
-                                        _.map(this.props.states, (ind, index) => {
+                                        _.map(this.props.additional_masters.hair_color, (ind, index) => {
                                             return <option key={index} value={ind._id}>{ind.name}</option>
                                         })
                                     }
                                 </Field>
                             </div>
-
-                            <div>
-                                <Field name="city" component={renderField} label="City" type="text"  />
+                            
+                            <div className="form-group">
+                                <Field name="age" component={renderField} label="Your age" type="number" />
                             </div>
 
-                             <div>
-                                <Field name="pincode" component={renderField} label="Pincode" type="text" />
+                            <div className="form-group">
+                                <label>Your weight ( Kg )</label>
+                                <Slider
+                                    name="weight"
+                                    min={0}
+                                    max={100}
+                                    value={this.state.weight}
+                                    onChange={this.handleWeight}
+                            />
                             </div>
-                            
-                            
-                            
+
+                            <div className="form-group">
+                                <label>Your height ( Cm )</label>
+                                <Slider
+                                    name="height"
+                                    min={0}
+                                    max={250}
+                                    value={this.state.height}
+                                    onChange={this.handleHeight}
+                            />
+                            </div>
+                            <div className="form-group">
+                                <label>Your heap ( Cm )</label>
+                                <Slider
+                                    name="heap"
+                                    min={0}
+                                    max={50}
+                                    value={this.state.heap}
+                                    onChange={this.handleHeap}
+                            />
+                            </div>
                             <div>
                             <LoaderButton
                                 type="submit"
@@ -246,21 +268,15 @@ class Additional extends Component {
 const mapStateToProps = (state) => {
     return {
         initialValues: state.auth.user_details,
-        auth: state.auth,
-        industries: state.auth.industries,
-        countries: state.auth.countries,
-        states: state.auth.states
+        additional_masters: state.profile.additional_masters
     }
 }
 
 Additional = connect(mapStateToProps, { 
     userDetails, 
-    getIndustries, 
-    getCountries,
-    getStates,
-    updateUserDetails 
+    getAdditionalMasters
 })(reduxForm({
-    form: 'basic_profile',
+    form: 'additional_profile',
     validate,
     destroyOnUnmount: true
 })(Additional))

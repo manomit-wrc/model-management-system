@@ -1447,6 +1447,10 @@ figure.effect-ming:hover ul {
     background-size: 1.125rem 1.125rem;
 }
 
+.rangeslider-horizontal .rangeslider__fill {
+	background-color: #45cafc !important;
+}
+
 @media only screen and (min-width: 1008px) {
 	.materialSelect .select {
 		transition: background 0.2s ease, border 0.2s ease, top 0.2s ease, height 0.2s ease, box-shadow 0.2s ease;
