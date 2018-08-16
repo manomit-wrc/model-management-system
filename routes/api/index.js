@@ -1529,9 +1529,10 @@ router.post('/update-user-details', passport.authenticate('jwt', { session: fals
   user.location = req.body.location;
   user.phone_number = parseInt(req.body.phone_number)
   user.save();
-  res.json({
+  return res.json({
     success: true,
-    user_details: user
+    code:200,
+    message: "Information updated sucessfully"
   });
 })
 
@@ -1728,6 +1729,80 @@ router.post('/profile/edit-details', passport.authenticate('jwt', {session : fal
     });
   }
 });
+
+router.get('/get-additional-details', 
+  passport.authenticate('jwt', {session : false}), 
+  (req,res) => {
+    const data = {};
+    User.findById(req.user.id)
+      .populate('catalog')
+      .populate('discipline')
+      .then(user => {
+        if(user) {
+          
+          data.age = user.info[0].age;
+          data.height = user.info[0].height;
+          data.weight = user.info[0].weight;
+          data.heap = user.info[0].heap;
+          data.ethnicity = user.ethnicity;
+    
+          
+          data.catalog = _.map(user.catalog, cat => {
+            return {
+              label: cat.name,
+              value: cat._id.toString()
+            }
+          });
+          data.discipline = _.map(user.discipline, disc => {
+            return {
+              label: disc.name,
+              value: disc._id.toString()
+            }
+          });
+          data.eye = user.eye;
+          data.hair_color = user.hair_color;
+    
+          return res.json({
+            success: true,
+            code: 200,
+            additional_details: data
+          })
+        }
+      });
+    
+})
+
+router.post('/update-additional-details',
+  passport.authenticate('jwt', {session : false}),
+  async (req,res) => {
+    const user = await User.findById(req.user.id);
+    if(user) {
+      const catalog = _.map(req.body.catalog, 'value');
+      const discipline = _.map(req.body.discipline, 'value');
+
+      user.info.age = parseInt(req.body.age);
+      user.ethnicity = req.body.ethnicity;
+      user.catalog = catalog;
+      user.discipline = discipline;
+      user.eye = req.body.eye;
+      user.hair_color = req.body.hair_color;
+      user.info = {
+        height: req.body.height,
+        weight: req.body.weight,
+        heap: req.body.heap,
+        age: req.body.age
+      };
+
+      user.save();
+      return res.json({
+        success: true,
+        code:200,
+        message: "Additional information updated sucessfully"
+      });
+    }
+    
+
+  })
 
 module.exports = router;
 

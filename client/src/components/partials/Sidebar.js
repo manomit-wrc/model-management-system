@@ -38,12 +38,12 @@ class Sidebar extends Component {
                             
                         </li>
                         <li>
-                            <a href="profile4.html">
+                            <Link to="/videos">
                                 <i className="material-icons">
                                     video_call
                                 </i>
                                 Videos
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <a href="profile5.html">

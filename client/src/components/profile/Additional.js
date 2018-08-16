@@ -6,9 +6,10 @@ import FlatButton from 'material-ui/FlatButton/FlatButton';
 import Slider from 'react-rangeslider';
 import _ from 'lodash';
 import LoaderButton from '../../components/utils/LoaderButton';
-import { getAdditionalMasters } from '../../actions/profile';
-import { userDetails } from '../../actions/auth';
+import { getAdditionalMasters, getAdditionalDetails, updateAdditionalDetails } from '../../actions/profile';
 
+
+import $ from 'jquery';
 
 
 
@@ -99,7 +100,8 @@ class Additional extends Component {
             isLoading:false,
             weight: 40,
             height: 152,
-            heap: 36
+            heap: 36,
+            showMessage: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleWeight = this.handleWeight.bind(this);
@@ -108,16 +110,41 @@ class Additional extends Component {
     }
     
     componentWillMount() {
-        this.props.userDetails();
+        this.props.getAdditionalDetails();
         this.props.getAdditionalMasters();
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({ isLoading: false })
+        if(nextProps.data !== undefined) {
+            
+            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                $(".alert").slideUp(500);
+            });
+            this.setState({ 
+                isLoading: false,
+                showMessage: true,
+                height: nextProps.additional_details !== undefined ? nextProps.additional_details.height: 152,
+                weight: nextProps.additional_details !== undefined ? nextProps.additional_details.weight: 40, 
+                heap: nextProps.additional_details !== undefined ? nextProps.additional_details.heap: 36
+            })
+        }
+        
     }
 
     handleSubmit(e) {
-        console.log(e);
+        
+        let data = {};
+        data.ethnicity = e.ethnicity;
+        data.age = e.age;
+        data.catalog = e.catalog;
+        data.discipline = e.discipline;
+        data.eye = e.eye;
+        data.hair_color = e.hair_color;
+        data.height = this.state.height;
+        data.weight = this.state.weight;
+        data.heap = this.state.heap;
+        
+        this.props.updateAdditionalDetails(data);
         this.setState({ isLoading: true })
         
     }
@@ -143,8 +170,29 @@ class Additional extends Component {
 
     handleSelection = (values, name) => console.log(values, name);
 
-
-
+    renderMessage() {
+        if(this.state.showMessage === true) {
+            if(this.props.data.success === true) {
+                return (
+                    <div className="alert alert-success alert-dismissible">
+                            
+                        {this.props.data.message}
+                    </div>
+                );
+            }
+            else {
+                return (
+                    <div className="alert alert-danger alert-dismissible">
+                            
+                     {this.props.data.message}
+                    </div>
+                );
+            }
+        }
+        else {
+            return null;
+        }
+    }
     
     render() {
         const { handleSubmit } = this.props;
@@ -156,7 +204,7 @@ class Additional extends Component {
                 <div className="main">
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
-                           
+                            {this.renderMessage()}
                             <div className="form-group">
                             <Field name="discipline" 
                                 component={renderMultiSelectField} 
@@ -267,14 +315,17 @@ class Additional extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        initialValues: state.auth.user_details,
-        additional_masters: state.profile.additional_masters
+        initialValues: state.profile.additional_details,
+        additional_details: state.profile.additional_details,
+        additional_masters: state.profile.additional_masters,
+        data: state.profile.data
     }
 }
 
 Additional = connect(mapStateToProps, { 
-    userDetails, 
-    getAdditionalMasters
+    getAdditionalDetails, 
+    getAdditionalMasters,
+    updateAdditionalDetails
 })(reduxForm({
     form: 'additional_profile',
     validate,
