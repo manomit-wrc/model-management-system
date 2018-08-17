@@ -1391,6 +1391,29 @@ router.post('/upload-portfolio-images', portfolio.any('images'), passport.authen
 
 })
 
+router.post('/upload-portfolio-videos', portfolio.any('videos'), passport.authenticate('jwt', { session: false }), async(req, res) => {
+  let portfolio_arr = [];
+  const user = await User.findById(req.user.id);
+  if(user) {
+    portfolio_arr = user.videos;
+    console.log(portfolio_arr);
+    for(var i=0; i<req.files.length; i++) {
+      portfolio_arr.push({
+        url: `${process.env.BASE_URL}/portfolio/${req.files[i].filename}`,
+        altTag: `Video-${i}`
+      })
+    }
+    user.videos = portfolio_arr;
+    user.save();
+    return res.json({
+      success: true,
+      user_details: user
+    });
+    
+  }
+
+})
+
 router.post('/login-with-google', async(req, res) => {
   const user = await User.findOne({ email: req.body.email });
   if(user) {
@@ -1538,8 +1561,24 @@ router.get('/user-details', passport.authenticate('jwt', { session: false }), as
 
 router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: false }), async(req, res) => {
   const user = await User.findById(req.user.id);
+  const arr = req.body.imageUri.src.split("/");
+  fs.unlinkSync(`${process.env.DOCUMENT_ROOT}/${arr[arr.length - 1]}`);
   const images = _.filter(user.images, img => img.src !== req.body.imageUri.src);
   user.images = images;
+  user.save();
+  res.json({
+    success: true,
+    user_details: user
+  });
+});
+
+router.post('/remove-portfolio-video', passport.authenticate('jwt', { session: false }), async(req, res) => {
+  const user = await User.findById(req.user.id);
+  const arr = req.body.videoUri.url.split("/");
+  
+  fs.unlinkSync(`${process.env.DOCUMENT_ROOT}/${arr[arr.length - 1]}`);
+  const videos = _.filter(user.videos, video => video.url !== req.body.videoUri.url);
+  user.videos = videos;
   user.save();
   res.json({
     success: true,

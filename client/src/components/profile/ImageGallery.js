@@ -20,7 +20,6 @@ class ImageGallery extends Component {
         this.state = {
             avatar: '',
             image_gallery: [],
-            file: null,
             isLoading: false,
             photoIndex: 0,
             isOpen: false,

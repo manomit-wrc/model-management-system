@@ -23,7 +23,13 @@ const userSchema = new Schema({
     eye: { type: Schema.Types.ObjectId, ref: 'Eyes'},
     hair_color: { type: Schema.Types.ObjectId, ref: 'HairColor'},
     gender: { type: String },
-    videos: [String],
+    videos: [
+        {
+            url: { type: String },
+            altTag: { type: String },
+            type: { type: String, default: 'video'}
+        }
+    ],
     images: [
         {
             src: { type: String },
