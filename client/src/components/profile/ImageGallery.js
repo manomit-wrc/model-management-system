@@ -7,6 +7,7 @@ import {
     removePortfolioImage 
 } from '../../actions/auth';
 import { ClipLoader } from 'react-spinners';
+import Lightbox from 'react-images';
 import _ from 'lodash';
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
 
@@ -20,7 +21,9 @@ class ImageGallery extends Component {
             avatar: '',
             image_gallery: [],
             file: null,
-            isLoading: false
+            isLoading: false,
+            photoIndex: 0,
+            isOpen: false,
         }
         this.handleProfileImage = this.handleProfileImage.bind(this);
         this.handleImageGallery = this.handleImageGallery.bind(this);
@@ -78,6 +81,7 @@ class ImageGallery extends Component {
     }
 
     render() {
+        const { photoIndex, isOpen } = this.state;
         return (
             <div className="col-md-9">
                 <div className="main">
@@ -127,32 +131,56 @@ class ImageGallery extends Component {
                                 </div>
                             </div>
 
-                            <div className="mb-4"></div>
+                            
                             <div className="row">
+                                
                                 {
                                     _.map(this.state.image_gallery, (img, index) => {
                                         return (
-                                            <div className="col-md-3" key={index}>
-                                                <div className="file-field portfolio-img">
-                                                    <div className="z-depth-1-half mb-4">
-                                                    
-                                                        <img src={img} className="img-fluid" alt="example placeholder" />
-                                                        <div className="middle">
-                                                            
-                                                            <span className="spn-text">
+                                            <div key={index} className="Portfolio vertical-item gallery-item content-absolute text-center"
+                                            
+                                            >
+                                                <a href="#!">
+                                                    <img className="" src={img} alt="" />
+                                                </a>
+                                                <div className="item-media">
+                                                    <div className="media-links">
+                                                        <div className="links-wrap">
+                                                            <a href="javascript:void(0)" title="" className="p-view prettyPhoto ">
                                                                 <i onClick={() => this.removeImage(img)}
-                                                                className="fa fa-close" 
-                                                                style={{fontSize: '48px', color: '#FF0000'}} 
-                                                                aria-hidden="true">
-                                                                </i>
-                                                            </span>
+                                                                 className="fa fa-close"></i>
+                                                            </a>
+                                                            <a href="javascript:void(0)" title="" className="p-link">
+                                                                <i className="fa fa-search"
+                                                                onClick={() => this.setState({ isOpen: true, photoIndex: index })}
+                                                                ></i>
+                                                            </a>
+                                                
                                                         </div>
                                                     </div>
                                                 </div>
+                                                
                                             </div>
                                         )
                                     })
                                 }
+                                
+                                <Lightbox
+                                    currentImage={this.state.photoIndex}
+                                    images={this.state.image_gallery}
+                                    isOpen={this.state.isOpen}
+                                    onClickPrev={() =>
+                                        this.setState({
+                                            photoIndex: (photoIndex + this.state.image_gallery.length - 1) % this.state.image_gallery.length,
+                                        })
+                                    }
+                                    onClickNext={() =>
+                                        this.setState({
+                                            photoIndex: (photoIndex + 1) % this.state.image_gallery.length,
+                                        })
+                                    }
+                                    onClose={() => this.setState({ isOpen: false, photoIndex: 0 })}
+                                />
                                 
                             </div>
                             

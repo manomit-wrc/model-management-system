@@ -37,7 +37,7 @@ class Sidebar extends Component {
                             </Link>
                             
                         </li>
-                        <li>
+                        <li className={"" + (this.props.pathName === "/videos" ? 'active' : '')}>
                             <Link to="/videos">
                                 <i className="material-icons">
                                     video_call
