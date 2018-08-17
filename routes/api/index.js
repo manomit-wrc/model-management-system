@@ -1526,9 +1526,18 @@ router.post('/mobile_number_otp_verification', passport.authenticate('jwt', {ses
 
 router.get('/user-details', passport.authenticate('jwt', { session: false }), async(req, res) => {
   const user = await User.findById(req.user.id);
+
+  const user_images = _.map(user.images, (cat, index) => {
+    return {
+      caption: `Portfolio-${index}`,
+      src: cat
+    }
+  });
+  
   res.json({
     success: true,
-    user_details: user
+    user_details: user,
+    images: user_images
   });
 })
 

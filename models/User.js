@@ -24,7 +24,24 @@ const userSchema = new Schema({
     hair_color: { type: Schema.Types.ObjectId, ref: 'HairColor'},
     gender: { type: String },
     videos: [String],
-    images: [String],
+    images: [
+        {
+            src: { type: String },
+            caption: { type: String, default: '' },
+            likes: [
+                {
+                    status: { type: Boolean },
+                    user: { type: Schema.Types.ObjectId, ref: 'User' }
+                }
+            ],
+            comments: [
+                {
+                    description: { type: String },
+                    user: { type: Schema.Types.ObjectId, ref: 'User' }
+                }
+            ]
+        }
+    ],
     trust: [
         {
             social_verification: { type: Boolean },

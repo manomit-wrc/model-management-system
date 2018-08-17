@@ -24,13 +24,32 @@ class VideoGallery extends Component {
                                 </div>
                             </div>
 
-                            <div className="mb-4"></div>
+                            
                             <div className="row">
-                            <div className="col-md-4">
-                                <Player>
-                                    <source src="https://media.w3.org/2010/05/sintel/trailer_hd.mp4" />
-                                </Player>
-                            </div>
+                            
+                                <div className="Portfolio vertical-item gallery-item content-absolute text-center">
+                                    <a href="javascript:void(0)">
+                                        <video width="100%" height="100%" controls>
+                                            <source src="https://media.w3.org/2010/05/sintel/trailer_hd.mp4" type="video/mp4" />
+                                        </video>
+                                    </a>
+                                    <div className="item-media">
+                                        <div className="media-links">
+                                            <div className="links-wrap">
+                                                <a href="javascript:void(0)" title="" className="p-view prettyPhoto ">
+                                                    <i className="fa fa-close"></i>
+                                                </a>
+
+                                                <a href="javascript:void(0)" title="" className="p-link">
+                                                    <i className="fa fa-search"></i>
+                                                </a>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                                    
+                                </div>
+                            
                             </div>
                             
                         </form>
