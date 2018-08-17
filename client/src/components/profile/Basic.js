@@ -11,6 +11,8 @@ import {
     updateUserDetails 
 } from '../../actions/auth';
 
+import $ from 'jquery';
+
 
 const validate = values => {
     const errors = {}
@@ -46,7 +48,9 @@ const validate = values => {
     if(!values.pincode) {
         errors.pincode = "Please enter your pincode"
     }
+   
     if(values.pincode && values.pincode.length !== 6) {
+        
         errors.pincode = "Should have 6 digits";
     }
     if(values.pincode && isNaN(values.pincode)) {
@@ -118,7 +122,8 @@ class Basic extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isLoading:false
+            isLoading:false,
+            showMessage: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         
@@ -134,12 +139,46 @@ class Basic extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({ isLoading: false })
+        
+        if(nextProps.data !== undefined) {
+            
+            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
+                $(".alert").slideUp(500);
+            });
+            this.setState({
+                showMessage: true,
+                isLoading: false
+            })
+        }
     }
 
     handleSubmit(e) {
-        this.setState({ isLoading: true })
+        this.setState({ isLoading: true });
         this.props.updateUserDetails(e);
+    }
+
+    renderMessage() {
+        if(this.state.showMessage === true) {
+            if(this.props.data.success === true) {
+                return (
+                    <div className="alert alert-success alert-dismissible">
+                            
+                        {this.props.data.message}
+                    </div>
+                );
+            }
+            else {
+                return (
+                    <div className="alert alert-danger alert-dismissible">
+                            
+                     {this.props.data.message}
+                    </div>
+                );
+            }
+        }
+        else {
+            return null;
+        }
     }
 
     
@@ -152,7 +191,7 @@ class Basic extends Component {
                 <div className="main">
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
-                           
+                            {this.renderMessage()}
                             <div className="form-group">
                                 <Field name="first_name" component={renderField} label="First Name" type="text" />
                             </div>
@@ -240,7 +279,8 @@ const mapStateToProps = (state) => {
         auth: state.auth,
         industries: state.auth.industries,
         countries: state.auth.countries,
-        states: state.auth.states
+        states: state.auth.states,
+        data: state.auth.data
     }
 }
 

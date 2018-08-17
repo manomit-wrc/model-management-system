@@ -12,7 +12,8 @@ import {
     CHANGE_PASSWORD_SUCCESS,
     CHANGE_PASSWORD_FAIL,
     COUNTRIES,
-    STATES
+    STATES,
+    UPDATE_USER_DETAILS
 } from '../actions/types';
 import isEmpty from '../components/utils/is-empty';
 
@@ -79,6 +80,11 @@ const authReducer = (state = initialState, action) => {
             return {
                 ...state,
                 user_details: action.payload
+            }
+        case UPDATE_USER_DETAILS:
+            return {
+                ...state,
+                data: action.payload
             }
         case INDUSTRIES:
             return {

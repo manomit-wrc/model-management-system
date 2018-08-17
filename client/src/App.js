@@ -30,6 +30,8 @@ const ChangePassword = asyncComponent(() => { return import('./components/profil
 
 const ImageGallery = asyncComponent(() => { return import('./components/profile/ImageGallery'); });
 
+const VideoGallery = asyncComponent(() => { return import('./components/profile/VideoGallery'); });
+
 
 
 if (localStorage.token) {
@@ -60,6 +62,7 @@ class App extends Component {
           <PrivateRoute exact path="/profile2" layout={Dashboard} component={Additional} />
           <PrivateRoute exact path="/images" layout={Dashboard} component={ImageGallery} />
           <PrivateRoute exact path="/change-password" layout={Dashboard} component={ChangePassword}/>
+          <PrivateRoute exact path="/videos" layout={Dashboard} component={VideoGallery}/>
           </Switch>
         </BrowserRouter>
       </Provider>

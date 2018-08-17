@@ -281,8 +281,8 @@ export function updateUserDetails(data) {
     return async (dispatch) => {
         const response = await axios.post(`${API_ROOT}/update-user-details`, data);
         dispatch({
-            type: USER_DETAILS,
-            payload: response.data.user_details
+            type: UPDATE_USER_DETAILS,
+            payload: response.data
         });
     }
 }

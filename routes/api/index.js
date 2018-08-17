@@ -19,10 +19,11 @@ const Category = require('../../models/Category');
 const Brand = require('../../models/Brand');
 const State = require('../../models/State');
 const Country = require('../../models/Country');
-const HairColor = require('../../models/HairColor');
-const Eyes = require('../../models/Eyes');
-const Ethnicity = require('../../models/Ethnicity');
+const Catalog = require('../../models/Catalog');
 const Discipline = require('../../models/Discipline');
+const Eyes = require('../../models/Eyes');
+const HairColor = require('../../models/HairColor');
+const Ethnicity = require('../../models/Ethnicity');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -1561,9 +1562,27 @@ router.post('/update-user-details', passport.authenticate('jwt', { session: fals
   user.location = req.body.location;
   user.phone_number = parseInt(req.body.phone_number)
   user.save();
+  return res.json({
+    success: true,
+    code:200,
+    message: "Information updated sucessfully"
+  });
+})
+
+router.get('/additional-masters', async(req, res) => {
+  const ethnicity = await Ethnicity.find({});
+  const catalog = await Catalog.find({});
+  const discipline = await Discipline.find({});
+  const eyes = await Eyes.find({});
+  const hair_color = await HairColor.find({});
+
   res.json({
     success: true,
-    user_details: user
+    ethnicity: ethnicity,
+    catalog: catalog,
+    discipline: discipline,
+    eyes: eyes,
+    hair_color: hair_color
   });
 })
 
@@ -1744,6 +1763,80 @@ router.post('/profile/edit-details', passport.authenticate('jwt', {session : fal
     });
   }
 });
+
+router.get('/get-additional-details', 
+  passport.authenticate('jwt', {session : false}), 
+  (req,res) => {
+    const data = {};
+    User.findById(req.user.id)
+      .populate('catalog')
+      .populate('discipline')
+      .then(user => {
+        if(user) {
+          
+          data.age = user.info[0].age;
+          data.height = user.info[0].height;
+          data.weight = user.info[0].weight;
+          data.heap = user.info[0].heap;
+          data.ethnicity = user.ethnicity;
+    
+          
+          data.catalog = _.map(user.catalog, cat => {
+            return {
+              label: cat.name,
+              value: cat._id.toString()
+            }
+          });
+          data.discipline = _.map(user.discipline, disc => {
+            return {
+              label: disc.name,
+              value: disc._id.toString()
+            }
+          });
+          data.eye = user.eye;
+          data.hair_color = user.hair_color;
+    
+          return res.json({
+            success: true,
+            code: 200,
+            additional_details: data
+          })
+        }
+      });
+    
+})
+
+router.post('/update-additional-details',
+  passport.authenticate('jwt', {session : false}),
+  async (req,res) => {
+    const user = await User.findById(req.user.id);
+    if(user) {
+      const catalog = _.map(req.body.catalog, 'value');
+      const discipline = _.map(req.body.discipline, 'value');
+
+      user.info.age = parseInt(req.body.age);
+      user.ethnicity = req.body.ethnicity;
+      user.catalog = catalog;
+      user.discipline = discipline;
+      user.eye = req.body.eye;
+      user.hair_color = req.body.hair_color;
+      user.info = {
+        height: req.body.height,
+        weight: req.body.weight,
+        heap: req.body.heap,
+        age: req.body.age
+      };
+
+      user.save();
+      return res.json({
+        success: true,
+        code:200,
+        message: "Additional information updated sucessfully"
+      });
+    }
+    
+
+  })
 
 module.exports = router;
 
