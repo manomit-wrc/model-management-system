@@ -1191,7 +1191,19 @@ router.post('/profile/portfolio-image-upload', passport.authenticate('jwt', {ses
 
   var final_link = 'http://'+full_image_path;
 
-  user.images.unshift(final_link);
+  var images_details = {
+    src: final_link,
+    caption: '',
+    likes: {
+      status : 1,
+      user : req.user._id
+    },
+    comments: {
+      description : '',
+      user : req.user._id
+    }
+  };
+  user.images.unshift(images_details);
   user.created_at = Date.now();
   if(user.save()){
     res.json({
@@ -1907,8 +1919,8 @@ router.get('/job-post-listings', passport.authenticate('jwt', {session:false}), 
 
 router.get('/all-others-agencies-job-post', async (req,res) => {
   var job_post_details = await Job_post.find({status:1}).populate('User');
-  console.log(job_post_details);
-  return false;
+  // console.log(job_post_details);
+  // return false;
   if(job_post_details){
     res.json({
       status: true,
