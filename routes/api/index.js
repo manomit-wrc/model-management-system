@@ -1375,7 +1375,10 @@ router.post('/upload-portfolio-images', portfolio.any('images'), passport.authen
     portfolio_arr = user.images;
     console.log(portfolio_arr);
     for(var i=0; i<req.files.length; i++) {
-      portfolio_arr.push(`${process.env.BASE_URL}/portfolio/${req.files[i].filename}`)
+      portfolio_arr.push({
+        src: `${process.env.BASE_URL}/portfolio/${req.files[i].filename}`,
+        caption: `Portfolio-${i}`
+      })
     }
     user.images = portfolio_arr;
     user.save();
@@ -1527,34 +1530,21 @@ router.post('/mobile_number_otp_verification', passport.authenticate('jwt', {ses
 
 router.get('/user-details', passport.authenticate('jwt', { session: false }), async(req, res) => {
   const user = await User.findById(req.user.id);
-
-  const user_images = _.map(user.images, (cat, index) => {
-    return {
-      caption: `Portfolio-${index}`,
-      src: cat
-    }
-  });
-  
   res.json({
     success: true,
-    user_details: user,
-    images: user_images
+    user_details: user
   });
 })
 
 router.post('/remove-portfolio-image', passport.authenticate('jwt', { session: false }), async(req, res) => {
   const user = await User.findById(req.user.id);
-  
-  var index = user.images.indexOf(req.body.imageUri);
-  if(index > -1) {
-    user.images.splice(index, 1);
-    user.save();
-    
-    res.json({
-      success: true,
-      user_details: user
-    });
-  }
+  const images = _.filter(user.images, img => img.src !== req.body.imageUri.src);
+  user.images = images;
+  user.save();
+  res.json({
+    success: true,
+    user_details: user
+  });
 });
 
 router.post('/update-user-details', passport.authenticate('jwt', { session: false }), async(req, res) => {

@@ -69,7 +69,10 @@ class ImageGallery extends Component {
         
         let arr = [];
         _.map(event.target.files, (file, index) => {
-            arr.push(URL.createObjectURL(file))
+            arr.push({
+                src: URL.createObjectURL(file),
+                caption: `Portfolio-${index}`
+            })
         });
         arr.push.apply(arr, this.state.image_gallery)
         this.setState({
@@ -141,7 +144,7 @@ class ImageGallery extends Component {
                                             
                                             >
                                                 <a href="#!">
-                                                    <img className="" src={img} alt="" />
+                                                    <img className="" src={img.src} alt="" />
                                                 </a>
                                                 <div className="item-media">
                                                     <div className="media-links">
