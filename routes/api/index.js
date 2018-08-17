@@ -24,6 +24,7 @@ const Discipline = require('../../models/Discipline');
 const Eyes = require('../../models/Eyes');
 const HairColor = require('../../models/HairColor');
 const Ethnicity = require('../../models/Ethnicity');
+const Job_post = require('../../models/Job_post');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -600,16 +601,14 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
     res.json({
         success: true,
         code: 200,
-        user,
-        last_two_images,
-        last_two_videos
+        user
     });
 });
 
 router.post('/profile/other-user-details', passport.authenticate('jwt', { session : false}), async (req,res) => {
   var profile_id = req.body.profile_id;
 
-  var user_details = User.findOne({_id  : profile_id},{password: 0, status: 0, otp: 0, activation_link: 0, reg_type:0 });
+  var user_details = await User.findOne({_id  : profile_id},{password: 0, status: 0, otp: 0, activation_link: 0, reg_type:0 });
 
   var user_images = user_details.images;
   var user_videos = user_details.videos;
@@ -1837,6 +1836,84 @@ router.post('/update-additional-details',
     
 
   })
+
+router.post('/agency-job-post', passport.authenticate('jwt', { session : false}), async (req,res) => {
+  var agency_details = await User.findOne({_id : req.user.id});
+
+  var job_title = req.body.job_title;
+  var job_desc = req.body.job_description;
+  var job_start_date = req.body.start_date;
+  var job_start_time = req.body.start_time;
+  var job_end_date = req.body.end_date;
+  var job_end_time = req.body.end_time;
+
+  try{
+    var job_post = new Job_post({
+      user_id : req.user.id,
+      job_title : job_title,
+      job_desc : job_desc,
+      job_start_date : job_start_date,
+      job_start_time : job_start_time,
+      job_end_date : job_end_date,
+      job_end_time : job_end_time,
+      // country : req.body.country,
+      // state : req.body.state,
+      // city: req.body.city,
+      status : 1, //1='Active',0='Inactive'
+      created_at : Date.now()
+    });
+
+    if(job_post.save()){
+      res.json({
+        status : true,
+        code : 200,
+        message : "Job posted successfully."
+      });
+    }
+  }catch(e){
+    res.json({
+      status : false,
+      code : 300,
+      message : "Something went wrong."
+    });
+  }
+});
+
+router.get('/job-post-listings', passport.authenticate('jwt', {session:false}), async (req,res) => {
+  var job_post_details = await Job_post.find({user_id : req.user.id, status:1});
+  if(job_post_details){
+    res.json({
+      status: true,
+      code : 200,
+      job_post_details
+    });
+  }else{
+    res.json({
+      status: false,
+      code : 300,
+      message : "No recent jobs found."
+    });
+  }
+});
+
+router.get('/all-others-agencies-job-post', async (req,res) => {
+  var job_post_details = await Job_post.find({status:1}).populate('User');
+  console.log(job_post_details);
+  return false;
+  if(job_post_details){
+    res.json({
+      status: true,
+      code : 200,
+      job_post_details
+    });
+  }else{
+    res.json({
+      status: false,
+      code : 300,
+      message : "No recent jobs found."
+    });
+  }
+});
 
 module.exports = router;
 
