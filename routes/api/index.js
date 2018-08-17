@@ -594,13 +594,45 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    var user = await User.findOne({ _id: req.user.id});
+    var user = await User.findOne({ _id: req.user.id},{password: 0, status: 0, otp: 0, activation_link: 0, reg_type:0 });
     
     res.json({
         success: true,
         code: 200,
-        user
+        user,
+        last_two_images,
+        last_two_videos
     });
+});
+
+router.post('/profile/other-user-details', passport.authenticate('jwt', { session : false}), async (req,res) => {
+  var profile_id = req.body.profile_id;
+
+  var user_details = User.findOne({_id  : profile_id},{password: 0, status: 0, otp: 0, activation_link: 0, reg_type:0 });
+
+  var user_images = user_details.images;
+  var user_videos = user_details.videos;
+
+  var last_two_images , last_two_videos;
+  if(user_images){
+    last_two_images = _.take(user_images,2);
+  }else{
+    last_two_images = [];
+  }
+
+  if(user_videos) {
+    last_two_videos = _.take(user_videos,2);
+  }else{
+    last_two_videos = [];
+  }
+
+  res.json({
+      success: true,
+      code: 200,
+      user_details,
+      last_two_images,
+      last_two_videos
+  });
 });
 
 router.get('/industries', async (req, res) => {
@@ -618,6 +650,7 @@ router.post('/profile/video-upload', passport.authenticate('jwt', { session: fal
   var videos_link = req.body.video;
   var new_link = videos_link.replace('watch?v=', 'embed/');
   user.videos.unshift(new_link);
+  user.created_at = Date.now();
   user.save();
   res.json({
     success: true,
@@ -1159,7 +1192,7 @@ router.post('/profile/portfolio-image-upload', passport.authenticate('jwt', {ses
   var final_link = 'http://'+full_image_path;
 
   user.images.unshift(final_link);
-
+  user.created_at = Date.now();
   if(user.save()){
     res.json({
       success: true,
@@ -1684,6 +1717,7 @@ router.post('/profile/edit-details', passport.authenticate('jwt', {session : fal
   user.discipline = req.body.discipline;
   user.eye = req.body.eye;
   user.hair_color = req.body.hair_color;
+  user.created_at = Date.now();
 
   user.info = {
     height: req.body.height,

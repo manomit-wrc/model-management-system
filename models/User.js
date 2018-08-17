@@ -46,7 +46,8 @@ const userSchema = new Schema({
     status: { type: Number, default: 0},
     reg_type: { type: String },
     activation_link: { type: String },
-    social_id: { type: String }
+    social_id: { type: String },
+    created_at : { type: Date, default : Date.now()}
 });
 
 var User = mongoose.model('User', userSchema);
