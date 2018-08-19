@@ -5,6 +5,7 @@ import { Link, withRouter } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
 import { login, loginWithGoogle } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
+import { Alert } from 'reactstrap';
 
 
 const validate = values => {
@@ -34,7 +35,8 @@ class Login extends Component {
         super(props);
         this.state = {
             showMessage: false,
-            isLoading: false
+            isLoading: false,
+            visible: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -44,14 +46,23 @@ class Login extends Component {
         if (this.props.auth.isAuthenticated) {
           this.props.history.push('/profile');
         }
+        
       }
     
       componentWillReceiveProps(nextProps) {
-        
+        console.log(nextProps);
         this.setState({
             showMessage: true,
-            isLoading: false
+            isLoading: false,
+            visible: true
         });
+        setTimeout(
+            function() {
+                this.setState({visible: false});
+            }
+            .bind(this),
+            3000
+        );
         if (nextProps.auth.isAuthenticated) {
             this.props.history.push('/profile');
         }
@@ -85,11 +96,9 @@ class Login extends Component {
                 
                 if(this.props.auth.user.success === false) {
                     return (
-                        
-                        <div class="alert alert-danger alert-dismissible">
-                            
+                        <Alert color="danger" isOpen={this.state.visible}>
                             {this.props.auth.user.message}
-                        </div>
+                        </Alert>
                     );
                 }
                 
@@ -179,6 +188,7 @@ class Login extends Component {
 }
 
 const mapStateToProps = (state) => {
+    console.log(state.auth);
     return {
         auth: state.auth
     };
