@@ -1,7 +1,6 @@
 import axios from '../axios-order';
 import jwt_decode from 'jwt-decode';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
-import { API_ROOT } from '../components/utils/ApiConfig';
 import { 
     SIGN_UP_SUCCESS, 
     SIGN_UP_FAIL,
@@ -23,7 +22,7 @@ import {
 export function signup(data) {
     return async (dispatch) => {
         try {
-            const response = await axios.post(`${API_ROOT}/signup`, data);
+            const response = await axios.post(`/signup`, data);
             if(response.data.success === true) {
                 
                 dispatch({
@@ -50,7 +49,7 @@ export function signup(data) {
 export function changePassword(data){
     return async (dispatch) => {
         try{
-            const response = await axios.post(`${API_ROOT}/change-password`, data);
+            const response = await axios.post(`/change-password`, data);
             if(response.data.success === true){
                 dispatch({
                     type: CHANGE_PASSWORD_SUCCESS,
@@ -74,7 +73,7 @@ export function changePassword(data){
 export function login(data) {
     return async (dispatch) => {
         try {
-            const response = await axios.post(`${API_ROOT}/login`, data);
+            const response = await axios.post(`/login`, data);
             if(response.data.success === true) {
                 
                 localStorage.setItem('token', response.data.token);
@@ -104,7 +103,7 @@ export function login(data) {
 export function loginWithGoogle(data) {
     return async (dispatch) => {
         try {
-            const response = await axios.post(`${API_ROOT}/login-with-google`, data);
+            const response = await axios.post(`/login-with-google`, data);
             if(response.data.success === true) {
                 localStorage.setItem('token', response.data.token);
                 const decoded = jwt_decode(response.data.token);
@@ -146,7 +145,7 @@ export const logoutUser = () => dispatch => {
 export function checkActivation(data) {
     return async (dispatch) => {
         try {
-            const response = await axios.post(`${API_ROOT}/check-activation`, data);
+            const response = await axios.post(`/check-activation`, data);
             if(response.data.success === true) {
                 dispatch({
                     type: ACTIVATION_SUCCESS,
@@ -171,7 +170,7 @@ export function checkActivation(data) {
 
 export function verifyActivation(data) {
     return async (dispatch) => {
-        const response = await axios.post(`${API_ROOT}/verify-activation`, data);
+        const response = await axios.post(`/verify-activation`, data);
         if(response.data.success) {
             localStorage.setItem('token', response.data.token);
             const decoded = jwt_decode(response.data.token);
@@ -189,7 +188,7 @@ export function uploadProfileImage(data) {
     return async (dispatch) => {
         try {
             dispatch(showLoading())
-            const response = await axios.post(`${API_ROOT}/upload-profile-image`, formdata);
+            const response = await axios.post(`/upload-profile-image`, formdata);
             localStorage.setItem('token', response.data.token);
             const decoded = jwt_decode(response.data.token);
             decoded.info = response.data.info;
@@ -212,7 +211,7 @@ export function uploadPortfolioImage(data) {
         formdata.append('images', data[i]);
     }
     return async (dispatch) => {
-        const response = await axios.post(`${API_ROOT}/upload-portfolio-images`, formdata);
+        const response = await axios.post(`/upload-portfolio-images`, formdata);
         dispatch({
             type: USER_DETAILS,
             payload: response.data.user_details
@@ -228,7 +227,7 @@ export function uploadPortfolioVideo(data) {
         formdata.append('videos', data[i]);
     }
     return async (dispatch) => {
-        const response = await axios.post(`${API_ROOT}/upload-portfolio-videos`, formdata);
+        const response = await axios.post(`/upload-portfolio-videos`, formdata);
         dispatch({
             type: USER_DETAILS,
             payload: response.data.user_details
@@ -240,7 +239,7 @@ export function uploadPortfolioVideo(data) {
 export function userDetails() {
     try {
         return async (dispatch) => {
-            const response = await axios.get(`${API_ROOT}/user-details`);
+            const response = await axios.get(`/user-details`);
             dispatch({
                 type: USER_DETAILS,
                 payload: response.data.user_details
@@ -255,7 +254,7 @@ export function userDetails() {
 
 export function removePortfolioImage(data) {
     return async (dispatch) => {
-        const response = await axios.post(`${API_ROOT}/remove-portfolio-image`, data);
+        const response = await axios.post(`/remove-portfolio-image`, data);
         dispatch({
             type: USER_DETAILS,
             payload: response.data.user_details
@@ -265,7 +264,7 @@ export function removePortfolioImage(data) {
 
 export function removePortfolioVideo(data) {
     return async (dispatch) => {
-        const response = await axios.post(`${API_ROOT}/remove-portfolio-video`, data);
+        const response = await axios.post(`/remove-portfolio-video`, data);
         dispatch({
             type: USER_DETAILS,
             payload: response.data.user_details
@@ -275,7 +274,7 @@ export function removePortfolioVideo(data) {
 
 export function getIndustries() {
     return async (dispatch) => {
-        const response = await axios.get(`${API_ROOT}/industries`);
+        const response = await axios.get(`/industries`);
         dispatch({
             type: INDUSTRIES,
             payload: response.data.industries
@@ -285,7 +284,7 @@ export function getIndustries() {
 
 export function getCountries() {
     return async (dispatch) => {
-        const response = await axios.get(`${API_ROOT}/countries`);
+        const response = await axios.get(`/countries`);
         dispatch({
             type: COUNTRIES,
             payload: response.data.countries
@@ -295,7 +294,7 @@ export function getCountries() {
 
 export function getStates(data) {
     return async (dispatch) => {
-        const response = await axios.post(`${API_ROOT}/states`, data);
+        const response = await axios.post(`/states`, data);
         dispatch({
             type: STATES,
             payload: response.data.states
@@ -305,7 +304,7 @@ export function getStates(data) {
 
 export function updateUserDetails(data) {
     return async (dispatch) => {
-        const response = await axios.post(`${API_ROOT}/update-user-details`, data);
+        const response = await axios.post(`/update-user-details`, data);
         dispatch({
             type: UPDATE_USER_DETAILS,
             payload: response.data
