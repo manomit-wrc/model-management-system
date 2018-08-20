@@ -105,12 +105,12 @@ app.use(flash());
 
 /******* Routes ********/
 app.use('/api/users', api);
-app.use(index);
-app.use(dashboard);
-app.use(brand);
-app.use(banner);
-app.use(category);
-app.use(industry);
+// app.use(index);
+// app.use(dashboard);
+// app.use(brand);
+// app.use(banner);
+// app.use(category);
+// app.use(industry);
 /******* End **********/
 
 if(process.env.NODE_ENV === 'production') {
