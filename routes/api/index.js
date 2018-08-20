@@ -1191,19 +1191,12 @@ router.post('/profile/portfolio-image-upload', passport.authenticate('jwt', {ses
 
   var final_link = 'http://'+full_image_path;
 
-  var images_details = {
+  var info = {
     src: final_link,
-    caption: '',
-    likes: {
-      status : 1,
-      user : req.user._id
-    },
-    comments: {
-      description : '',
-      user : req.user._id
-    }
+    caption: ''
   };
-  user.images.unshift(images_details);
+
+  user.images.unshift(info);
   user.created_at = Date.now();
   if(user.save()){
     res.json({
@@ -1239,6 +1232,10 @@ router.get('/profile/fetch-portfolio-images', passport.authenticate('jwt', {sess
   }
 });
 
+router.post('/profile/portfolio-image-details', passport.authenticate('jwt', {session : false}), async (req,res) => {
+
+});
+
 router.post('/profile/delete-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
   const user = await User.findById(req.user.id);
   var image_url = req.body.imageUri;
@@ -1248,7 +1245,7 @@ router.post('/profile/delete-portfolio-images', passport.authenticate('jwt', {se
   for(var i = 0; i < make_image_array.length; i++){
     var index = await user.images.indexOf(make_image_array[i]);
     if(index > -1) {
-      user.images.splice(index, 1);
+      user.images.src.splice(index, 1);
       
     }
     user.save();
@@ -1596,18 +1593,6 @@ router.get('/additional-masters', async(req, res) => {
   });
 })
 
-// router.get('/test', (req, res) => {
-//   const Ethnticity = require('../../models/HairColor');
-//   let arr = ['Auburn', 'Black', 'Blonde', 'Brown', 'Cendre', 'Chestnut', 'Dark', 'Dark Blonde', 'Dark Brown', 'Grey', 'Hazel', 'Light Blonde', 'Light Brown', 'Medium Blonde', 'Platinum Blonde', 'Red', 'Red Blonde', 'Red Brown', 'Salt and Pepper', 'Strawberry Blonde'];
-//   for(var i=0; i<arr.length; i++) {
-//     const ethn = new Ethnticity({
-//       name: arr[i]
-//     });
-//     ethn.save();
-//   }
-//   res.send("Done");
-// });
-
 router.get('/countries', async(req, res) => {
   const data = await Country.find({});
   res.send({
@@ -1852,11 +1837,11 @@ router.post('/agency-job-post', passport.authenticate('jwt', { session : false})
   var agency_details = await User.findOne({_id : req.user.id});
 
   var job_title = req.body.job_title;
-  var job_desc = req.body.job_description;
-  var job_start_date = req.body.start_date;
-  var job_start_time = req.body.start_time;
-  var job_end_date = req.body.end_date;
-  var job_end_time = req.body.end_time;
+  var job_desc = req.body.job_desc;
+  var job_start_date = req.body.job_start_date;
+  var job_start_time = req.body.job_start_time;
+  var job_end_date = req.body.job_end_date;
+  var job_end_time = req.body.job_end_time;
 
   try{
     var job_post = new Job_post({
@@ -1903,6 +1888,77 @@ router.get('/job-post-listings', passport.authenticate('jwt', {session:false}), 
       status: false,
       code : 300,
       message : "No recent jobs found."
+    });
+  }
+});
+
+router.post('/job-post-details', passport.authenticate('jwt', {session:false}), async (req,res) => {
+  var job_post_id = req.body.job_id;
+  var job_details = await Job_post.findOne({_id : job_post_id, user_id:req.user.id, status : 1});
+
+  if(job_details) {
+    res.json({
+      status : true,
+      code : 200,
+      job_details
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      job_details
+    });
+  }
+})
+
+router.post('/edit-job-post', passport.authenticate('jwt', {session:false}), async (req,res) => {
+  var job_post_id = req.body.job_id;
+  var job_details = await Job_post.findOne({_id : job_post_id, user_id:req.user.id, status : 1});
+
+  if(job_details){
+    job_details.job_title = req.body.job_title;
+    job_details.job_desc = req.body.job_desc;
+    job_details.job_start_date = req.body.job_start_date;
+    job_details.job_start_time = req.body.job_start_time;
+    job_details.job_end_date = req.body.job_end_date;
+    job_details.job_end_time = req.body.job_end_time;
+    job_details.created_at = Date.now();
+
+    job_details.save();
+
+    res.json({
+      status : true,
+      code : 200,
+      message : "Job post updated successfully.",
+      job_details
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "Update failed."
+    });
+  }
+});
+
+router.post('/delete-jobs', passport.authenticate('jwt', {session:false}), async (req,res) =>{
+  var job_post_id = req.body.job_id;
+  var job_details = await Job_post.findOne({_id : job_post_id, user_id:req.user.id, status : 1});
+
+  if(job_details){
+    job_details.status = 0;
+
+    job_details.save();
+    res.json({
+      status: true,
+      code : 200,
+      message : "Job post deleted successfully."
+    });
+  }else{
+    res.json({
+      status: false,
+      code : 300,
+      message : "No jobs found."
     });
   }
 });
