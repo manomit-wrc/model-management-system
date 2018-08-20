@@ -130,6 +130,10 @@ class Additional extends Component {
         
     }
 
+    componentDidMount() {
+        
+    }
+
 
     handleSubmit(e) {
         
