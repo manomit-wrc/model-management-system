@@ -21,9 +21,10 @@ class Activation extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
+        
         if(nextProps.auth.hasOwnProperty('isAuthenticated') && nextProps.auth.isAuthenticated) {
-            nextProps.history.push("/profile");
+            //nextProps.history.push("/profile");
+            window.location.href = "/profile";
         }
         else {
             this.setState({

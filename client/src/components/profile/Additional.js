@@ -110,16 +110,15 @@ class Additional extends Component {
     }
     
     componentWillMount() {
+        
         this.props.getAdditionalDetails();
         this.props.getAdditionalMasters();
     }
 
     componentWillReceiveProps(nextProps) {
+        
         if(nextProps.data !== undefined) {
-            
-            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
-                $(".alert").slideUp(500);
-            });
+           
             this.setState({ 
                 isLoading: false,
                 showMessage: true,
@@ -130,6 +129,7 @@ class Additional extends Component {
         }
         
     }
+
 
     handleSubmit(e) {
         
@@ -329,7 +329,7 @@ Additional = connect(mapStateToProps, {
 })(reduxForm({
     form: 'additional_profile',
     validate,
-    destroyOnUnmount: true
+    enableReinitialize: true
 })(Additional))
 
 export default Additional;

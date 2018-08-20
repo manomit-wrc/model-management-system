@@ -157,6 +157,8 @@ class Basic extends Component {
         this.props.updateUserDetails(e);
     }
 
+    
+
     renderMessage() {
         if(this.state.showMessage === true) {
             if(this.props.data.success === true) {
@@ -184,8 +186,7 @@ class Basic extends Component {
     
     render() {
         const { handleSubmit } = this.props;
-        
-        
+       
         return (
             <div className="col-md-9">
                 <div className="main">
@@ -293,7 +294,7 @@ Basic = connect(mapStateToProps, {
 })(reduxForm({
     form: 'basic_profile',
     validate,
-    destroyOnUnmount: true
+    enableReinitialize: true
 })(Basic))
 
 export default Basic;

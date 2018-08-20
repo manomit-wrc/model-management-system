@@ -1855,11 +1855,11 @@ router.get('/get-additional-details',
       .then(user => {
         if(user) {
           
-          data.age = user.info[0].age;
-          data.height = user.info[0].height;
-          data.weight = user.info[0].weight;
-          data.heap = user.info[0].heap;
-          data.ethnicity = user.ethnicity;
+          data.age = user.info.length > 0 ? user.info[0].age : 0;
+          data.height = user.info.length > 0 ? user.info[0].height: null;
+          data.weight = user.info.length > 0 ? user.info[0].weight : null;
+          data.heap = user.info.length > 0 ? user.info[0].heap : null;
+          data.ethnicity = user.ethnicity !== undefined ? user.ethnicity : null;
     
           
           data.catalog = _.map(user.catalog, cat => {

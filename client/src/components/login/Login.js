@@ -44,7 +44,8 @@ class Login extends Component {
     componentDidMount() {
         
         if (this.props.auth.isAuthenticated) {
-          this.props.history.push('/profile');
+          //this.props.history.push('/profile');
+          window.location.href = "/profile";
         }
         
       }
@@ -64,7 +65,8 @@ class Login extends Component {
             3000
         );
         if (nextProps.auth.isAuthenticated) {
-            this.props.history.push('/profile');
+            //this.props.history.push('/profile');
+            window.location.href = "/profile";
         }
     
        

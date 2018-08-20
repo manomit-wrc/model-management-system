@@ -10,7 +10,7 @@ const flash = require("connect-flash");
 require('dotenv').config({path: 'variables.env'});
 const dbURI = require("./config/keys").mongoURI;
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 9000;
 
 const handlebars = require("handlebars");
 const layouts = require("handlebars-layouts");
@@ -97,11 +97,11 @@ app.use(session({
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
-app.use(passport.session());
+//app.use(passport.session());
 
 require('./config/passport')(passport);
 
-app.use(flash());
+//app.use(flash());
 
 /******* Routes ********/
 app.use('/api/users', api);
@@ -113,7 +113,10 @@ app.use('/api/users', api);
 // app.use(industry);
 /******* End **********/
 
+console.log("Running");
+
 if(process.env.NODE_ENV === 'production') {
+    console.log("In Production");
     app.use(express.static('client/build'));
   
     app.get('*', (req, res) => {
