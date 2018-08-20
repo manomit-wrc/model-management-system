@@ -671,18 +671,25 @@ router.post('/profile/video-upload', passport.authenticate('jwt', { session: fal
 
 router.post('/profile/fetch-allUploadedVideo', passport.authenticate('jwt', {session : false}), async (req,res) => {
   var user = await User.findOne({ _id: req.user.id});
-  if(user.videos != ''){
-    res.json({
-      status: true,
-      code : 200,
-      data : user.videos
-    });
-  }else{
-    res.json({
-      status: false,
-      code : 300,
-      message : "No recent videos link found."
-    });
+
+  var other_users_profile_id = req.body.profile_id;
+  console.log(req.body.profile_id,'profile_id');
+
+  if(other_users_profile_id != '') {
+    var other_users = await User.findOne({_id: other_users_profile_id});
+    if(other_users){
+      res.json({
+        status: true,
+        code : 200,
+        data : other_users.videos
+      });
+    }else{
+      res.json({
+        status: false,
+        code : 300,
+        message : "No recent videos link found."
+      });
+    }
   }
 });
 
@@ -694,9 +701,9 @@ router.post('/profile/delete-uploadedVideos', passport.authenticate('jwt', {sess
   var video_url_array = video_url.split(",");
 
   for(var i = 0; i < video_url_array.length; i++){
-    var index = await user.videos.indexOf(video_url_array[i]);
+    var index = await user.videos.url.indexOf(video_url_array[i]);
     if(index > -1) {
-      user.videos.splice(index, 1);
+      user.videos.url.splice(index, 1);
       
     }
     
@@ -1223,11 +1230,12 @@ router.post('/profile/portfolio-image-upload', passport.authenticate('jwt', {ses
   }
 });
 
-router.get('/profile/fetch-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
+router.post('/profile/fetch-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
   var user = await User.findOne({_id: req.user.id});
 
-  var other_users = await User.findOne({_id: req.body.profile_id});
-  if(other_users != '') {
+  var other_users_profile_id = req.body.profile_id;
+  if(other_users_profile_id != '') {
+    var other_users = await User.findOne({_id: req.body.profile_id});
     if(other_users.images != '') {
       res.json({
         status: true,
@@ -1260,41 +1268,33 @@ router.get('/profile/fetch-portfolio-images', passport.authenticate('jwt', {sess
   }
 });
 
-router.post('/profile/fetch-others-videos', passport.authenticate('jwt', {session : false}), async (req,res) => {
-  var user = await User.findOne({_id: req.body.profile_id});
-  if(user) {
-    if(user.videos != '') {
-      res.json({
-        status: true,
-        code: 200,
-        data: user.videos
-      });
-    }else{
-      res.json({
-        status: false,
-        code: 300,
-        message : "No records found."
-      });
-    }
-  }
-});
-
 router.post('/profile/portfolio-image-details', passport.authenticate('jwt', {session : false}), async (req,res) => {
 
 });
 
 router.post('/profile/delete-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
   const user = await User.findById(req.user.id);
-  var image_url = req.body.imageUri;
-
+  // var image_url = req.body.imageUri;
+  var image_url ='http://mms.wrctpl.com/app_portfolio_image/5b7aafa931b0353b7197f35b-1534771217551.jpeg';
   var make_image_array = image_url.split(",");
 
+  // fs.unlinkSync(`${process.env.DOCUMENT_ROOT}/${arr[arr.length - 1]}`);
+  // const images = _.filter(user.images, img => img.src !== req.body.imageUri.src);
+  // user.images = images;
+
   for(var i = 0; i < make_image_array.length; i++){
-    var index = await user.images.indexOf(make_image_array[i]);
-    if(index > -1) {
-      user.images.src.splice(index, 1);
+    // var index = await user.images.indexOf(make_image_array[i]);
+    // console.log(index);
+    // return false;
+    // if(index > -1) {
+    //   user.images.splice(index, 1);
       
-    }
+    // }
+
+    fs.unlinkSync(`${process.env.DOCUMENT_ROOT}/${make_image_array[make_image_array.length - 1]}`);
+    const images = _.filter(user.images, img => img.src !== make_image_array[i]);
+    console.log(images);
+    user.images = images;
     user.save();
 
     if(i == make_image_array.length - 1) {
