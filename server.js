@@ -100,7 +100,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 require('./config/passport')(passport);
-require('./config/cache');
 
 app.use(flash());
 
