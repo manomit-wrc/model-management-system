@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { signup, getIndustries } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
 import _ from 'lodash';
+import { Alert } from 'reactstrap';
 
 
 const validate = values => {
@@ -69,7 +70,8 @@ class Signup extends Component {
         super(props);
         this.state = {
             showMessage: false,
-            isLoading: false
+            isLoading: false,
+            visible: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -82,7 +84,8 @@ class Signup extends Component {
         if(nexProps.data !== undefined) {
             this.setState({
                 showMessage: true,
-                isLoading: false
+                isLoading: false,
+                visible: true
             })
         }
         
@@ -97,18 +100,20 @@ class Signup extends Component {
         if(this.state.showMessage === true) {
             if(this.props.data.success === true) {
                 return (
-                    <div class="alert alert-success alert-dismissible">
-                            
-                    {this.props.data.message}
-                    </div>
+                    
+                    <Alert color="success" isOpen={this.state.visible} toggle={() => this.setState({ visible: false })}>
+                        <h4 className="alert-heading">Congratulation!</h4>
+                        <p>
+                        Your registration has been completed successfully. Please check your email to verify your registration
+                        </p>
+                    </Alert>
                 );
             }
             else {
                 return (
-                    <div class="alert alert-danger alert-dismissible">
-                            
-                    {this.props.data.message}
-                    </div>
+                    <Alert color="danger" isOpen={this.state.visible} toggle={() => this.setState({ visible: false })}>
+                        {this.props.data.message}
+                    </Alert>
                 );
             }
         }

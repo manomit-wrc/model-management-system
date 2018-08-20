@@ -221,6 +221,22 @@ export function uploadPortfolioImage(data) {
     }
 }
 
+export function uploadPortfolioVideo(data) {
+    
+    let formdata = new FormData();
+    for(var i=0;i<data.length;i++) {
+        formdata.append('videos', data[i]);
+    }
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/upload-portfolio-videos`, formdata);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
+        
+    }
+}
+
 export function userDetails() {
     try {
         return async (dispatch) => {
@@ -240,6 +256,16 @@ export function userDetails() {
 export function removePortfolioImage(data) {
     return async (dispatch) => {
         const response = await axios.post(`${API_ROOT}/remove-portfolio-image`, data);
+        dispatch({
+            type: USER_DETAILS,
+            payload: response.data.user_details
+        });
+    }
+}
+
+export function removePortfolioVideo(data) {
+    return async (dispatch) => {
+        const response = await axios.post(`${API_ROOT}/remove-portfolio-video`, data);
         dispatch({
             type: USER_DETAILS,
             payload: response.data.user_details

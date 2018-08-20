@@ -4,7 +4,7 @@ if(hostname === 'localhost') {
     backendHost = 'http://localhost:8000/api/users';
 } 
 else {
-    backendHost = 'http://35.229.107.151/server/';
+    backendHost = 'http://mms.wrctpl.com/api/users';
 }
 
 export const API_ROOT = `${backendHost}`;

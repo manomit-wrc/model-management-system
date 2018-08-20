@@ -100,7 +100,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 require('./config/passport')(passport);
-require('./config/cache');
 
 app.use(flash());
 
@@ -113,4 +112,13 @@ app.use(banner);
 app.use(category);
 app.use(industry);
 /******* End **********/
+
+if(process.env.NODE_ENV === 'production') {
+    app.use(express.static('client/build'));
+  
+    app.get('*', (req, res) => {
+      res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    });
+}
+
 app.listen(port, () => console.log(`Server listening to port ${port}`));
