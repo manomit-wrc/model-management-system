@@ -9,8 +9,6 @@ const _ = require('lodash');
 const secretOrKey = require('../../config/keys').secretOrKey;
 const crypto = require('crypto');
 
-const cleanCache = require('../../middlewares/cleanCache');
-
 const User = require('../../models/User').User;
 const Industry = require('../../models/Industry').Industry;
 const Admin = require('../../models/Admin').Admin;
