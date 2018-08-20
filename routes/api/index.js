@@ -626,6 +626,12 @@ router.post('/profile/other-user-details', passport.authenticate('jwt', { sessio
     last_two_videos = [];
   }
 
+  // console.log(user_details, 'user_details');
+  // console.log(user_images, 'user_images');
+  // console.log(user_videos, 'user_videos');
+  // console.log(last_two_images, 'last_two_images');
+  // console.log(last_two_videos, 'last_two_videos');
+
   res.json({
       success: true,
       code: 200,
@@ -649,7 +655,13 @@ router.post('/profile/video-upload', passport.authenticate('jwt', { session: fal
 
   var videos_link = req.body.video;
   var new_link = videos_link.replace('watch?v=', 'embed/');
-  user.videos.unshift(new_link);
+
+  var info = {
+    url: new_link,
+    altTag: ''
+  };
+
+  user.videos.unshift(info);
   user.created_at = Date.now();
   user.save();
   res.json({
@@ -1215,12 +1227,49 @@ router.post('/profile/portfolio-image-upload', passport.authenticate('jwt', {ses
 
 router.get('/profile/fetch-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
   var user = await User.findOne({_id: req.user.id});
-  if(user){
-    if(user.images != '') {
+
+  var other_users = await User.findOne({_id: req.body.profile_id});
+  if(other_users != '') {
+    if(other_users.images != '') {
       res.json({
         status: true,
         code: 200,
-        data: user.images
+        data: other_users.images
+      });
+    }else{
+      res.json({
+        status: false,
+        code: 300,
+        message : "No records found."
+      });
+    }
+  }else{
+    if(user){
+      if(user.images != '') {
+        res.json({
+          status: true,
+          code: 200,
+          data: user.images
+        });
+      }else{
+        res.json({
+          status: false,
+          code: 300,
+          message : "No records found."
+        });
+      }
+    }
+  }
+});
+
+router.post('/profile/fetch-others-videos', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({_id: req.body.profile_id});
+  if(user) {
+    if(user.videos != '') {
+      res.json({
+        status: true,
+        code: 200,
+        data: user.videos
       });
     }else{
       res.json({
