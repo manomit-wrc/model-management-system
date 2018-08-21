@@ -103,10 +103,11 @@ const Header = (props) => (
                                         <Fragment>
                                         <li className="nav-item">
                                             
-                                            <Link to="/signup" className="nav-link waves-effect waves-light">Sign Up</Link>
+                                            <a href="/signup" className="nav-link waves-effect waves-light">Sign Up</a>
                                         </li>
                                         <li className="nav-item">
-                                            <Link to="/login" className="nav-link waves-effect waves-light">Login</Link>
+                                            <a href="/login" className="nav-link waves-effect waves-light">Login</a>
+                                            
                                         </li></Fragment> : null}
                                         
                                         <li className="nav-item">

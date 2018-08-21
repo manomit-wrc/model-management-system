@@ -189,10 +189,6 @@ class Basic extends Component {
        
         return (
             <div className="col-md-9">
-                <div className="se-pre-con">
-                    <img src="/img/logo-loader.png" alt="logo" />
-                    <p>Loading. Please Wait...</p>
-	            </div>
                 <div className="main">
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>

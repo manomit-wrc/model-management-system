@@ -72,6 +72,34 @@ hr.custom-hr {
 
 /* Ends General  */
 
+.common-form-box .purple-gradient {
+	background: -webkit-linear-gradient(50deg,#ff6ec4,#7873f5)!important;
+    background: -o-linear-gradient(50deg,#ff6ec4,#7873f5)!important;
+    background: linear-gradient(40deg,#ff6ec4,#7873f5)!important;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	-ms-border-radius: 50%;
+	-o-border-radius: 50%;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    padding: 0;
+    font-size: 16px;
+    display: block;
+    line-height: 40px;
+    position: relative;
+    top: 0;
+	margin-left: 5px;
+	color: #fff;
+}
+
+.common-form-box .form-header .clearfix.center {
+    margin: 0 auto;
+    display: table;
+}
+
+
+
 /*Starts Header Section*/
 
 .header-top {

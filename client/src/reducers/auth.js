@@ -13,7 +13,9 @@ import {
     CHANGE_PASSWORD_FAIL,
     COUNTRIES,
     STATES,
-    UPDATE_USER_DETAILS
+    UPDATE_USER_DETAILS,
+    LOGOUT,
+    LOGIN_START
 } from '../actions/types';
 import isEmpty from '../components/utils/is-empty';
 
@@ -64,15 +66,18 @@ const authReducer = (state = initialState, action) => {
                 ...state,
                 data: action.payload
             }
+        case LOGIN_START: 
+            return {
+                isAuthenticated: null,
+                user: null
+            }
         case LOGIN_FAIL:
             return {
-                ...state,
               isAuthenticated: false,
               user: action.payload
             }
         case SET_CURRENT_USER:
             return {
-              ...state,
               isAuthenticated: !isEmpty(action.payload),
               user: action.payload
             };
@@ -100,6 +105,11 @@ const authReducer = (state = initialState, action) => {
             return {
                 ...state,
                 states: action.payload
+            }
+        case LOGOUT:
+            return {
+                isAuthenticated: false,
+                user: {}
             }
         default:
             return state

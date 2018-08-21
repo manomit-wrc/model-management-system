@@ -16,7 +16,9 @@ import {
     INDUSTRIES,
     COUNTRIES,
     STATES,
-    UPDATE_USER_DETAILS
+    UPDATE_USER_DETAILS, 
+    LOGOUT,
+    LOGIN_START
 } from './types';
 
 import { API_ROOT } from '../components/utils/ApiConfig';
@@ -75,6 +77,10 @@ export function changePassword(data){
 export function login(data) {
     return async (dispatch) => {
         try {
+            dispatch({
+                type: LOGIN_START,
+                payload: null
+            })
             const response = await axios.post(`${API_ROOT}/login`, data);
             if(response.data.success === true) {
                 
@@ -141,7 +147,10 @@ export const logoutUser = () => dispatch => {
     // Remove token from localStorage
     localStorage.removeItem('token');
     // Set current user to {} which will set isAuthenticated to false
-    dispatch(setCurrentUser({}));
+    dispatch({
+        type: LOGOUT,
+        payload: null
+    });
   };
 
 export function checkActivation(data) {

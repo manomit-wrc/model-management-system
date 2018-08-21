@@ -1,11 +1,13 @@
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
 import { login, loginWithGoogle } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
-import { Alert } from 'reactstrap';
+
+import { ToastContainer, toast } from 'react-toastify';
+
 
 
 const validate = values => {
@@ -29,7 +31,7 @@ const renderField = ({ input, label, type, meta: { touched, error, warning } }) 
     
 )
 
-class Login extends Component {
+class Login extends PureComponent {
 
     constructor(props) {
         super(props);
@@ -41,6 +43,7 @@ class Login extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+
     componentDidMount() {
         
         if (this.props.auth.isAuthenticated) {
@@ -50,26 +53,15 @@ class Login extends Component {
         
       }
     
-      componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
-        this.setState({
-            showMessage: true,
-            isLoading: false,
-            visible: true
-        });
-        setTimeout(
-            function() {
-                this.setState({visible: false});
-            }
-            .bind(this),
-            3000
-        );
-        if (nextProps.auth.isAuthenticated) {
-            //this.props.history.push('/profile');
+      
+    componentDidUpdate(prevProps) {
+       if(this.props.auth.isAuthenticated === false) {
+            this.setState({ isLoading: false, showMessage: true });
+       }
+       else if(this.props.auth.isAuthenticated === true) {
             window.location.href = "/profile";
-        }
-    
-       
+       }
+        
     }
 
     responseGoogle = (response) => {
@@ -88,20 +80,20 @@ class Login extends Component {
     }
 
     handleSubmit(e) {
-        this.setState({ isLoading: true });
+        this.setState({ isLoading: true, showMessage: false });
         this.props.login(e);
     }
 
     renderMessage() {
+        
         if(this.state.showMessage === true) {
             if(this.props.auth.isAuthenticated === false) {
                 
                 if(this.props.auth.user.success === false) {
-                    return (
-                        <Alert color="danger" isOpen={this.state.visible}>
-                            {this.props.auth.user.message}
-                        </Alert>
-                    );
+                    toast.error(this.props.auth.user.message, {
+                        position: toast.POSITION.TOP_CENTER
+                    })
+                    
                 }
                 
             }
@@ -111,6 +103,8 @@ class Login extends Component {
             return null;
         }
     }
+
+    
 
     render() {
         const { handleSubmit } = this.props;
@@ -125,22 +119,25 @@ class Login extends Component {
 
                             <div className="card mx-xl-5">
                                 <div className="card-body">
-
-                                    
                                     <div className="form-header deep-blue-gradient rounded">
-                                        <h3 className="my-3">
-                                            Login
-                                        </h3>
+                                        <div className="clearfix center">
+                                            <h3 className="my-3 float-left">
+                                                Login
+                                            </h3>
+                                            <a className="btn-floating btn-lg purple-gradient float-left" href="/"><i className="fa fa-home"></i></a>
+                                            
+                                        </div>
                                     </div>
 
                                     <form onSubmit={handleSubmit(this.handleSubmit)}>  
                                         {this.renderMessage()}
-                                        <div className="md-form font-weight-light">
+                                        <ToastContainer />
+                                        <div className="form-group">
                                             <Field name="email" component={renderField} label="Email" type="email" />
                                         </div>
 
                                     
-                                        <div className="md-form font-weight-light">
+                                        <div className="form-group">
                                             <Field name="password" component={renderField} label="Password" type="password" />
                                         </div>
 
@@ -154,6 +151,7 @@ class Login extends Component {
                                             loadingText="Loading..."
                                         />
                                     </div>
+                                    
                                     </form> 
 
                                 </div>
@@ -190,7 +188,6 @@ class Login extends Component {
 }
 
 const mapStateToProps = (state) => {
-    console.log(state.auth);
     return {
         auth: state.auth
     };
@@ -198,8 +195,7 @@ const mapStateToProps = (state) => {
 
 Login = connect(mapStateToProps, { login, loginWithGoogle })(reduxForm({
     form: 'login',
-    validate,
-    destroyOnUnmount: true
+    validate
 })(Login))
 
 export default withRouter(Login);
