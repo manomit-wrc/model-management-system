@@ -10,8 +10,8 @@ import {
     getStates,
     updateUserDetails 
 } from '../../actions/auth';
+import { RingLoader } from 'react-spinners'
 
-import $ from 'jquery';
 
 
 const validate = values => {
@@ -123,13 +123,17 @@ class Basic extends Component {
         super(props);
         this.state = {
             isLoading:false,
-            showMessage: false
+            showMessage: false,
+            visible: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         
     }
     
     componentWillMount() {
+        
+        this.setState({ visible: true })
+
         this.props.userDetails();
         this.props.getIndustries();
         this.props.getCountries();
@@ -139,16 +143,8 @@ class Basic extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        
-        if(nextProps.data !== undefined) {
-            
-            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
-                $(".alert").slideUp(500);
-            });
-            this.setState({
-                showMessage: true,
-                isLoading: false
-            })
+        if(nextProps.initialized === true) {
+            this.setState({ visible: false });
         }
     }
 
@@ -189,6 +185,18 @@ class Basic extends Component {
        
         return (
             <div className="col-md-9">
+            {
+                this.state.visible ? (
+                    <div style={{width:'100%', height: '100%', textAlign: 'center'}}>
+                        <RingLoader
+                        size={150}
+                        color={'#44C2F7'}
+                        loading={true}
+                        />
+                    </div>
+                ) : null
+            }
+                 
                 <div className="main">
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>

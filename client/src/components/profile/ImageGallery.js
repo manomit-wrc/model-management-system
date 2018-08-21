@@ -6,7 +6,7 @@ import {
     userDetails, 
     removePortfolioImage 
 } from '../../actions/auth';
-import { ClipLoader } from 'react-spinners';
+import { ClipLoader, RingLoader } from 'react-spinners';
 import Lightbox from 'react-images';
 import _ from 'lodash';
 import { showLoading, hideLoading } from 'react-redux-loading-bar'
@@ -23,6 +23,7 @@ class ImageGallery extends Component {
             isLoading: false,
             photoIndex: 0,
             isOpen: false,
+            visible: false
         }
         this.handleProfileImage = this.handleProfileImage.bind(this);
         this.handleImageGallery = this.handleImageGallery.bind(this);
@@ -32,19 +33,17 @@ class ImageGallery extends Component {
     componentWillMount() {
         this.props.userDetails();
         this.setState({
-            avatar: this.props.auth.user.avatar
+            avatar: this.props.auth.user.avatar,
+            visible: true
         });
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
-        if(nextProps.auth.isAuthenticated) {
         this.setState({ 
             isLoading: false,
+            visible: false,
             image_gallery: nextProps.auth.user_details.images
         });
-        
-        }
     }
 
     removeImage(image) {
@@ -86,6 +85,17 @@ class ImageGallery extends Component {
         const { photoIndex, isOpen } = this.state;
         return (
             <div className="col-md-9">
+            {
+                this.state.visible ? (
+                    <div style={{width:'100%', height: '100%', textAlign: 'center'}}>
+                        <RingLoader
+                        size={150}
+                        color={'#44C2F7'}
+                        loading={true}
+                        />
+                    </div>
+                ) : null
+            }
                 <div className="main">
                     <div className="content-box">
                         <form>

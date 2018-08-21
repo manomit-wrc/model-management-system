@@ -47,8 +47,8 @@ class Login extends PureComponent {
     componentDidMount() {
         
         if (this.props.auth.isAuthenticated) {
-          //this.props.history.push('/profile');
-          window.location.href = "/profile";
+          this.props.history.push('/profile');
+          //window.location.href = "/profile";
         }
         
       }
@@ -59,7 +59,7 @@ class Login extends PureComponent {
             this.setState({ isLoading: false, showMessage: true });
        }
        else if(this.props.auth.isAuthenticated === true) {
-            window.location.href = "/profile";
+            this.props.history.push('/profile');
        }
         
     }

@@ -7,9 +7,8 @@ import Slider from 'react-rangeslider';
 import _ from 'lodash';
 import LoaderButton from '../../components/utils/LoaderButton';
 import { getAdditionalMasters, getAdditionalDetails, updateAdditionalDetails } from '../../actions/profile';
+import { RingLoader } from 'react-spinners'
 
-
-import $ from 'jquery';
 
 
 
@@ -98,6 +97,7 @@ class Additional extends Component {
         super(props);
         this.state = {
             isLoading:false,
+            visible: false,
             weight: 40,
             height: 152,
             heap: 36,
@@ -110,27 +110,24 @@ class Additional extends Component {
     }
     
     componentWillMount() {
-        
+        this.setState({ visible: true })
         this.props.getAdditionalDetails();
         this.props.getAdditionalMasters();
     }
 
     componentWillReceiveProps(nextProps) {
         
-        if(nextProps.data !== undefined) {
+        if(nextProps.initialized) {
            
             this.setState({ 
                 isLoading: false,
                 showMessage: true,
-                height: nextProps.additional_details !== undefined ? nextProps.additional_details.height: 152,
-                weight: nextProps.additional_details !== undefined ? nextProps.additional_details.weight: 40, 
-                heap: nextProps.additional_details !== undefined ? nextProps.additional_details.heap: 36
+                visible: false,
+                height: nextProps.additional_details !== undefined ? parseInt(nextProps.additional_details.height): 152,
+                weight: nextProps.additional_details !== undefined ? parseInt(nextProps.additional_details.weight): 40, 
+                heap: nextProps.additional_details !== undefined ? parseInt(nextProps.additional_details.heap): 36
             })
         }
-        
-    }
-
-    componentDidMount() {
         
     }
 
@@ -175,27 +172,7 @@ class Additional extends Component {
     handleSelection = (values, name) => console.log(values, name);
 
     renderMessage() {
-        if(this.state.showMessage === true) {
-            if(this.props.data.success === true) {
-                return (
-                    <div className="alert alert-success alert-dismissible">
-                            
-                        {this.props.data.message}
-                    </div>
-                );
-            }
-            else {
-                return (
-                    <div className="alert alert-danger alert-dismissible">
-                            
-                     {this.props.data.message}
-                    </div>
-                );
-            }
-        }
-        else {
-            return null;
-        }
+       
     }
     
     render() {
@@ -205,6 +182,17 @@ class Additional extends Component {
 
         return (
             <div className="col-md-9">
+             {
+                this.state.visible ? (
+                    <div style={{width:'100%', height: '100%', textAlign: 'center'}}>
+                        <RingLoader
+                        size={150}
+                        color={'#44C2F7'}
+                        loading={true}
+                        />
+                    </div>
+                ) : null
+            }
                 <div className="main">
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
