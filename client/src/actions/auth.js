@@ -315,6 +315,10 @@ export function getStates(data) {
 
 export function updateUserDetails(data) {
     return async (dispatch) => {
+        dispatch({
+            type: UPDATE_USER_DETAILS,
+            payload: undefined
+        });
         const response = await axios.post(`${API_ROOT}/update-user-details`, data);
         dispatch({
             type: UPDATE_USER_DETAILS,

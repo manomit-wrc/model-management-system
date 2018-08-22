@@ -2017,7 +2017,8 @@ router.get('/get-additional-details',
           data.weight = user.info.length > 0 ? user.info[0].weight : null;
           data.heap = user.info.length > 0 ? user.info[0].heap : null;
           data.ethnicity = user.ethnicity !== undefined ? user.ethnicity : null;
-    
+          data.chest = user.info.length > 0 ? user.info[0].chest : null;
+          data.dress = user.info.length > 0 ? user.info[0].dress : null;
           
           data.catalog = _.map(user.catalog, cat => {
             return {
@@ -2062,7 +2063,9 @@ router.post('/update-additional-details',
         height: req.body.height,
         weight: req.body.weight,
         heap: req.body.heap,
-        age: req.body.age
+        age: req.body.age,
+        chest: req.body.chest,
+        dress: req.body.dress
       };
 
       user.save();

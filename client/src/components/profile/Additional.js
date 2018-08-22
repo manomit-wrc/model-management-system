@@ -7,7 +7,8 @@ import Slider from 'react-rangeslider';
 import _ from 'lodash';
 import LoaderButton from '../../components/utils/LoaderButton';
 import { getAdditionalMasters, getAdditionalDetails, updateAdditionalDetails } from '../../actions/profile';
-import { RingLoader } from 'react-spinners'
+import { RingLoader } from 'react-spinners';
+import { ToastContainer, toast } from 'react-toastify';
 
 
 
@@ -101,12 +102,14 @@ class Additional extends Component {
             weight: 40,
             height: 152,
             heap: 36,
+            chest: 34,
             showMessage: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleWeight = this.handleWeight.bind(this);
         this.handleHeight = this.handleHeight.bind(this);
         this.handleHeap = this.handleHeap.bind(this);
+        this.handleChest = this.handleChest.bind(this);
     }
     
     componentWillMount() {
@@ -116,16 +119,20 @@ class Additional extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        
         if(nextProps.initialized) {
            
             this.setState({ 
-                isLoading: false,
-                showMessage: true,
                 visible: false,
                 height: nextProps.additional_details !== undefined ? parseInt(nextProps.additional_details.height): 152,
                 weight: nextProps.additional_details !== undefined ? parseInt(nextProps.additional_details.weight): 40, 
-                heap: nextProps.additional_details !== undefined ? parseInt(nextProps.additional_details.heap): 36
+                heap: nextProps.additional_details !== undefined ? parseInt(nextProps.additional_details.heap): 36,
+                chest: nextProps.additional_details !== undefined ? parseInt(nextProps.additional_details.chest): 34
+            })
+        }
+        if(nextProps.submitSucceeded && nextProps.data !== undefined) {
+            this.setState({
+                showMessage: true,
+                isLoading: false
             })
         }
         
@@ -137,6 +144,7 @@ class Additional extends Component {
         let data = {};
         data.ethnicity = e.ethnicity;
         data.age = e.age;
+        data.dress = e.dress;
         data.catalog = e.catalog;
         data.discipline = e.discipline;
         data.eye = e.eye;
@@ -144,6 +152,7 @@ class Additional extends Component {
         data.height = this.state.height;
         data.weight = this.state.weight;
         data.heap = this.state.heap;
+        data.chest = this.state.chest;
         
         this.props.updateAdditionalDetails(data);
         this.setState({ isLoading: true })
@@ -168,11 +177,34 @@ class Additional extends Component {
             heap: value
         })
     }
+    handleChest = value => {
+        this.setState({
+            chest: value
+        })
+    }
 
     handleSelection = (values, name) => console.log(values, name);
 
     renderMessage() {
-       
+        if(this.state.showMessage === true) {
+            
+            if(this.props.data.success === true) {
+                toast.success(this.props.data.message, {
+                    position: toast.POSITION.TOP_CENTER
+                })
+            }
+            else {
+                toast.error(this.props.data.message, {
+                    position: toast.POSITION.TOP_CENTER
+                })
+            }
+            this.setState({
+                showMessage: false
+            });
+        }
+        else {
+            return null;
+        }
     }
     
     render() {
@@ -197,6 +229,7 @@ class Additional extends Component {
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
                             {this.renderMessage()}
+                            <ToastContainer />
                             <div className="form-group">
                             <Field name="discipline" 
                                 component={renderMultiSelectField} 
@@ -287,6 +320,21 @@ class Additional extends Component {
                                     value={this.state.heap}
                                     onChange={this.handleHeap}
                             />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Your chest ( Cm )</label>
+                                <Slider
+                                    name="chest"
+                                    min={0}
+                                    max={50}
+                                    value={this.state.chest}
+                                    onChange={this.handleChest}
+                            />
+                            </div>
+
+                            <div className="form-group">
+                                <Field name="dress" component={renderField} label="Your dress" type="text" />
                             </div>
                             <div>
                             <LoaderButton
