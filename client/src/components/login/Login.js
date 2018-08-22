@@ -3,7 +3,7 @@ import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
-import { login, loginWithGoogle } from '../../actions/auth';
+import { login, loginWithGoogle, loginWithFacebook } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
@@ -42,6 +42,7 @@ class Login extends PureComponent {
             visible: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.responseFacebook = this.responseFacebook.bind(this);
     }
 
 
@@ -81,7 +82,14 @@ class Login extends PureComponent {
     }
 
     responseFacebook = (response) => {
-        console.log(response);
+        let data = {};
+        if(response.hasOwnProperty('email')) {
+            data.name = response.name;
+            data.email = response.email;
+            data.avatar = response.picture.data.url;
+            data.social_id = response.userID
+            this.props.loginWithFacebook(data);
+        }
       }
 
     handleSubmit(e) {
@@ -165,8 +173,7 @@ class Login extends PureComponent {
                                 <div className="modal-footer text-center">
                                    
                                     <FacebookLogin
-                                        appId="248687309118012"
-                                        autoLoad={true}
+                                        appId="741775199258024"
                                         fields="name,email,picture"
                                         callback={this.responseFacebook}
                                         render={renderProps => (
@@ -177,6 +184,8 @@ class Login extends PureComponent {
                                     >
                                         <i className="fa fa-facebook pr-1"></i>  Facebook Login
                                     </FacebookLogin>
+
+                                    
                                     <GoogleLogin
                                         clientId="422270959343-2qtta1f03ll8n6ajs4iue0ng8og3mkre.apps.googleusercontent.com"
                                         className="btn btn-gplus waves-effect waves-light"
@@ -208,7 +217,7 @@ const mapStateToProps = (state) => {
     };
 }
 
-Login = connect(mapStateToProps, { login, loginWithGoogle })(reduxForm({
+Login = connect(mapStateToProps, { login, loginWithGoogle, loginWithFacebook })(reduxForm({
     form: 'login',
     validate
 })(Login))

@@ -1469,6 +1469,7 @@ router.get('/home-page-details', async (req, res) => {
   const banner = await Banner.find({});
   const categories = await Category.find({});
   const brands = await Brand.find({});
+  //const users = await User.find({}).populate('industry');
   res.json({
     success: true,
     banner: banner,
@@ -1476,6 +1477,21 @@ router.get('/home-page-details', async (req, res) => {
     brands: brands
   });
 });
+
+router.get('/get-model-list', async (req, res) => {
+  const users = await User.find({}).populate('industry');
+  const userArr = [];
+  for(var i = 0; i < users.length; i++) {
+    userArr.push({
+      src: users[i].avatar,
+      caption: users[i].first_name + " " + users[i].last_name
+    })
+  }
+  res.json({
+    success: true,
+    users: userArr
+  })
+})
 
 router.post('/check-activation', async (req, res) => {
   
@@ -1626,6 +1642,72 @@ router.post('/upload-portfolio-videos', portfolio.any('videos'), passport.authen
 
 })
 
+router.post('/login-with-facebook', async(req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+  if(user) {
+    const payload = { 
+      id: user._id, 
+      email: user.email, 
+      avatar: user.avatar,
+      first_name: user.first_name,
+      last_name: user.last_name 
+    }; // Create JWT Payload
+
+    // Sign Token
+    jwt.sign(
+      payload,
+      secretOrKey,
+      { expiresIn: 60 * 60 },
+      (err, token) => {
+        return res.json({
+          success: true,
+          token: token,
+          info: user,
+          code: 200
+        });
+      }
+    );
+  }
+  else {
+    const name = req.body.name.split(" ");
+    const newUser = new User({
+      first_name: name[0],
+      last_name: name[1],
+      email: req.body.email,
+      avatar: req.body.avatar,
+      password: '',
+      reg_type: 'F',
+      status: 1,
+      social_id: req.body.social_id
+    });
+
+    newUser.save().then(user => {
+      const payload = { 
+        id: user._id, 
+        email: user.email, 
+        avatar: user.avatar,
+        first_name: user.first_name,
+        last_name: user.last_name 
+      }; // Create JWT Payload
+
+      // Sign Token
+      jwt.sign(
+        payload,
+        secretOrKey,
+        { expiresIn: 60 * 60 },
+        (err, token) => {
+          return res.json({
+            success: true,
+            token: token,
+            info: user,
+            code: 200
+          });
+        }
+      );
+    })
+  }
+})
+
 router.post('/login-with-google', async(req, res) => {
   const user = await User.findOne({ email: req.body.email });
   if(user) {
@@ -1660,6 +1742,7 @@ router.post('/login-with-google', async(req, res) => {
       avatar: req.body.avatar,
       password: '',
       reg_type: 'G',
+      status: 1,
       social_id: req.body.social_id
     });
 

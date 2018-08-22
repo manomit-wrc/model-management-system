@@ -136,6 +136,34 @@ export function loginWithGoogle(data) {
     }
 }
 
+export function loginWithFacebook(data) {
+    return async (dispatch) => {
+        try {
+            const response = await axios.post(`${API_ROOT}/login-with-facebook`, data);
+            if(response.data.success === true) {
+                localStorage.setItem('token', response.data.token);
+                const decoded = jwt_decode(response.data.token);
+                decoded.info = response.data.info;
+                // Set current user
+                dispatch(setCurrentUser(decoded));
+                
+            }
+            else {
+                dispatch({
+                    type: LOGIN_FAIL,
+                    payload: response.data
+                });
+            }
+        }
+        catch(error) {
+            dispatch({
+                type: LOGIN_FAIL,
+                payload: error.response.data
+            });
+        }
+    }
+}
+
 export const setCurrentUser = decoded => {
     return {
       type: SET_CURRENT_USER,

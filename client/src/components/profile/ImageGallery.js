@@ -41,9 +41,13 @@ class ImageGallery extends Component {
     componentWillReceiveProps(nextProps) {
         this.setState({ 
             isLoading: false,
-            visible: false,
-            image_gallery: nextProps.auth.user_details.images
+            visible: false
         });
+        if(nextProps.auth.user_details !==undefined) {
+            this.setState({
+                image_gallery: nextProps.auth.user_details.images
+            })
+        }
     }
 
     removeImage(image) {
