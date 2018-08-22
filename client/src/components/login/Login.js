@@ -5,6 +5,7 @@ import { Link, withRouter } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
 import { login, loginWithGoogle } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -78,6 +79,10 @@ class Login extends PureComponent {
         
         
     }
+
+    responseFacebook = (response) => {
+        console.log(response);
+      }
 
     handleSubmit(e) {
         this.setState({ isLoading: true, showMessage: false });
@@ -159,9 +164,19 @@ class Login extends PureComponent {
                                 
                                 <div className="modal-footer text-center">
                                    
-                                    <button type="button" className="btn btn-fb">
+                                    <FacebookLogin
+                                        appId="248687309118012"
+                                        autoLoad={true}
+                                        fields="name,email,picture"
+                                        callback={this.responseFacebook}
+                                        render={renderProps => (
+                                            <button onClick={renderProps.onClick} type="button" className="btn btn-fb">
+                                                <i className="fa fa-facebook pr-1"></i>  Facebook Login
+                                            </button>
+                                        )}
+                                    >
                                         <i className="fa fa-facebook pr-1"></i>  Facebook Login
-                                    </button>
+                                    </FacebookLogin>
                                     <GoogleLogin
                                         clientId="422270959343-2qtta1f03ll8n6ajs4iue0ng8og3mkre.apps.googleusercontent.com"
                                         className="btn btn-gplus waves-effect waves-light"
