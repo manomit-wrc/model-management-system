@@ -43,9 +43,11 @@ const userSchema = new Schema({
             comments: [
                 {
                     description: { type: String },
-                    user: { type: Schema.Types.ObjectId, ref: 'User' }
+                    user: { type: Schema.Types.ObjectId, ref: 'User' },
+                    uploaded_at: {type: Date, default : Date.now()}
                 }
-            ]
+            ],
+            uploaded_at : { type: Date, default : Date.now()}
         }
     ],
     trust: [

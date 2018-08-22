@@ -23,6 +23,7 @@ const Eyes = require('../../models/Eyes');
 const HairColor = require('../../models/HairColor');
 const Ethnicity = require('../../models/Ethnicity');
 const Job_post = require('../../models/Job_post');
+const ProfileComment = require('../../models/ProfileComment');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -606,7 +607,34 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
 router.post('/profile/other-user-details', passport.authenticate('jwt', { session : false}), async (req,res) => {
   var profile_id = req.body.profile_id;
 
-  var user_details = await User.findOne({_id  : profile_id},{password: 0, status: 0, otp: 0, activation_link: 0, reg_type:0 });
+  var comment_details_on_profile = await ProfileComment.find({profile_id : profile_id});
+  if(comment_details_on_profile != ''){
+    var profileCommentArray = [];
+    for(var i = 0; i < comment_details_on_profile.length; i++){
+      var commented_user_id = comment_details_on_profile[i].comment_by;
+      var commented_user_details = await User.findOne({_id:commented_user_id});
+      var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
+      var profile_image = commented_user_details.avatar;
+
+      profileCommentArray.push({
+        'commented_by' : name,
+        'profile_img_link' : profile_image,
+        'desc' : comment_details_on_profile[i].description,
+        'comment_date' : comment_details_on_profile[i].uploaded_at
+      });
+    }
+    profileCommentArray.push({
+      'total_comment' : comment_details_on_profile.length
+    });
+  }else{
+    var profileCommentArray = [];
+    profileCommentArray.push({
+      'total_comment' : 0,
+      'message' : "No comment found."
+    });
+  }
+
+  var user_details = await User.findOne({_id  : profile_id},{password: 0, otp: 0, activation_link: 0});
 
   var user_images = user_details.images;
   var user_videos = user_details.videos;
@@ -624,18 +652,13 @@ router.post('/profile/other-user-details', passport.authenticate('jwt', { sessio
     last_two_videos = [];
   }
 
-  // console.log(user_details, 'user_details');
-  // console.log(user_images, 'user_images');
-  // console.log(user_videos, 'user_videos');
-  // console.log(last_two_images, 'last_two_images');
-  // console.log(last_two_videos, 'last_two_videos');
-
   res.json({
       success: true,
       code: 200,
       user_details,
       last_two_images,
-      last_two_videos
+      last_two_videos,
+      profileCommentArray
   });
 });
 
@@ -701,73 +724,26 @@ router.post('/profile/delete-uploadedVideos', passport.authenticate('jwt', {sess
   var video_url_array = video_url.split(",");
 
   for(var i = 0; i < video_url_array.length; i++){
-    var index = await user.videos.url.indexOf(video_url_array[i]);
-    if(index > -1) {
-      user.videos.url.splice(index, 1);
-      
-    }
+    const videos = _.filter(user.videos, video => video.url === video_url_array[i]);
+
+    await User.update({ _id: req.user.id }, { "$pull": { "videos": { "_id": videos[0]._id } }}, { safe: true, multi:true }, function(err, obj) {
+      if(err) throw err;
+        console.log(obj);
+    });
     
 
     if(i == video_url_array.length - 1) {
-      user.save();
+      var user_details = await User.findOne({ _id: req.user.id});
 
       res.json({
         success: true,
         code: 200,
-        data: user.videos,
+        data: user_details.videos,
         message: "Video link deleted successfully. "
       });
     }
   }
 });
-
-// router.post('/profile/info', passport.authenticate('jwt', { session: false }), async (req, res) => {
-//   var user = await User.findOne({ _id: req.user.id},{
-//     password: 0, otp: 0, activation_link: 0
-//   });
-
-//   console.log(user);
-//   return false;
-
-//   const user_info = {
-//     ethencity: req.body.ethencity,
-//     gender: req.body.gender,
-//     height: req.body.height,
-//     eyes: req.body.eyes,
-//     dress: req.body.dress,
-//     shoes: req.body.shoes
-//   };
-//   user.info.unshift(user_info);
-//   user.save();
-//   res.json({
-//     success: true,
-//     code: 200,
-//     message: "Info uploaded successfully"
-//   });
-// });
-
-// router.post('/profile/discipline', passport.authenticate('jwt', {session:false}), async (req,res) => {
-//   var user = await User.findOne({ _id: req.user.id});
-
-//   const discipline = {
-//     lingerie: req.body.lingerie,
-//     actors: req.body.actors,
-//     glamour: req.body.glamour,
-//     catalog: req.body.catalog,
-//     commercial: req.body.commercial,
-//     event: req.body.event,
-//     foot: req.body.foot,
-//     video: req.body.video,
-//     petite: req.body.petite
-//   };
-//   user.discipline.unshift(discipline);
-//   user.save();
-//   res.json({
-//     success: true,
-//     code: 200,
-//     message: "Discipline uploaded successfully"
-//   });
-// });
 
 router.post('/profile/trust', passport.authenticate('jwt', {session:false}), async (req,res) => {
   var user = await User.findOne({ _id: req.user.id});
@@ -808,30 +784,6 @@ router.post('/profile/trust', passport.authenticate('jwt', {session:false}), asy
 
   
 });
-
-// router.post('/profile/general-info-edit', passport.authenticate('jwt', {session: false}), async (req,res) =>{
-//   var user = await User.findOne({ _id: req.user.id});
-//   user.first_name = req.body.first_name;
-//   user.last_name = '';
-//   // user.email = req.body.email;
-//   user.description = req.body.description;
-//   user.location = req.body.location;
-//   user.city = req.body.city;
-
-//   if(user.save()){
-//     res.json({
-//       success: true,
-//       code: 200,
-//       message: "Profile updated successfully."
-//     });
-//   }else{
-//     res.json({
-//       success: false,
-//       code: 300,
-//       message: "Edit failed."
-//     });
-//   }
-// });
 
 router.post('/change-password', passport.authenticate('jwt', {session : false}), (req,res) => {
   var new_password_with_hashing;
@@ -930,42 +882,89 @@ router.post('/all-user-list', async (req,res) =>{
   
 });
 
-router.post('/user-serach-result' , passport.authenticate('jwt', {session : false}), async (req,res) => {
-  
-  var user_search_result = await User.find().or(
-    [
-      {
-        first_name: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
-      },
-      {
-        last_name: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
-      },
-      {
-        location: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
-      },
-      {
-        city: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
-      }
-    ]
-  ).and([
-    {
-      _id :{
-        $nin: req.user.id
-      }
-    }
-  ]).populate('Industry');
-  
-  if(user_search_result.length > 0){
-    res.json({
-      success: true,
-      code: 200,
-      data: user_search_result
-    });
+router.post('/user-serach-result' , async (req,res) => {
+  var token = req.headers['authorization'];
+  console.log(token);
+  // return false;
+  var new_token;
+  if(token == undefined || token == ''){
+    new_token = '';
   }else{
-    res.json({
-      success: false,
-      code: 300,
-      message: "User not found"
+    new_token = req.headers['authorization'].replace(/^Bearer\s/, '');
+  }
+
+  if(new_token == '') {
+
+    var user_search_result = await User.find({status:1}).or(
+      [
+        {
+          first_name: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+        },
+        {
+          last_name: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+        },
+        {
+          location: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+        },
+        {
+          city: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+        }
+      ]
+    ).populate('Industry');
+    
+    if(user_search_result.length > 0){
+      res.json({
+        success: true,
+        code: 200,
+        data: user_search_result
+      });
+    }else{
+      res.json({
+        success: false,
+        code: 300,
+        message: "User not found"
+      });
+    }
+
+  }else{
+    jwt.verify(new_token, secretOrKey, async function (err, decoded) {
+      var user_search_result = await User.find({status:1}).or(
+        [
+          {
+            first_name: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+          },
+          {
+            last_name: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+          },
+          {
+            location: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+          },
+          {
+            city: { $regex: '.*' + req.body.search_text + '.*', $options : 'i' }
+          }
+        ]
+      ).and([
+        {
+          _id :{
+            $nin: decoded.id
+          }
+        }
+      ]).populate('Industry');
+      
+      if(user_search_result.length > 0){
+        res.json({
+          success: true,
+          code: 200,
+          data: user_search_result
+        });
+      }else{
+        res.json({
+          success: false,
+          code: 300,
+          message: "User not found"
+        });
+      }
+
     });
   }
   
@@ -1210,11 +1209,12 @@ router.post('/profile/portfolio-image-upload', passport.authenticate('jwt', {ses
 
   var info = {
     src: final_link,
-    caption: ''
+    caption: '',
+    uploaded_at: Date.now()
   };
 
   user.images.unshift(info);
-  user.created_at = Date.now();
+
   if(user.save()){
     res.json({
       success: true,
@@ -1274,37 +1274,194 @@ router.post('/profile/portfolio-image-details', passport.authenticate('jwt', {se
 
 router.post('/profile/delete-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
   const user = await User.findById(req.user.id);
-  // var image_url = req.body.imageUri;
-  var image_url ='http://mms.wrctpl.com/app_portfolio_image/5b7aafa931b0353b7197f35b-1534771217551.jpeg';
+  var image_url = req.body.imageUri;
   var make_image_array = image_url.split(",");
 
-  // fs.unlinkSync(`${process.env.DOCUMENT_ROOT}/${arr[arr.length - 1]}`);
-  // const images = _.filter(user.images, img => img.src !== req.body.imageUri.src);
-  // user.images = images;
-
   for(var i = 0; i < make_image_array.length; i++){
-    // var index = await user.images.indexOf(make_image_array[i]);
-    // console.log(index);
-    // return false;
-    // if(index > -1) {
-    //   user.images.splice(index, 1);
-      
-    // }
+    const images = _.filter(user.images, img => img.src === make_image_array[i]);
 
-    fs.unlinkSync(`${process.env.DOCUMENT_ROOT}/${make_image_array[make_image_array.length - 1]}`);
-    const images = _.filter(user.images, img => img.src !== make_image_array[i]);
-    console.log(images);
-    user.images = images;
-    user.save();
+    await User.update({ _id: req.user.id }, { "$pull": { "images": { "_id": images[0]._id } }}, { safe: true, multi:true }, function(err, obj) {
+      if(err) throw err;
+        console.log(obj);
+    });
 
     if(i == make_image_array.length - 1) {
+      const user_details = await User.findById(req.user.id);
       res.json({
         success: true,
         code: 200,
-        data: user.images,
+        data: user_details.images,
         message: "Image deleted successfully. "
       });
     }
+  }
+});
+
+router.post('/profile/add-comment-on-portfolio-image', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user_login_id = req.user.id;
+  var comment = req.body.users_comment;
+  var picture_id = req.body.picture_id;
+  var user_profile_id = req.body.user_profile_id;
+
+  if(user_login_id != user_profile_id) {
+    var user_profile_details = await User.findOne({_id:user_profile_id});
+    if(user_profile_details){
+      var user_portfolio_image_details = _.filter(user_profile_details.images, arr => arr.id === picture_id);
+
+      var info = {
+        description : comment,
+        user : user_login_id
+      };
+
+      if(user_portfolio_image_details[0].comments.length > 0) {
+        user_portfolio_image_details[0].comments.unshift(info);
+      }else{
+        user_portfolio_image_details[0].comments = info;
+      }
+
+      if(user_profile_details.save()) {
+        res.json({
+          status: true,
+          code:200,
+          message : "Comment added successfully."
+        });
+      }else{
+        res.json({
+          status: false,
+          code:300,
+          message : "Comment added failed."
+        });
+      }
+    }
+  }else{
+    res.json({
+      status: false,
+      code : 300,
+      message : "Comment section is allow only for others user portfolio images."
+    });
+  }
+});
+
+router.post('/profile/fetch-comment', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user_login_id = req.user.id;
+  var picture_id = req.body.picture_id;
+  var user_profile_id = req.body.user_profile_id;
+
+  if(user_profile_id != '') {
+    var user_profile_details = await User.findOne({_id:user_profile_id});
+    var user_portfolio_image_details = _.filter(user_profile_details.images, arr => arr.id === picture_id);
+
+    var commentArray = [];
+
+    if(user_portfolio_image_details != '') {
+      for(var i = 0; i<user_portfolio_image_details[0].comments.length; i++) {
+        var users_id = user_portfolio_image_details[0].comments[i].user;
+        var commented_user_details = await User.findOne({_id:users_id});
+        var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
+        var img_link = commented_user_details.avatar;
+  
+        commentArray.push({
+          'comment_by' : name,
+          'description' : user_portfolio_image_details[0].comments[i].description,
+          'user_img_link' : img_link,
+          'comment_date' : user_portfolio_image_details[0].comments[i].uploaded_at
+        }); 
+      }
+  
+      var new_array = [];
+      new_array.push({
+        total_comment : user_portfolio_image_details[0].comments.length,
+        comment_details : commentArray
+      });
+  
+      res.json({
+        status : true,
+        code : 200,
+        new_array
+      });
+    }else{
+      var new_array = [];
+      new_array.push({
+        total_comment : 0,
+        comment_details : "No comments found."
+      });
+      res.json({
+        status : false,
+        code : 300,
+        new_array
+      });
+    }
+  }else{
+    var user_profile_details = await User.findOne({_id:user_login_id});
+    var user_portfolio_image_details = _.filter(user_profile_details.images, arr => arr.id === picture_id);
+
+    var commentArray = [];
+    if(user_portfolio_image_details != '') {
+      for(var i = 0; i<user_portfolio_image_details[0].comments.length; i++) {
+        var users_id = user_portfolio_image_details[0].comments[i].user;
+        var commented_user_details = await User.findOne({_id:users_id});
+        var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
+        var img_link = commented_user_details.avatar;
+  
+        commentArray.push({
+          'comment_by' : name,
+          'description' : user_portfolio_image_details[0].comments[i].description,
+          'user_img_link' : img_link,
+          'comment_date' : user_portfolio_image_details[0].comments[i].uploaded_at
+        }); 
+      }
+  
+      var new_array = [];
+      new_array.push({
+        total_comment : user_portfolio_image_details[0].comments.length,
+        comment_details : commentArray
+      });
+  
+      res.json({
+        status : true,
+        code : 200,
+        new_array
+      });
+    }else{
+      var new_array = [];
+      new_array.push({
+        total_comment : 0,
+        comment_details : "No comments found."
+      });
+      res.json({
+        status : false,
+        code : 300,
+        new_array
+      });
+    }
+  }
+});
+
+router.post('/profile-wise-comment', passport.authenticate('jwt', {session:false}), async (req,res) => {
+  var user_login_id = req.user.id;
+  var comment = req.body.users_comment;
+  var user_profile_id = req.body.user_profile_id;
+
+  if(user_login_id != user_profile_id) {
+    var add_comment = new ProfileComment({
+      profile_id : user_profile_id,
+      description : comment,
+      comment_by : user_login_id
+    });
+
+    if(add_comment.save()){
+      res.json({
+        status : true,
+        code : 200,
+        message : "Comment added successfully."
+      });
+    }
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "Comment section allow only for other users profile."
+    });
   }
 });
 
