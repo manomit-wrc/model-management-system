@@ -15,7 +15,11 @@ import {
     STATES,
     UPDATE_USER_DETAILS,
     LOGOUT,
-    LOGIN_START
+    LOGIN_START,
+    FORGOT_PASSWORD_SUCCESS,
+    FORGOT_PASSWORD_FAIL,
+    CHANGE_PASSWORD_FP_SUCCESS,
+    CHANGE_PASSWORD_FP_FAIL
 } from '../actions/types';
 import isEmpty from '../components/utils/is-empty';
 
@@ -42,6 +46,16 @@ const authReducer = (state = initialState, action) => {
                 data: action.payload
             }
         case CHANGE_PASSWORD_FAIL:
+            return{
+                ...state,
+                data: action.payload
+            }
+        case CHANGE_PASSWORD_FP_SUCCESS:
+            return{
+                ...state,
+                data: action.payload
+            }
+        case CHANGE_PASSWORD_FP_FAIL:
             return{
                 ...state,
                 data: action.payload
@@ -75,6 +89,16 @@ const authReducer = (state = initialState, action) => {
             return {
               isAuthenticated: false,
               user: action.payload
+            }
+        case FORGOT_PASSWORD_SUCCESS:
+            return {
+                ...state,
+                data: action.payload
+            }
+        case FORGOT_PASSWORD_FAIL:
+            return {
+                ...state,
+                data: action.payload
             }
         case SET_CURRENT_USER:
             return {

@@ -24,6 +24,7 @@ const HairColor = require('../../models/HairColor');
 const Ethnicity = require('../../models/Ethnicity');
 const Job_post = require('../../models/Job_post');
 const ProfileComment = require('../../models/ProfileComment');
+const Booking = require('../../models/Booking');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -606,8 +607,10 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
 
 router.post('/profile/other-user-details', passport.authenticate('jwt', { session : false}), async (req,res) => {
   var profile_id = req.body.profile_id;
+  var total_comment_on_profile = 0;
 
   var comment_details_on_profile = await ProfileComment.find({profile_id : profile_id});
+  
   if(comment_details_on_profile != ''){
     var profileCommentArray = [];
     for(var i = 0; i < comment_details_on_profile.length; i++){
@@ -623,13 +626,10 @@ router.post('/profile/other-user-details', passport.authenticate('jwt', { sessio
         'comment_date' : comment_details_on_profile[i].uploaded_at
       });
     }
-    profileCommentArray.push({
-      'total_comment' : comment_details_on_profile.length
-    });
+    total_comment_on_profile = comment_details_on_profile.length;
   }else{
     var profileCommentArray = [];
     profileCommentArray.push({
-      'total_comment' : 0,
       'message' : "No comment found."
     });
   }
@@ -658,7 +658,8 @@ router.post('/profile/other-user-details', passport.authenticate('jwt', { sessio
       user_details,
       last_two_images,
       last_two_videos,
-      profileCommentArray
+      profileCommentArray,
+      total_comment : total_comment_on_profile
   });
 });
 
@@ -818,6 +819,34 @@ router.post('/change-password', passport.authenticate('jwt', {session : false}),
       return res.json({ success: false, code: 404, message: 'Old Password does not matched.'});
     }
   });
+});
+
+router.post('/change-password-fp', (req,res) => {
+  var new_password_with_hashing;
+
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(req.body.new_password, salt, (err, hash) => {
+          if (err) throw err;
+          new_password_with_hashing = hash;
+
+          User.updateOne({
+              email: req.body.new_password //matching with table id
+            },{
+              $set: {
+                password: new_password_with_hashing
+              }
+            }).then(function (result) {
+              if(result) {
+                return res.json({
+                  success: true,
+                  code:200,
+                  message: "Password changed successfully."
+                });
+              }
+            });
+        });
+      });
+    
 });
 
 router.post('/all-user-list', async (req,res) =>{
@@ -1116,6 +1145,157 @@ router.post('/forgot-password', async (req,res) => {
   }
 });
 
+
+router.post('/forgot-password-frontend', async (req,res) => {
+  var user_email = req.body.email;
+  var user_details = await User.findOne({
+    email: user_email
+  });
+
+  if(user_details){
+
+    var digits = 7;	
+		var numfactor = Math.pow(10, parseInt(digits-1));	
+    var randomNum =  Math.floor(Math.random() * numfactor) + 1;	
+
+    var email_body = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    
+    <head>
+    
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    
+        <title>Forgot Password</title>
+    
+        <style>
+    
+            body {
+    
+                background-color: #FFFFFF; padding: 0; margin: 0;
+    
+            }
+    
+        </style>
+    
+    </head>
+    
+    <body style="background-color: #FFFFFF; padding: 0; margin: 0;">
+    
+    <table border="0" cellpadding="0" cellspacing="10" height="100%" bgcolor="#FFFFFF" width="100%" style="max-width: 650px;" id="bodyTable">
+    
+        <tr>
+    
+            <td align="center" valign="top">
+    
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" id="emailContainer" style="font-family:Arial; color: #333333;">
+    
+                    <!-- Logo -->
+    
+                    <tr>
+    
+                        <td align="left" valign="top" colspan="2" style="border-bottom: 1px solid #CCCCCC; padding-bottom: 10px;">
+    
+                            <img alt="" border="0" src="/assets/images/common/demo/logo.png" title="" class="sitelogo" width="60%" style="max-width:250px;" />
+    
+                        </td>
+    
+                    </tr>
+    
+                    <!-- Title -->
+    
+                    <tr>
+    
+                        <td align="left" valign="top" colspan="2" style="border-bottom: 1px solid #CCCCCC; padding: 20px 0 10px 0;">
+    
+                            <span style="font-size: 18px; font-weight: normal;">FORGOT PASSWORD</span>
+    
+                        </td>
+    
+                    </tr>
+    
+                    <!-- Messages -->
+    
+                    <tr>
+    
+                        <td align="left" valign="top" colspan="2" style="padding-top: 10px;">
+    
+                            <span style="font-size: 12px; line-height: 1.5; color: #333333;">
+    
+                              Hi ${user_details.first_name}, <br/>    
+                              We have sent you this email with Link in response to your request to reset your password on Model Management System.
+    
+                                <br/><br/>
+    
+                                To reset your password for Model Management System login, please copy the below Link: 
+                                <br/>
+
+                                <br/><br/>
+                  
+                                  <a href="${process.env.FRONT_END_URL}/change-password/${user_details.activation_link}">Change Password</a>
+                                  <br/>
+    
+                                <br/><br/>
+    
+                                We recommend that you keep your password secure and not share it with anyone.If you feel your password has been compromised, you can change it by going to your Change password page and clicking on the "Change Password" link.
+    
+                                <br/><br/>
+    
+                                If you need help, or you have any other questions, feel free to email info@wrctpl.com, or call customer service toll-free at +91-1234567890.
+    
+                                <br/><br/>
+    
+                                Model Management System Customer Service
+    
+                            </span>
+    
+                        </td>
+    
+                    </tr>
+    
+                </table>
+    
+            </td>
+    
+        </tr>
+    
+    </table>
+    
+    </body>
+    
+    </html> `;
+
+    var sendEmail = Mailjet.post('send');
+ 
+    var emailData = {
+        'FromEmail': 'info@wrctpl.com',
+        'FromName': 'Model Management System',
+        'Subject': 'Forgot Password OTP',
+        'Html-part': email_body,
+        'Recipients': [{'Email': req.body.email}]
+    };
+    
+    if(sendEmail.request(emailData)) {
+      user_details.otp = randomNum;
+      if(user_details.save()) {
+        res.json({
+          success: true, 
+          code: 200, 
+          message: 'Email send successfully to the user.'
+        });
+      }
+    }
+
+  }else{
+    res.json({
+      success: false, 
+      code: 404, 
+      message: 'Email not found.'
+    });
+  }
+});
+
+
 router.post('/otp-verify-and-update-pw', async (req,res) => {
   var otp = req.body.otp;
 
@@ -1268,8 +1448,145 @@ router.post('/profile/fetch-portfolio-images', passport.authenticate('jwt', {ses
   }
 });
 
-router.post('/profile/portfolio-image-details', passport.authenticate('jwt', {session : false}), async (req,res) => {
+router.post('/profile/fetch-comment', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user_login_id = req.user.id;
+  var picture_id = req.body.picture_id;
+  var user_profile_id = req.body.user_profile_id;
 
+  if(user_profile_id != '') {
+    var user_profile_details = await User.findOne({_id:user_profile_id});
+    var user_portfolio_image_details = _.filter(user_profile_details.images, arr => arr.id === picture_id);
+    // console.log(user_portfolio_image_details);
+    // return false;
+
+    var commentArray = [];
+    var likeArray = [];
+
+    if(user_portfolio_image_details != '') {
+      //comment
+      for(var i = 0; i<user_portfolio_image_details[0].comments.length; i++) {
+        var users_id = user_portfolio_image_details[0].comments[i].user;
+        var commented_user_details = await User.findOne({_id:users_id});
+        var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
+        var img_link = commented_user_details.avatar;
+  
+        commentArray.push({
+          'comment_by' : name,
+          'description' : user_portfolio_image_details[0].comments[i].description,
+          'user_img_link' : img_link,
+          'comment_date' : user_portfolio_image_details[0].comments[i].uploaded_at
+        }); 
+      }
+      //like
+      var total_like_on_image = 0;
+      for(var i = 0; i<user_portfolio_image_details[0].likes.length; i++) {
+        if(user_portfolio_image_details[0].likes[i].status == true) {
+          var users_id = user_portfolio_image_details[0].likes[i].user;
+          var commented_user_details = await User.findOne({_id:users_id});
+          var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
+          var img_link = commented_user_details.avatar;
+          
+          total_like_on_image = total_like_on_image + 1;
+
+          likeArray.push({
+            'liked_by' : name,
+            'like_by_user_id' : user_portfolio_image_details[0].likes[i].user,
+            'user_img_link' : img_link,
+            'liked_date' : user_portfolio_image_details[0].likes[i].liked_at
+          }); 
+        }
+      }
+  
+      var new_array = [];
+      new_array.push({
+        total_comment : user_portfolio_image_details[0].comments.length,
+        total_like : total_like_on_image,
+        comment_details : commentArray,
+        like_details : likeArray
+      });
+  
+      res.json({
+        status : true,
+        code : 200,
+        new_array
+      });
+    }else{
+      var new_array = [];
+      new_array.push({
+        total_comment : 0,
+        total_like : 0,
+        comment_details : "No comments found.",
+        like_details : "As off now no one like your picture."
+      });
+      res.json({
+        status : false,
+        code : 300,
+        new_array
+      });
+    }
+  }else{
+    var user_profile_details = await User.findOne({_id:user_login_id});
+    var user_portfolio_image_details = _.filter(user_profile_details.images, arr => arr.id === picture_id);
+
+    var commentArray = [];
+    var likeArray = [];
+
+    if(user_portfolio_image_details != '') {
+      for(var i = 0; i<user_portfolio_image_details[0].comments.length; i++) {
+        var users_id = user_portfolio_image_details[0].comments[i].user;
+        var commented_user_details = await User.findOne({_id:users_id});
+        var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
+        var img_link = commented_user_details.avatar;
+  
+        commentArray.push({
+          'comment_by' : name,
+          'description' : user_portfolio_image_details[0].comments[i].description,
+          'user_img_link' : img_link,
+          'comment_date' : user_portfolio_image_details[0].comments[i].uploaded_at
+        }); 
+      }
+      //like
+      for(var i = 0; i<user_portfolio_image_details[0].likes.length; i++) {
+        var users_id = user_portfolio_image_details[0].likes[i].user;
+        var commented_user_details = await User.findOne({_id:users_id});
+        var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
+        var img_link = commented_user_details.avatar;
+  
+        likeArray.push({
+          'liked_by' : name,
+          'user_img_link' : img_link,
+          'liked_date' : user_portfolio_image_details[0].likes[i].liked_at
+        }); 
+      }
+  
+      var new_array = [];
+      new_array.push({
+        total_comment : user_portfolio_image_details[0].comments.length,
+        total_like : user_portfolio_image_details[0].likes.length,
+        comment_details : commentArray,
+        like_details : likeArray
+      });
+  
+      res.json({
+        status : true,
+        code : 200,
+        new_array
+      });
+    }else{
+      var new_array = [];
+      new_array.push({
+        total_comment : 0,
+        total_like : 0,
+        comment_details : "No comments found.",
+        like_details : "As off now no one like your picture."
+      });
+      res.json({
+        status : false,
+        code : 300,
+        new_array
+      });
+    }
+  }
 });
 
 router.post('/profile/delete-portfolio-images', passport.authenticate('jwt', {session : false}), async (req,res) => {
@@ -1342,101 +1659,6 @@ router.post('/profile/add-comment-on-portfolio-image', passport.authenticate('jw
   }
 });
 
-router.post('/profile/fetch-comment', passport.authenticate('jwt', {session : false}), async (req,res) => {
-  var user_login_id = req.user.id;
-  var picture_id = req.body.picture_id;
-  var user_profile_id = req.body.user_profile_id;
-
-  if(user_profile_id != '') {
-    var user_profile_details = await User.findOne({_id:user_profile_id});
-    var user_portfolio_image_details = _.filter(user_profile_details.images, arr => arr.id === picture_id);
-
-    var commentArray = [];
-
-    if(user_portfolio_image_details != '') {
-      for(var i = 0; i<user_portfolio_image_details[0].comments.length; i++) {
-        var users_id = user_portfolio_image_details[0].comments[i].user;
-        var commented_user_details = await User.findOne({_id:users_id});
-        var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
-        var img_link = commented_user_details.avatar;
-  
-        commentArray.push({
-          'comment_by' : name,
-          'description' : user_portfolio_image_details[0].comments[i].description,
-          'user_img_link' : img_link,
-          'comment_date' : user_portfolio_image_details[0].comments[i].uploaded_at
-        }); 
-      }
-  
-      var new_array = [];
-      new_array.push({
-        total_comment : user_portfolio_image_details[0].comments.length,
-        comment_details : commentArray
-      });
-  
-      res.json({
-        status : true,
-        code : 200,
-        new_array
-      });
-    }else{
-      var new_array = [];
-      new_array.push({
-        total_comment : 0,
-        comment_details : "No comments found."
-      });
-      res.json({
-        status : false,
-        code : 300,
-        new_array
-      });
-    }
-  }else{
-    var user_profile_details = await User.findOne({_id:user_login_id});
-    var user_portfolio_image_details = _.filter(user_profile_details.images, arr => arr.id === picture_id);
-
-    var commentArray = [];
-    if(user_portfolio_image_details != '') {
-      for(var i = 0; i<user_portfolio_image_details[0].comments.length; i++) {
-        var users_id = user_portfolio_image_details[0].comments[i].user;
-        var commented_user_details = await User.findOne({_id:users_id});
-        var name = commented_user_details.first_name + ' ' + commented_user_details.last_name;
-        var img_link = commented_user_details.avatar;
-  
-        commentArray.push({
-          'comment_by' : name,
-          'description' : user_portfolio_image_details[0].comments[i].description,
-          'user_img_link' : img_link,
-          'comment_date' : user_portfolio_image_details[0].comments[i].uploaded_at
-        }); 
-      }
-  
-      var new_array = [];
-      new_array.push({
-        total_comment : user_portfolio_image_details[0].comments.length,
-        comment_details : commentArray
-      });
-  
-      res.json({
-        status : true,
-        code : 200,
-        new_array
-      });
-    }else{
-      var new_array = [];
-      new_array.push({
-        total_comment : 0,
-        comment_details : "No comments found."
-      });
-      res.json({
-        status : false,
-        code : 300,
-        new_array
-      });
-    }
-  }
-});
-
 router.post('/profile-wise-comment', passport.authenticate('jwt', {session:false}), async (req,res) => {
   var user_login_id = req.user.id;
   var comment = req.body.users_comment;
@@ -1463,6 +1685,75 @@ router.post('/profile-wise-comment', passport.authenticate('jwt', {session:false
       message : "Comment section allow only for other users profile."
     });
   }
+});
+
+router.post('/profile/add-like-on-portfolio-image', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user_login_id = req.user.id;
+  var picture_id = req.body.picture_id;
+  var user_profile_id = req.body.user_profile_id;
+
+  if(user_login_id != user_profile_id) {
+    var user_profile_details = await User.findOne({_id:user_profile_id});
+    if(user_profile_details){
+      var user_portfolio_image_details = _.filter(user_profile_details.images, arr => arr.id === picture_id);
+
+      var user_portfolio_image_details_of_like = _.filter(user_portfolio_image_details[0].likes, arr => arr.user == user_login_id);
+      
+      if(user_portfolio_image_details_of_like == ''){
+        var info = {
+          status : true,
+          user : user_login_id
+        };
+  
+        if(user_portfolio_image_details[0].likes.length > 0) {
+          user_portfolio_image_details[0].likes.unshift(info);
+        }else{
+          user_portfolio_image_details[0].likes = info;
+        }
+  
+        if(user_profile_details.save()) {
+          res.json({
+            status: true,
+            code:200,
+            message : "Like added successfully."
+          });
+        }else{
+          res.json({
+            status: false,
+            code:300,
+            message : "Like added failed."
+          });
+        }
+      } 
+      else{
+        
+        user_portfolio_image_details_of_like[0].status = !user_portfolio_image_details_of_like[0].status;
+        user_portfolio_image_details_of_like[0].liked_at = Date.now();
+
+        var like;
+        if(user_portfolio_image_details_of_like[0].status == true) {
+          like = 'like';
+        }else{
+          like = 'dislike';
+        }
+
+        if(user_profile_details.save()) {
+          res.json({
+            status: true,
+            code : 200,
+            message : `Picture ${like} successfully. `
+          });
+        }
+      }
+      
+    }
+  }else{
+    res.json({
+      status: false,
+      code : 300,
+      message : "Comment section is allow only for others user portfolio images."
+    });
+  } 
 });
 
 router.get('/home-page-details', async (req, res) => {
@@ -1973,74 +2264,6 @@ router.get('/State' , async (req,res) => {
   }
 });
 
-router.get('/Discipline' , async (req,res) => {
-  var all_Discipline = await Discipline.find();
-  if(all_Discipline){
-    res.json({
-      status : true,
-      code : 200,
-      data : all_Discipline
-    });
-  }else{
-    res.json({
-      status : false,
-      code : 300,
-      message : "No Disciplines found."
-    });
-  }
-});
-
-router.get('/Ethnicity' , async (req,res) => {
-  var all_Ethnicity = await Ethnicity.find();
-  if(all_Ethnicity){
-    res.json({
-      status : true,
-      code : 200,
-      data : all_Ethnicity
-    });
-  }else{
-    res.json({
-      status : false,
-      code : 300,
-      message : "No Ethnicity found."
-    });
-  }
-});
-
-router.get('/Eyes' , async (req,res) => {
-  var all_Eyes = await Eyes.find();
-  if(all_Eyes){
-    res.json({
-      status : true,
-      code : 200,
-      data : all_Eyes
-    });
-  }else{
-    res.json({
-      status : false,
-      code : 300,
-      message : "No Eyes found."
-    });
-  }
-});
-
-router.get('/HairColor' , async (req,res) => {
-  var all_HairColor = await HairColor.find();
-  if(all_HairColor){
-    res.json({
-      status : true,
-      code : 200,
-      data : all_HairColor
-    });
-  }else{
-    res.json({
-      status : false,
-      code : 300,
-      message : "No HairColor found."
-    });
-  }
-});
-
 router.post('/profile/edit-details', passport.authenticate('jwt', {session : false}), async (req,res) => {
   var user = await User.findOne({_id : req.user.id});
 
@@ -2311,5 +2534,129 @@ router.get('/all-others-agencies-job-post', async (req,res) => {
   }
 });
 
+router.post('/model-booking', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var user = await User.findOne({_id : req.user.id});
+  var model_profile_id = req.body.profile_id;
+  var model_profile_details = await User.findOne({_id : model_profile_id});
+  var model_booking_details = await Booking.find({booked_profile_id : model_profile_id});
+
+  if(user.industry.toString() === model_profile_details.industry.toString()) {
+    res.json({
+      status : false,
+      code : 300,
+      message : "You can't book within same profession."
+    });
+  }else{
+    var title = req.body.title;
+    var start_date = req.body.start_date;
+    var end_date = req.body.end_date;
+    var start_time = req.body.start_time;
+    var end_time = req.body.end_time;
+    var booked_by = req.user.id;
+    var booked_profile_id = model_profile_id;
+    var description = req.body.description;
+
+    if(model_booking_details.length > 0) {
+      var check_already_booked_within_date = 0;
+      var already_book_by_you = 0;
+
+      for(var i =0; i < model_booking_details.length; i++) {
+        if(model_booking_details[i].start_date == start_date && model_booking_details[i].start_time == start_time) {
+          check_already_booked_within_date = check_already_booked_within_date + 1;
+        }
+      }
+      
+      if(check_already_booked_within_date > 0) {
+        res.json({
+          status : false,
+          code : 300,
+          message : "Model already booked within your given date & time. Please choose any other date."
+        });
+      }else{
+        var add_new_booking_model = new Booking({
+          title : title,
+          start_date : start_date,
+          end_date : end_date,
+          start_time : start_time,
+          end_time : end_time,
+          booked_by : booked_by,
+          booked_profile_id : booked_profile_id,
+          booking_status : 1,
+          description: description,
+          created_at : Date.now()
+        });
+
+        if(add_new_booking_model.save()) {
+          res.json({
+            status : true,
+            code : 200,
+            message : "Model booked successfully."
+          });
+        }
+      }
+      
+    }else{
+      var add_new_booking_model = new Booking({
+        title : title,
+        start_date : start_date,
+        end_date : end_date,
+        start_time : start_time,
+        end_time : end_time,
+        booked_by : booked_by,
+        booked_profile_id : booked_profile_id,
+        booking_status : 1,
+        description: description,
+        created_at : Date.now()
+      });
+
+      if(add_new_booking_model.save()) {
+        res.json({
+          status : true,
+          code : 200,
+          message : "Model booked successfully."
+        });
+      }
+    }
+  }
+});
+
+router.post('/booking-history', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var model_booking_details = await Booking.find({booked_profile_id : req.user.id});
+
+  if(model_booking_details.length > 0) {
+    var bookingArray = [];
+    for(var i = 0; i < model_booking_details.length; i++) {
+      var booked_by_user_id = model_booking_details[i].booked_by;
+      var booked_by_user_details = await User.find({_id:booked_by_user_id});
+      var name = booked_by_user_details[0].first_name + " " + booked_by_user_details[0].last_name;
+      var profile_img_url = booked_by_user_details[0].avatar;
+
+      bookingArray.push({
+        'booked_by_user_name' : name,
+        'booked_by_user_profile_img_url' : profile_img_url,
+        'booking_location' : booked_by_user_details[0].location,
+        'booking_date_start_date' : model_booking_details[i].start_date,
+        'booking_date_end_date' : model_booking_details[i].end_date,
+        'booking_time' : model_booking_details[i].start_time,
+        'booking_end_time' : model_booking_details[i].end_time,
+        'title' : model_booking_details[i].title,
+        'description' : model_booking_details[i].description
+
+      });
+    }
+
+    res.json({
+      status : true,
+      code : 200,
+      bookingArray
+    });
+  }else{
+    res.json({
+      status : false,
+      code : 300,
+      message : "No one booked."
+    });
+  }
+});
 module.exports = router;
 

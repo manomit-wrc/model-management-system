@@ -37,7 +37,8 @@ const userSchema = new Schema({
             likes: [
                 {
                     status: { type: Boolean },
-                    user: { type: Schema.Types.ObjectId, ref: 'User' }
+                    user: { type: Schema.Types.ObjectId, ref: 'User' },
+                    liked_at : {type: Date, default : Date.now()}
                 }
             ],
             comments: [

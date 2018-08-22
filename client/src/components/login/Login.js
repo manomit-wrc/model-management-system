@@ -154,7 +154,7 @@ class Login extends PureComponent {
                                             <Field name="password" component={renderField} label="Password" type="password" />
                                         </div>
 
-                                    <p className="font-small blue-text d-flex justify-content-start">Forgot <a href="#" className="blue-text ml-1"> Password?</a></p>
+                                    <p className="font-small blue-text d-flex justify-content-start">Forgot <a href="/forgot-password" className="blue-text ml-1"> Password?</a></p>
 
                                     <div className="text-center mt-4">
                                         <LoaderButton
