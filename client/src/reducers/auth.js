@@ -13,7 +13,13 @@ import {
     CHANGE_PASSWORD_FAIL,
     COUNTRIES,
     STATES,
-    UPDATE_USER_DETAILS
+    UPDATE_USER_DETAILS,
+    LOGOUT,
+    LOGIN_START,
+    FORGOT_PASSWORD_SUCCESS,
+    FORGOT_PASSWORD_FAIL,
+    CHANGE_PASSWORD_FP_SUCCESS,
+    CHANGE_PASSWORD_FP_FAIL
 } from '../actions/types';
 import isEmpty from '../components/utils/is-empty';
 
@@ -44,6 +50,16 @@ const authReducer = (state = initialState, action) => {
                 ...state,
                 data: action.payload
             }
+        case CHANGE_PASSWORD_FP_SUCCESS:
+            return{
+                ...state,
+                data: action.payload
+            }
+        case CHANGE_PASSWORD_FP_FAIL:
+            return{
+                ...state,
+                data: action.payload
+            }
         case ACTIVATION_SUCCESS:
             return {
                 ...state,
@@ -64,15 +80,28 @@ const authReducer = (state = initialState, action) => {
                 ...state,
                 data: action.payload
             }
+        case LOGIN_START: 
+            return {
+                isAuthenticated: null,
+                user: null
+            }
         case LOGIN_FAIL:
             return {
-                ...state,
               isAuthenticated: false,
               user: action.payload
             }
+        case FORGOT_PASSWORD_SUCCESS:
+            return {
+                ...state,
+                data: action.payload
+            }
+        case FORGOT_PASSWORD_FAIL:
+            return {
+                ...state,
+                data: action.payload
+            }
         case SET_CURRENT_USER:
             return {
-              ...state,
               isAuthenticated: !isEmpty(action.payload),
               user: action.payload
             };
@@ -100,6 +129,11 @@ const authReducer = (state = initialState, action) => {
             return {
                 ...state,
                 states: action.payload
+            }
+        case LOGOUT:
+            return {
+                isAuthenticated: false,
+                user: {}
             }
         default:
             return state

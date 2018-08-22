@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import _ from 'lodash';
@@ -10,8 +10,9 @@ import {
     getStates,
     updateUserDetails 
 } from '../../actions/auth';
+import { RingLoader } from 'react-spinners';
+import { ToastContainer, toast } from 'react-toastify';
 
-import $ from 'jquery';
 
 
 const validate = values => {
@@ -49,19 +50,13 @@ const validate = values => {
         errors.pincode = "Please enter your pincode"
     }
    
-    if(values.pincode && values.pincode.length !== 6) {
-        
-        errors.pincode = "Should have 6 digits";
-    }
     if(values.pincode && isNaN(values.pincode)) {
         errors.pincode = "Should be number";
     }
     if(!values.phone_number) {
         errors.phone_number = "Please enter your mobile no";
     }
-    if(values.phone_number && values.phone_number.length !== 10) {
-        errors.phone_number = "Should have 10 digits";
-    }
+    
     if(values.phone_number && isNaN(values.phone_number)) {
         errors.phone_number = "Should be number";
     }
@@ -117,19 +112,21 @@ const renderRadio = ({ input, label, type, id, meta: { touched, error, warning }
     </Fragment>
 )
 
-class Basic extends Component {
+class Basic extends PureComponent {
 
     constructor(props) {
         super(props);
         this.state = {
             isLoading:false,
-            showMessage: false
+            showMessage: false,
+            visible: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         
     }
-    
+
     componentWillMount() {
+        this.setState({ visible: true })
         this.props.userDetails();
         this.props.getIndustries();
         this.props.getCountries();
@@ -138,13 +135,13 @@ class Basic extends Component {
         this.props.getStates(data);
     }
 
+    
     componentWillReceiveProps(nextProps) {
         
-        if(nextProps.data !== undefined) {
-            
-            $(".alert").fadeTo(2000, 500).slideUp(500, function(){
-                $(".alert").slideUp(500);
-            });
+        if(nextProps.initialized === true) {
+            this.setState({ visible: false });
+        }
+        if(nextProps.submitSucceeded && nextProps.data !== undefined) {
             this.setState({
                 showMessage: true,
                 isLoading: false
@@ -152,31 +149,28 @@ class Basic extends Component {
         }
     }
 
+
     handleSubmit(e) {
         this.setState({ isLoading: true });
         this.props.updateUserDetails(e);
     }
 
-    
-
     renderMessage() {
         if(this.state.showMessage === true) {
+            
             if(this.props.data.success === true) {
-                return (
-                    <div className="alert alert-success alert-dismissible">
-                            
-                        {this.props.data.message}
-                    </div>
-                );
+                toast.success(this.props.data.message, {
+                    position: toast.POSITION.TOP_CENTER
+                })
             }
             else {
-                return (
-                    <div className="alert alert-danger alert-dismissible">
-                            
-                     {this.props.data.message}
-                    </div>
-                );
+                toast.error(this.props.data.message, {
+                    position: toast.POSITION.TOP_CENTER
+                })
             }
+            this.setState({
+                showMessage: false
+            });
         }
         else {
             return null;
@@ -189,14 +183,23 @@ class Basic extends Component {
        
         return (
             <div className="col-md-9">
-                <div className="se-pre-con">
-                    <img src="/img/logo-loader.png" alt="logo" />
-                    <p>Loading. Please Wait...</p>
-	            </div>
+            {
+                this.state.visible ? (
+                    <div style={{width:'100%', height: '100%', textAlign: 'center'}}>
+                        <RingLoader
+                        size={150}
+                        color={'#44C2F7'}
+                        loading={true}
+                        />
+                    </div>
+                ) : null
+            }
+                 
                 <div className="main">
                     <div className="content-box">
                         <form onSubmit={handleSubmit(this.handleSubmit)}>
                             {this.renderMessage()}
+                            <ToastContainer />
                             <div className="form-group">
                                 <Field name="first_name" component={renderField} label="First Name" type="text" />
                             </div>

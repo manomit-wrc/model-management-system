@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { ClipLoader } from 'react-spinners';
+import { ClipLoader, RingLoader } from 'react-spinners';
 import ReactImageVideoLightbox from 'react-image-video-lightbox';
 import { 
     uploadPortfolioVideo, 
@@ -20,20 +20,22 @@ class VideoGallery extends Component {
             isLoading: false,
             videoIndex: 0,
             isOpen: false,
+            visible: false
         }
         this.handleVideoGallery = this.handleVideoGallery.bind(this);
         this.removeVideo = this.removeVideo.bind(this);
     }
 
     componentWillMount() {
+        this.setState({ visible: true })
         this.props.userDetails();
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
         if(nextProps.auth.isAuthenticated) {
             this.setState({ 
                 isLoading: false,
+                visible: false,
                 video_gallery: nextProps.auth.user_details.videos
             });
         
@@ -69,6 +71,17 @@ class VideoGallery extends Component {
         const { videoIndex } = this.state;
         return (
             <div className="col-md-9">
+            {
+                this.state.visible ? (
+                    <div style={{width:'100%', height: '100%', textAlign: 'center'}}>
+                        <RingLoader
+                        size={150}
+                        color={'#44C2F7'}
+                        loading={true}
+                        />
+                    </div>
+                ) : null
+            }
                 <div className="main">
                     <div className="content-box">
                         <form>

@@ -16,7 +16,13 @@ import {
     INDUSTRIES,
     COUNTRIES,
     STATES,
-    UPDATE_USER_DETAILS
+    UPDATE_USER_DETAILS, 
+    LOGOUT,
+    LOGIN_START,
+    FORGOT_PASSWORD_SUCCESS,
+    FORGOT_PASSWORD_FAIL,
+    CHANGE_PASSWORD_FP_SUCCESS,
+    CHANGE_PASSWORD_FP_FAIL
 } from './types';
 
 import { API_ROOT } from '../components/utils/ApiConfig';
@@ -72,9 +78,38 @@ export function changePassword(data){
     }
 }
 
+export function changePasswordFP(data){
+    return async (dispatch) => {
+        try{
+            const response = await axios.post(`${API_ROOT}/change-password-fp`, data);
+            if(response.data.success === true){
+                dispatch({
+                    type: CHANGE_PASSWORD_FP_SUCCESS,
+                    payload: response.data
+                });
+            }else{
+                dispatch({
+                    type: CHANGE_PASSWORD_FP_FAIL,
+                    payload: response.data
+                });
+            }
+        }catch(error){
+            dispatch({
+                type: CHANGE_PASSWORD_FP_FAIL,
+                payload: "Please try again"
+            });
+        }
+    }
+}
+
 export function login(data) {
     return async (dispatch) => {
         try {
+            dispatch({
+                type: LOGIN_START,
+                payload: null
+            })
+            
             const response = await axios.post(`${API_ROOT}/login`, data);
             if(response.data.success === true) {
                 
@@ -96,6 +131,43 @@ export function login(data) {
         catch(error) {
             dispatch({
                 type: LOGIN_FAIL,
+                payload: error.response.data
+            });
+        }
+    }
+}
+
+
+export function forgotPassword(data) {
+    return async (dispatch) => {
+        try {
+            dispatch({
+                type: FORGOT_PASSWORD_SUCCESS,
+                payload: null
+            });
+            dispatch({
+                type: FORGOT_PASSWORD_FAIL,
+                payload: null
+            });
+            
+            const response = await axios.post(`${API_ROOT}/forgot-password-frontend`, data);
+            if(response.data.success === true) {
+                dispatch({
+                    type: FORGOT_PASSWORD_SUCCESS,
+                    payload: response.data
+                });
+                
+            }
+            else {
+                dispatch({
+                    type: FORGOT_PASSWORD_FAIL,
+                    payload: response.data
+                });
+            }
+        }
+        catch(error) {
+            dispatch({
+                type: FORGOT_PASSWORD_FAIL,
                 payload: error.response.data
             });
         }
@@ -141,7 +213,10 @@ export const logoutUser = () => dispatch => {
     // Remove token from localStorage
     localStorage.removeItem('token');
     // Set current user to {} which will set isAuthenticated to false
-    dispatch(setCurrentUser({}));
+    dispatch({
+        type: LOGOUT,
+        payload: null
+    });
   };
 
 export function checkActivation(data) {
@@ -306,6 +381,10 @@ export function getStates(data) {
 
 export function updateUserDetails(data) {
     return async (dispatch) => {
+        dispatch({
+            type: UPDATE_USER_DETAILS,
+            payload: undefined
+        });
         const response = await axios.post(`${API_ROOT}/update-user-details`, data);
         dispatch({
             type: UPDATE_USER_DETAILS,

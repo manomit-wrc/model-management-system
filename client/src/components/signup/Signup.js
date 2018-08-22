@@ -10,16 +10,6 @@ import { Alert } from 'reactstrap';
 
 const validate = values => {
     const errors = {}
-    if (!values.first_name) {
-      errors.first_name = 'Please enter first name'
-    } else if (values.first_name.length < 2) {
-      errors.first_name = 'Minimum be 2 characters or more'
-    }
-    if (!values.last_name) {
-        errors.last_name = 'Please enter last name'
-      } else if (values.last_name.length < 2) {
-        errors.last_name = 'Minimum be 2 characters or more'
-      }
     if (!values.email) {
       errors.email = 'Please enter email'
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
@@ -29,15 +19,6 @@ const validate = values => {
         errors.password = 'Please enter password'
     } else if (values.password.length < 6) {
         errors.password = 'Minimum be 6 characters or more'
-    }
-
-    if (!values.confirm_password) {
-        errors.confirm_password = 'Please enter confirm password'
-    } else if (values.confirm_password.length < 6) {
-        errors.confirm_password = 'Minimum be 6 characters or more'
-    }
-    if(values.password !== values.confirm_password) {
-        errors.confirm_password = 'Password and confirm password must be same'
     }
     if(!values.industry) {
         errors.industry = 'Please select who you are';
@@ -56,8 +37,9 @@ const renderField = ({ input, label, type, meta: { touched, error, warning } }) 
 
 const renderSelectField = ({ input, label, meta: { touched, error, warning }, children }) => (
     <Fragment>
+        <label>Select Who You Are</label>
         <select {...input} className="form-control">
-          <option value="">Please select who you are</option>  
+          <option value="">Please Select</option>  
           {children}
         </select>
         {touched && ((error && <span className="text-danger">{error}</span>) || (warning && <span>{warning}</span>))}
@@ -77,6 +59,7 @@ class Signup extends Component {
     }
 
     componentWillMount() {
+        //document.getElementById('se-pre-con').style.display = 'visible';
         this.props.getIndustries();
     }
 
@@ -137,40 +120,29 @@ class Signup extends Component {
 
                             <div className="card mx-xl-5">
                                 <div className="card-body">
-
-                                    
                                     <div className="form-header deep-blue-gradient rounded">
-                                        <h3 className="my-3">
-                                            Register
-                                        </h3>
+                                        <div className="clearfix center">
+                                            <h3 className="my-3 float-left">
+                                                Register
+                                            </h3>
+                                            <a className="btn-floating btn-lg purple-gradient float-left" href="/"><i className="fa fa-home"></i></a>
+                                        </div>
                                     </div>
 
                                   <form onSubmit={handleSubmit(this.handleSubmit)}>  
                                     {this.renderMessage()}
-                                    <div className="md-form font-weight-light">
-                                        
-                                        <Field name="first_name" component={renderField} label="First Name" type="text" />
-                                    </div>
                                     
-                                    <div className="md-form font-weight-light">
-                                        
-                                        <Field name="last_name" component={renderField} label="Last Name" type="text" />
-                                    </div>
                                     
-                                    <div className="md-form font-weight-light">
+                                    <div className="form-group">
                                         <Field name="email" component={renderField} label="Email" type="email" />
                                     </div>
 
                                     
-                                    <div className="md-form font-weight-light">
+                                    <div className="form-group">
                                         <Field name="password" component={renderField} label="Password" type="password" />
                                     </div>
                                     
-                                    <div className="md-form font-weight-light">
-                                        <Field name="confirm_password" component={renderField} label="Confirm Password" type="password" />
-                                    </div>
-
-                                    <div className="md-form font-weight-light">
+                                    <div className="form-group">
                                         <Field name="industry" component={renderSelectField}>
                                         { 
                                             _.map(this.props.industries, (ind, index) => {

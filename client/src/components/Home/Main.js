@@ -25,6 +25,7 @@ class Main extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        
         this.setState({
             banner: nextProps.data.banner,
             categories: nextProps.data.categories,
