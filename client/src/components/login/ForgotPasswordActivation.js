@@ -1,11 +1,11 @@
 import React, { PureComponent, Fragment } from 'react';
+import { bindActionCreators } from 'redux';
+import { checkActivation, verifyActivation } from '../../actions/auth';
 import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import { GoogleLogin } from 'react-google-login';
-import { login, loginWithGoogle } from '../../actions/auth';
+import { changePasswordFP } from '../../actions/auth';
 import LoaderButton from '../utils/LoaderButton';
-
 import { ToastContainer, toast } from 'react-toastify';
 
 
@@ -15,10 +15,22 @@ const validate = values => {
     
     if (!values.email) {
       errors.email = 'Please enter email'
-    } 
-    if (!values.password) {
-        errors.password = 'Please enter password'
-    } 
+    }
+    
+    if (!values.new_password) {
+        errors.new_password = 'Please enter new password'
+    } else if (values.new_password.length < 6) {
+        errors.new_password = 'Minimum be 6 characters or more'
+    }
+
+    if (!values.confirm_password) {
+        errors.confirm_password = 'Please enter confirm password'
+    } else if (values.confirm_password.length < 6) {
+        errors.confirm_password = 'Minimum be 6 characters or more'
+    }
+    if(values.new_password !== values.confirm_password) {
+        errors.confirm_password = 'New password and confirm password must be same'
+    }
     return errors
 }
 
@@ -31,7 +43,7 @@ const renderField = ({ input, label, type, meta: { touched, error, warning } }) 
     
 )
 
-class Login extends PureComponent {
+class ForgotPasswordActivation extends PureComponent {
 
     constructor(props) {
         super(props);
@@ -43,68 +55,55 @@ class Login extends PureComponent {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    componentWillMount() {
+        let data = {};
+        //this.props.checkActivation(data);
+    }
 
-    componentDidMount() {
-        
-        if (this.props.auth.isAuthenticated) {
-          this.props.history.push('/profile');
-          //window.location.href = "/profile";
+    componentWillReceiveProps(nextProps) {
+        console.log(nextProps)
+        if(nextProps.data !== undefined) {
+            this.setState({
+                showMessage: true,
+                isLoading: false,
+                visible: true
+            })
         }
-        
-      }
-    
-      
-    componentDidUpdate(prevProps) {
-       if(this.props.auth.isAuthenticated === false) {
-            this.setState({ isLoading: false, showMessage: true });
-       }
-       else if(this.props.auth.isAuthenticated === true) {
-            this.props.history.push('/profile');
-       }
         
     }
 
-    responseGoogle = (response) => {
+    verifyToken() {
         let data = {};
-        if(response.hasOwnProperty('profileObj')) {
-            
-            data.first_name = response.profileObj.givenName;
-            data.last_name = response.profileObj.familyName;
-            data.email = response.profileObj.email;
-            data.avatar = response.profileObj.imageUrl;
-            data.social_id = response.profileObj.googleId;
-            this.props.loginWithGoogle(data);
-        }
-        
         
     }
 
     handleSubmit(e) {
         this.setState({ isLoading: true, showMessage: false });
-        this.props.login(e);
+        console.log(this.state)
+        this.props.changePasswordFP(e);
+        console.log(this.state)
+        
     }
 
     renderMessage() {
         
         if(this.state.showMessage === true) {
-            if(this.props.auth.isAuthenticated === false) {
-                
-                if(this.props.auth.user.success === false) {
-                    toast.error(this.props.auth.user.message, {
+            if(this.props.data!==null && this.props.data.success === true) {
+                    toast.error(this.props.data.message, {
                         position: toast.POSITION.TOP_CENTER
                     })
                     
-                }
-                
+            }else if(this.props.data!==null && this.props.data.success === false){
+                toast.error(this.props.data.message, {
+                    position: toast.POSITION.TOP_CENTER
+                })
             }
-            
+
         }
         else {
             return null;
         }
     }
-
-    
 
     render() {
         const { handleSubmit } = this.props;
@@ -122,7 +121,7 @@ class Login extends PureComponent {
                                     <div className="form-header deep-blue-gradient rounded">
                                         <div className="clearfix center">
                                             <h3 className="my-3 float-left">
-                                                Login
+                                                Forgot Password
                                             </h3>
                                             <a className="btn-floating btn-lg purple-gradient float-left" href="/"><i className="fa fa-home"></i></a>
                                             
@@ -135,13 +134,14 @@ class Login extends PureComponent {
                                         <div className="form-group">
                                             <Field name="email" component={renderField} label="Email" type="email" />
                                         </div>
-
-                                    
                                         <div className="form-group">
-                                            <Field name="password" component={renderField} label="Password" type="password" />
+                                            <Field name="new_password" component={renderField} label="New Password" type="password" />
+                                        </div>
+                                        <div className="form-group">
+                                            <Field name="confirm_password" component={renderField} label="Confirm Password" type="password" />
                                         </div>
 
-                                    <p className="font-small blue-text d-flex justify-content-start">Forgot <a href="/forgot-password" className="blue-text ml-1"> Password?</a></p>
+                                    <p className="font-small blue-text d-flex justify-content-start"><a href="/login" className="blue-text ml-1"> Login </a></p>
 
                                     <div className="text-center mt-4">
                                         <LoaderButton
@@ -156,23 +156,6 @@ class Login extends PureComponent {
 
                                 </div>
 
-                                
-                                <div className="modal-footer text-center">
-                                   
-                                    <button type="button" className="btn btn-fb">
-                                        <i className="fa fa-facebook pr-1"></i>  Facebook Login
-                                    </button>
-                                    <GoogleLogin
-                                        clientId="422270959343-2qtta1f03ll8n6ajs4iue0ng8og3mkre.apps.googleusercontent.com"
-                                        className="btn btn-gplus waves-effect waves-light"
-                                        onSuccess={this.responseGoogle}
-                                        onFailure={this.responseGoogle}
-                                    >
-                                    <i className="fa fa-google-plus pr-1"></i>  Google + Login
-                                    </GoogleLogin>
-                                    <p className="font-small grey-text d-flex justify-content-end mt-3">Not a member? <Link to="/signup" className="blue-text ml-1">Register</Link></p>
-                                </div>
-
                             </div>
 
                         </div>
@@ -182,20 +165,19 @@ class Login extends PureComponent {
                 </div>
 
             </div>
-
         )
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        auth: state.auth
+        data: state.auth.data
     };
 }
 
-Login = connect(mapStateToProps, { login, loginWithGoogle })(reduxForm({
-    form: 'login',
-    validate
-})(Login))
 
-export default withRouter(Login);
+
+export default connect(mapStateToProps, { changePasswordFP, })(reduxForm({
+    form: 'change-password-fp',
+    validate
+})(ForgotPasswordActivation));

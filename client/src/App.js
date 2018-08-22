@@ -20,7 +20,11 @@ const Signup = asyncComponent(() => { return import('./components/signup/Signup'
 
 const Login = asyncComponent(() => { return import('./components/login/Login'); });
 
+const ForgotPassword = asyncComponent(() => { return import('./components/login/ForgotPassword'); });
+
 const Activation = asyncComponent(() => { return import('./components/signup/Activation'); });
+
+const ForgotPasswordActivation = asyncComponent(() => { return import('./components/login/ForgotPasswordActivation'); });
 
 const Basic = asyncComponent(() => { return import('./components/profile/Basic'); });
 
@@ -57,7 +61,9 @@ class App extends Component {
             <AppRoutes exact path="/" layout={Layout} component={Home} />
             <AppRoutes exact path="/signup" layout={Blank} component={Signup} />
             <AppRoutes exact path="/verify/:activation_id" layout={Layout} component={Activation} />
+            <AppRoutes exact path="/change-password/:activation_id" layout={Blank} component={ForgotPasswordActivation} />
             <AppRoutes exact path="/login" layout={Blank} component={Login} />
+            <AppRoutes exact path="/forgot-password" layout={Blank} component={ForgotPassword} />
           <PrivateRoute exact path="/profile" layout={Dashboard} component={Basic} />
           <PrivateRoute exact path="/profile2" layout={Dashboard} component={Additional} />
           <PrivateRoute exact path="/images" layout={Dashboard} component={ImageGallery} />
