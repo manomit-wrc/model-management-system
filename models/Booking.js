@@ -11,7 +11,7 @@ const BookingSchema = new Schema({
     end_date : { type: String },
     start_time : { type: String },
     end_time : { type: String },
-    booking_status : {type : Number},
+    booking_status : {type : Number, default: 1}, //1='Pending',2='Approved',3='Rejected'
     created_at : {type: Date}
 });
 

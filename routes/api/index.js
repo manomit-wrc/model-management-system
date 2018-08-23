@@ -25,6 +25,7 @@ const Ethnicity = require('../../models/Ethnicity');
 const Job_post = require('../../models/Job_post');
 const ProfileComment = require('../../models/ProfileComment');
 const Booking = require('../../models/Booking');
+const FlagMenu = require('../../models/FlagMenu');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -2621,12 +2622,12 @@ router.post('/model-booking', passport.authenticate('jwt', {session : false}), a
 });
 
 router.post('/booking-history', passport.authenticate('jwt', {session : false}), async (req,res) => {
-  var model_booking_details = await Booking.find({booked_profile_id : req.user.id});
+  var model_booking_pending_details = await Booking.find({booked_profile_id : req.user.id, booking_status:1});
 
-  if(model_booking_details.length > 0) {
+  if(model_booking_pending_details.length > 0) {
     var bookingArray = [];
-    for(var i = 0; i < model_booking_details.length; i++) {
-      var booked_by_user_id = model_booking_details[i].booked_by;
+    for(var i = 0; i < model_booking_pending_details.length; i++) {
+      var booked_by_user_id = model_booking_pending_details[i].booked_by;
       var booked_by_user_details = await User.find({_id:booked_by_user_id});
       var name = booked_by_user_details[0].first_name + " " + booked_by_user_details[0].last_name;
       var profile_img_url = booked_by_user_details[0].avatar;
@@ -2635,13 +2636,13 @@ router.post('/booking-history', passport.authenticate('jwt', {session : false}),
         'booked_by_user_name' : name,
         'booked_by_user_profile_img_url' : profile_img_url,
         'booking_location' : booked_by_user_details[0].location,
-        'booking_date_start_date' : model_booking_details[i].start_date,
-        'booking_date_end_date' : model_booking_details[i].end_date,
-        'booking_time' : model_booking_details[i].start_time,
-        'booking_end_time' : model_booking_details[i].end_time,
-        'title' : model_booking_details[i].title,
-        'description' : model_booking_details[i].description
-
+        'booking_date_start_date' : model_booking_pending_details[i].start_date,
+        'booking_date_end_date' : model_booking_pending_details[i].end_date,
+        'booking_time' : model_booking_pending_details[i].start_time,
+        'booking_end_time' : model_booking_pending_details[i].end_time,
+        'title' : model_booking_pending_details[i].title,
+        'description' : model_booking_pending_details[i].description,
+        'booking_id' : model_booking_pending_details[i]._id
       });
     }
 
@@ -2657,6 +2658,181 @@ router.post('/booking-history', passport.authenticate('jwt', {session : false}),
       message : "No one booked."
     });
   }
+});
+
+router.post('/approve-or-reject-of-booking', passport.authenticate('jwt', {session : false}), async (req,res) => {
+    var approve_or_reject_value = req.body.request_type; //1='Approve',0='Reject'
+    var booking_id = req.body.booking_id;
+
+    var booking_details = await Booking.findById({_id:booking_id, booked_profile_id: req.user.id});
+    var booking_status = '';
+    if(approve_or_reject_value == 1){
+        booking_details.booking_status = 2; //approve
+        booking_status = 'Approved';
+    }
+    else if(approve_or_reject_value == 0) {
+        booking_details.booking_status = 3; //reject
+        booking_status = 'Rejected';
+    }
+
+    if(booking_details.save()) {
+        res.json({
+            status : true,
+            code : 200,
+            message : `${booking_status} successfully.`
+        });
+    }else{
+        res.json({
+            status : false,
+            code : 300,
+            message : 'Something went wrong.'
+        });
+    }
+});
+
+router.post('/approve-history', passport.authenticate('jwt', {session : false}), async (req,res) => {
+    var model_booking_approved_details = await Booking.find({booked_profile_id : req.user.id, booking_status:2});
+
+    if(model_booking_approved_details.length > 0) {
+      var bookingArray = [];
+      for(var i = 0; i < model_booking_approved_details.length; i++) {
+        var booked_by_user_id = model_booking_approved_details[i].booked_by;
+        var booked_by_user_details = await User.find({_id:booked_by_user_id});
+        var name = booked_by_user_details[0].first_name + " " + booked_by_user_details[0].last_name;
+        var profile_img_url = booked_by_user_details[0].avatar;
+  
+        bookingArray.push({
+          'booked_by_user_name' : name,
+          'booked_by_user_profile_img_url' : profile_img_url,
+          'booking_location' : booked_by_user_details[0].location,
+          'booking_date_start_date' : model_booking_approved_details[i].start_date,
+          'booking_date_end_date' : model_booking_approved_details[i].end_date,
+          'booking_time' : model_booking_approved_details[i].start_time,
+          'booking_end_time' : model_booking_approved_details[i].end_time,
+          'title' : model_booking_approved_details[i].title,
+          'description' : model_booking_approved_details[i].description,
+          'booking_id' : model_booking_approved_details[i]._id
+        });
+      }
+  
+      res.json({
+        status : true,
+        code : 200,
+        bookingArray
+      });
+    }else{
+      res.json({
+        status : false,
+        code : 300,
+        message : "No records are found."
+      });
+    }  
+});
+
+router.post('/reject-history', passport.authenticate('jwt', {session : false}), async (req,res) => {
+    var model_booking_rejected_details = await Booking.find({booked_profile_id : req.user.id, booking_status:3});
+
+    if(model_booking_rejected_details.length > 0) {
+      var bookingArray = [];
+      for(var i = 0; i < model_booking_rejected_details.length; i++) {
+        var booked_by_user_id = model_booking_rejected_details[i].booked_by;
+        var booked_by_user_details = await User.find({_id:booked_by_user_id});
+        var name = booked_by_user_details[0].first_name + " " + booked_by_user_details[0].last_name;
+        var profile_img_url = booked_by_user_details[0].avatar;
+  
+        bookingArray.push({
+          'booked_by_user_name' : name,
+          'booked_by_user_profile_img_url' : profile_img_url,
+          'booking_location' : booked_by_user_details[0].location,
+          'booking_date_start_date' : model_booking_rejected_details[i].start_date,
+          'booking_date_end_date' : model_booking_rejected_details[i].end_date,
+          'booking_time' : model_booking_rejected_details[i].start_time,
+          'booking_end_time' : model_booking_rejected_details[i].end_time,
+          'title' : model_booking_rejected_details[i].title,
+          'description' : model_booking_rejected_details[i].description,
+          'booking_id' : model_booking_rejected_details[i]._id
+        });
+      }
+  
+      res.json({
+        status : true,
+        code : 200,
+        bookingArray
+      });
+    }else{
+      res.json({
+        status : false,
+        code : 300,
+        message : "No records are found."
+      });
+    }
+});
+
+router.post('/sent-invitation-list', passport.authenticate('jwt', {session : false}), async (req,res) => {
+    var sent_invitation_list = await Booking.find({booked_by : req.user.id});
+    if(sent_invitation_list.length > 0){
+        var sentInvitationArray = [];
+        var booking_status = '';
+        for(var i = 0; i < sent_invitation_list.length; i++) {
+        var whom_i_booked_user_id = sent_invitation_list[i].booked_profile_id;
+        var booked_user_details = await User.find({_id:whom_i_booked_user_id});
+        var name = booked_user_details[0].first_name + " " + booked_user_details[0].last_name;
+        var profile_img_url = booked_user_details[0].avatar;
+        
+        if(sent_invitation_list[i].booking_status == 1) {
+            booking_status = 'Pending';
+        }else if(sent_invitation_list[i].booking_status == 2){
+            booking_status = 'Approved';
+        }else if (sent_invitation_list[i].booking_status == 3) {
+            booking_status = 'Rejected';
+        }
+
+        sentInvitationArray.push({
+            'booked_by_user_name' : name,
+            'booked_by_user_profile_img_url' : profile_img_url,
+            'booking_location' : booked_user_details[0].location,
+            'booking_date_start_date' : sent_invitation_list[i].start_date,
+            'booking_date_end_date' : sent_invitation_list[i].end_date,
+            'booking_time' : sent_invitation_list[i].start_time,
+            'booking_end_time' : sent_invitation_list[i].end_time,
+            'title' : sent_invitation_list[i].title,
+            'description' : sent_invitation_list[i].description,
+            'booking_id' : sent_invitation_list[i]._id,
+            'booking_status' : booking_status
+        });
+        }
+
+        res.json({
+            status : true,
+            code : 200,
+            sentInvitationArray
+        });
+    }else{
+        res.json({
+            status : false,
+            code : 300,
+            message : "No records are found."
+        });
+    }
+});
+
+router.get('/flag-menu', async (req,res) => {
+    var all_flag_details = await FlagMenu.find();
+    res.json({
+        status : true,
+        code : 200,
+        all_flag_details
+    });
+});
+
+router.post('/report-against-image', passport.authenticate('jwt', {session : false}), async (req,res) => {
+    var user = await User.find({_id : req.user.id});
+    var image_id = req.body.image_id;
+    var profile_id = req.body.profile_id;
+    var report_type = req.body.report_type;
+    var report_desc = req.body.request_desc;
+
+    
 });
 module.exports = router;
 
