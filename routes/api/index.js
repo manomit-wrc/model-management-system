@@ -468,10 +468,30 @@ router.post('/login-mobile', (req, res) => {
   
 });
 
+//for getting hostname
+function extractHostname(url) {
+  var hostname;
+  //find & remove protocol (http, ftp, etc.) and get hostname
+
+  if (url.indexOf("//") > -1) {
+      hostname = url.split('/')[2];
+  }
+  else {
+      hostname = url.split('/')[0];
+  }
+
+  //find & remove port number
+  hostname = hostname.split(':')[0];
+  //find & remove "?"
+  hostname = hostname.split('?')[0];
+
+  return hostname;
+}
+//end
+
 router.post('/social-login', async (req,res) => {
   var email = req.body.email;
   var reg_type = req.body.reg_type;
-
   var user = await User.findOne({email, reg_type: 'R'});
 
   if(user){
@@ -482,64 +502,145 @@ router.post('/social-login', async (req,res) => {
     });
   }else{
 
-    var already_login_with_social_app = await User.findOne({
-      email,
-      reg_type:{
-        $nin: 'R'
-      }
-    });
-
-    if(already_login_with_social_app) {
-      already_login_with_social_app.first_name = req.body.full_name;
-      already_login_with_social_app.last_name = '';
-      already_login_with_social_app.email = req.body.email;
-      already_login_with_social_app.avatar = req.body.profile_image;
-
-      if(already_login_with_social_app.save()){
-        const payload = {id: already_login_with_social_app._id, email: req.body.email, avatar: req.body.profile_image }; // Create JWT Payload
-      
-      // console.log(payload);
-      // return false;
-        // Sign Token
-        jwt.sign(
-        payload,
-        secretOrKey,
-        { expiresIn: 3600 },
-        (err, token) => {
-            return res.json({
-              success: true,
-              token: 'Bearer ' + token,
-              code: 200,
-              message: 'Social login successfully.'
+    if(reg_type == 'F'){
+      try{
+        var already_login_with_social_app = await User.findOne({
+          email,
+          reg_type: 'F'
+        });
+    
+        if(already_login_with_social_app) {
+          already_login_with_social_app.first_name = req.body.full_name;
+          already_login_with_social_app.last_name = '';
+          already_login_with_social_app.email = req.body.email;
+          if(extractHostname(req.body.profile_image) == 'graph.facebook.com') {
+            already_login_with_social_app.avatar = req.body.profile_image;
+          }
+    
+          if(already_login_with_social_app.save()){
+            const payload = {id: already_login_with_social_app._id, email: req.body.email, avatar: req.body.profile_image }; // Create JWT Payload
+          
+          // console.log(payload);
+          // return false;
+            // Sign Token
+            jwt.sign(
+            payload,
+            secretOrKey,
+            { expiresIn: 3600 },
+            (err, token) => {
+                return res.json({
+                  success: true,
+                  token: 'Bearer ' + token,
+                  code: 200,
+                  message: 'Social login successfully.'
+                });
             });
+          }
+        }else{
+          const newUser = new User({
+            first_name: req.body.full_name,
+            last_name: '',
+            email: req.body.email,
+            avatar: req.body.profile_image,
+            password: ' ',
+            reg_type: reg_type,
+            status: 1
+          });
+      
+          if(newUser.save()){
+            const payload = {id:newUser._id, first_name: req.body.full_name, email: req.body.email, avatar: req.body.profile_image }; // Create JWT Payload
+      
+            // Sign Token
+            jwt.sign(
+            payload,
+            secretOrKey,
+            { expiresIn: 3600 },
+            (err, token) => {
+                return res.json({
+                  success: true,
+                  token: 'Bearer ' + token,
+                  code: 200,
+                  message: 'Social login successfully.'
+                });
+            });
+          }
+        }
+      }catch(e){
+        res.json({
+          status : false,
+          code : 300,
+          message : "Email already exist."
         });
       }
-    }else{
-      const newUser = new User({
-        first_name: req.body.full_name,
-        last_name: '',
-        email: req.body.email,
-        avatar: req.body.profile_image,
-        password: ' ',
-        reg_type: reg_type,
-        status: 1
-      });
-  
-      if(newUser.save()){
-        const payload = {id:newUser._id, first_name: req.body.full_name, email: req.body.email, avatar: req.body.profile_image }; // Create JWT Payload
-  
-        // Sign Token
-        jwt.sign(
-        payload,
-        secretOrKey,
-        { expiresIn: 3600 },
-        (err, token) => {
-            return res.json({
-              success: true,
-              token: 'Bearer ' + token,
-              code: 200,
-              message: 'Social login successfully.'
+    }
+    else if (reg_type == 'G') {
+      try{
+        var already_login_with_social_app_google = await User.findOne({
+          email,
+          reg_type: 'G'
+        });
+    
+        if(already_login_with_social_app_google) {
+          already_login_with_social_app_google.first_name = req.body.full_name;
+          already_login_with_social_app_google.last_name = '';
+          already_login_with_social_app_google.email = req.body.email;
+          if(extractHostname(req.body.profile_image) == 'lh4.googleusercontent.com') {
+            already_login_with_social_app_google.avatar = req.body.profile_image;
+          }
+    
+          if(already_login_with_social_app_google.save()){
+            const payload = {id: already_login_with_social_app_google._id, email: req.body.email, avatar: req.body.profile_image }; // Create JWT Payload
+          
+          // console.log(payload);
+          // return false;
+            // Sign Token
+            jwt.sign(
+            payload,
+            secretOrKey,
+            { expiresIn: 3600 },
+            (err, token) => {
+                return res.json({
+                  success: true,
+                  token: 'Bearer ' + token,
+                  code: 200,
+                  message: 'Social login successfully.'
+                });
             });
+          }
+        }else{
+          const newUser = new User({
+            first_name: req.body.full_name,
+            last_name: '',
+            email: req.body.email,
+            avatar: req.body.profile_image,
+            password: ' ',
+            reg_type: reg_type,
+            status: 1
+          });
+      
+          if(newUser.save()){
+            const payload = {id:newUser._id, first_name: req.body.full_name, email: req.body.email, avatar: req.body.profile_image }; // Create JWT Payload
+      
+            // Sign Token
+            jwt.sign(
+            payload,
+            secretOrKey,
+            { expiresIn: 3600 },
+            (err, token) => {
+                return res.json({
+                  success: true,
+                  token: 'Bearer ' + token,
+                  code: 200,
+                  message: 'Social login successfully.'
+                });
+            });
+          }
+        }
+      }catch(e) {
+        res.json({
+          status : false,
+          code : 300,
+          message : "Email already exist."
         });
       }
     }
@@ -2266,38 +2367,38 @@ router.get('/State' , async (req,res) => {
 });
 
 router.post('/profile/edit-details', passport.authenticate('jwt', {session : false}), async (req,res) => {
-  var user = await User.findOne({_id : req.user.id});
+  var user = await User.findOne({_id : req.user.id},{password: 0, status: 0, otp: 0, activation_link: 0, reg_type:0 });
 
-  user.first_name = req.body.first_name;
-  user.description = req.body.description;
-  user.location = req.body.location;
-  user.city = req.body.city;
-  user.gender = req.body.gender;
-  user.country = req.body.country;
-  user.industry = req.body.industry;
-  user.state = req.body.state;
-  user.pincode = req.body.pincode;
-  user.ethnicity = req.body.ethnicity;
-  user.discipline = req.body.discipline;
-  user.eye = req.body.eye;
-  user.hair_color = req.body.hair_color;
+  user.first_name = req.body.first_name ? req.body.first_name : user.first_name;
+  user.description = req.body.description ? req.body.description : user.description;
+  user.location = req.body.location ? req.body.location : user.location;
+  user.city = req.body.city ? req.body.city : user.city;
+  user.gender = req.body.gender ? req.body.gender : user.gender;
+  user.country = req.body.country ? req.body.country : user.country;
+  user.industry = req.body.industry ? req.body.industry : user.industry;
+  user.state = req.body.state ? req.body.state : user.state;
+  user.pincode = req.body.pincode ? req.body.pincode : user.pincode;
+  user.ethnicity = req.body.ethnicity ? req.body.ethnicity : user.ethnicity;
+  user.discipline = req.body.discipline ? req.body.discipline : user.discipline;
+  user.eye = req.body.eye ? req.body.eye : user.eye;
+  user.hair_color = req.body.hair_color ? req.body.hair_color : user.hair_color;
   user.created_at = Date.now();
 
   user.info = {
-    height: req.body.height,
-    dress: req.body.dress,
-    shoes: req.body.shoes,
-    weight: req.body.weight,
-    heap: req.body.heap,
-    age: req.body.age,
-    chest: req.body.chest
+    height: req.body.height ? req.body.height : user.info.height,
+    dress: req.body.dress ? req.body.dress : user.info.dress,
+    shoes: req.body.shoes ? req.body.shoes : user.info.shoes,
+    weight: req.body.weight ? req.body.weight : user.info.weight,
+    heap: req.body.heap ? req.body.heap : user.info.heap,
+    age: req.body.age ? req.body.age : user.info.age,
+    chest: req.body.chest ? req.body.chest : user.info.chest
   };
 
-  if(user.save()){
+  if(user.save()){ 
     res.json({
       status : true,
       code : 200,
-      data : user,
+      user,
       message : "Profile updated successfully."
     });
   }else{
@@ -2408,6 +2509,7 @@ router.post('/agency-job-post', passport.authenticate('jwt', { session : false})
       // country : req.body.country,
       // state : req.body.state,
       // city: req.body.city,
+      location: req.body.location,
       status : 1, //1='Active',0='Inactive'
       created_at : Date.now()
     });
@@ -2469,12 +2571,13 @@ router.post('/edit-job-post', passport.authenticate('jwt', {session:false}), asy
   var job_details = await Job_post.findOne({_id : job_post_id, user_id:req.user.id, status : 1});
 
   if(job_details){
-    job_details.job_title = req.body.job_title;
-    job_details.job_desc = req.body.job_desc;
-    job_details.job_start_date = req.body.job_start_date;
-    job_details.job_start_time = req.body.job_start_time;
-    job_details.job_end_date = req.body.job_end_date;
-    job_details.job_end_time = req.body.job_end_time;
+    job_details.job_title = req.body.job_title ? req.body.job_title : job_details.job_title;
+    job_details.job_desc = req.body.job_desc ? req.body.job_desc : job_details.job_desc;
+    job_details.job_start_date = req.body.job_start_date ? req.body.job_start_date : job_details.job_start_date;
+    job_details.job_start_time = req.body.job_start_time ? req.body.job_start_time : job_details.job_start_time;
+    job_details.job_end_date = req.body.job_end_date ? req.body.job_end_date : job_details.job_end_date;
+    job_details.job_end_time = req.body.job_end_time ? req.body.job_end_time : job_details.job_end_time;
+    job_details.location = req.body.location ? req.body.location : job_details.location;
     job_details.created_at = Date.now();
 
     job_details.save();

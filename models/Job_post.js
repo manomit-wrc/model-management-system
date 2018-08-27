@@ -13,6 +13,7 @@ const JobPostSchema = new Schema({
     state: { type: Schema.Types.ObjectId, ref: 'State' },
     country: { type: Schema.Types.ObjectId, ref: 'Country' },
     city: { type: String },
+    location : {type : String},
     status : {type:Number},
     created_at : { type: Date, default : Date.now()}
 });
