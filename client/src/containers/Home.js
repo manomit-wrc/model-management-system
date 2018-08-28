@@ -28,7 +28,7 @@ class Home extends Component {
             brands: nextProps.data !== undefined ? nextProps.data.brands : [],
             users: nextProps.modelList !== undefined ? nextProps.modelList.users : []
         });
-        
+
     }
 
     render() {
