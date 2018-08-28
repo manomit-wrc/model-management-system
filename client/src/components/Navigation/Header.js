@@ -1,17 +1,17 @@
 import React from 'react';
 
 const Header = () => (
-    <header class="main-header dark-header fs-header sticky">
-        <div class="header-inner">
-                    <div class="logo-holder">
+    <header className="main-header dark-header fs-header sticky">
+        <div className="header-inner">
+                    <div className="logo-holder">
                         <a href="index.html"><img src="/images/logo.png" alt="" /></a>
                     </div>
-                    <div class="header-search vis-header-search">
-                        <div class="header-search-input-item">
+                    <div className="header-search vis-header-search">
+                        <div className="header-search-input-item">
                             <input type="text" placeholder="Keywords" value=""/>
                         </div>
-                        <div class="header-search-select-item">
-                            <select data-placeholder="All Categories" class="chosen-select" >
+                        <div className="header-search-select-item">
+                            <select data-placeholder="All Categories" className="chosen-select" >
                                 <option>All Categories</option>
                                 <option>Shops</option>
                                 <option>Hotels</option>
@@ -20,23 +20,23 @@ const Header = () => (
                                 <option>Events</option>
                             </select>
                         </div>
-                        <button class="header-search-button">Search</button>
+                        <button className="header-search-button">Search</button>
                     </div>
-                    <div class="show-search-button"><i class="fa fa-search"></i> <span>Search</span></div>
-                    <a href="dashboard-add-listing.html" class="add-list">Add Listing <span><i class="fa fa-plus"></i></span></a>
-                    <div class="show-reg-form modal-open"><i class="fa fa-sign-in"></i>Sign In</div>
+                    <div className="show-search-button"><i className="fa fa-search"></i> <span>Search</span></div>
+                    <a href="dashboard-add-listing.html" className="add-list">Add Listing <span><i className="fa fa-plus"></i></span></a>
+                    <div className="show-reg-form modal-open"><i className="fa fa-sign-in"></i>Sign In</div>
                     
-                    <div class="nav-button-wrap color-bg">
-                        <div class="nav-button">
+                    <div className="nav-button-wrap color-bg">
+                        <div className="nav-button">
                             <span></span><span></span><span></span>
                         </div>
                     </div>
                     
-                    <div class="nav-holder main-menu">
+                    <div className="nav-holder main-menu">
                         <nav>
                             <ul>
                                 <li>
-                                    <a href="#" class="act-link">Home <i class="fa fa-caret-down"></i></a>
+                                    <a href="#" className="act-link">Home <i className="fa fa-caret-down"></i></a>
                                       
                                     <ul>
                                         <li><a href="index.html">Parallax Image</a></li>
@@ -49,7 +49,7 @@ const Header = () => (
                                     
                                 </li>
                                 <li>
-                                    <a href="#">Listings <i class="fa fa-caret-down"></i></a>
+                                    <a href="#">Listings <i className="fa fa-caret-down"></i></a>
                                     
                                     <ul>
                                         <li><a href="listing.html">Column map</a></li>
@@ -59,7 +59,7 @@ const Header = () => (
                                         <li><a href="listing5.html">Without Map</a></li>
                                         <li><a href="listing6.html">Without Map 2</a></li>
                                         <li>
-                                            <a href="#">Single <i class="fa fa-caret-down"></i></a>
+                                            <a href="#">Single <i className="fa fa-caret-down"></i></a>
                                             
                                             <ul>
                                                 <li><a href="listing-single.html">Style 1</a></li>
@@ -76,7 +76,7 @@ const Header = () => (
                                     <a href="blog.html">News</a>
                                 </li>
                                 <li>
-                                    <a href="#">Pages <i class="fa fa-caret-down"></i></a>
+                                    <a href="#">Pages <i className="fa fa-caret-down"></i></a>
                                        
                                     <ul>
                                         <li><a href="about.html">About</a></li>
