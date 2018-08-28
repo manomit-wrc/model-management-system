@@ -13,45 +13,26 @@ class Home extends Component {
         users:[]
     }
 
-    componentDidMount() {
+
+    UNSAFE_componentWillMount() {
         this.props.getHomePageDetails();
         this.props.getModelList();
-
     }
 
-    componentWillReceiveProps(nextProps, prevProps) {
-        if(nextProps){
-            if(nextProps.data){
-                this.setState({
-                    banner: nextProps.data.banner,
-                    categories: nextProps.data.categories,
-                    brands: nextProps.data.brands
-                });
-            }
-            if(nextProps.modelList){
-                this.setState({
-                    users:nextProps.modelList.users
-                })
-            }
-        }else{
-            if(prevProps.data){
-                this.setState({
-                    banner: prevProps.data.banner,
-                    categories: prevProps.data.categories,
-                    brands: prevProps.data.brands
-                });
-            }
-            if(prevProps.modelList){
-                this.setState({
-                    users:prevProps.modelList.users
-                })
-            }
-        }
+
+    UNSAFE_componentWillReceiveProps(nextProps, prevProps) {
+        
+        this.setState({
+            banner: nextProps.data !== undefined ? nextProps.data.banner : [],
+            categories: nextProps.data !== undefined ? nextProps.data.categories : [],
+            brands: nextProps.data !== undefined ? nextProps.data.brands : [],
+            users: nextProps.modelList !== undefined ? nextProps.modelList.users : []
+        });
         
     }
 
     render() {
-        console.log(this.state)
+        
         return(
             <div id="wrapper">
                  
@@ -569,6 +550,7 @@ class Home extends Component {
 }
 
 const mapStateToProps = (state) => {
+    
     return {
       data: state.cms.data,
       modelList: state.cms.modelList

@@ -724,7 +724,11 @@ $(".notification-close").on("click", function () {
 	$(this).parent(".notification").slideUp(500);
 });
 //   Init All ------------------
-$(function () {
-    initCitybook();
-    initparallax();
+$(window).load(function() {
+    setTimeout(function() {
+        initCitybook();
+        initparallax();
+        console.log("Loaded");
+    }, 3000);
+    
 });
