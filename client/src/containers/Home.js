@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import { getHomePageDetails } from '../actions/cms';
+import { getHomePageDetails, getModelList } from '../actions/cms';
 
 
 class Home extends Component {
@@ -9,23 +9,49 @@ class Home extends Component {
     state = {
         banner: [],
         categories: [],
-        brands: []
+        brands: [],
+        users:[]
     }
 
     componentDidMount() {
         this.props.getHomePageDetails();
+        this.props.getModelList();
+
     }
 
-    componentWillReceiveProps(nextProps) {
-        console.log(nextProps)
-        this.setState({
-            banner: nextProps.data.banner,
-            categories: nextProps.data.categories,
-            brands: nextProps.data.brands
-        });
+    componentWillReceiveProps(nextProps, prevProps) {
+        if(nextProps){
+            if(nextProps.data){
+                this.setState({
+                    banner: nextProps.data.banner,
+                    categories: nextProps.data.categories,
+                    brands: nextProps.data.brands
+                });
+            }
+            if(nextProps.modelList){
+                this.setState({
+                    users:nextProps.modelList.users
+                })
+            }
+        }else{
+            if(prevProps.data){
+                this.setState({
+                    banner: prevProps.data.banner,
+                    categories: prevProps.data.categories,
+                    brands: prevProps.data.brands
+                });
+            }
+            if(prevProps.modelList){
+                this.setState({
+                    users:prevProps.modelList.users
+                })
+            }
+        }
+        
     }
 
     render() {
+        console.log(this.state)
         return(
             <div id="wrapper">
                  
@@ -107,175 +133,40 @@ class Home extends Component {
                         <div className="list-carousel fl-wrap card-listing ">
                             
                             <div className="listing-carousel  fl-wrap ">
-                                
-                                <div className="slick-slide-item">
-                                    
-                                    <div className="listing-item">
-                                        <article className="geodir-category-listing fl-wrap">
-                                            <div className="geodir-category-img">
-                                                <img src="/images/all/1.jpg" alt=""/>
-                                                <div className="overlay"></div>
-                                                <div className="list-post-counter"><span>4</span><i className="fa fa-heart"></i></div>
-                                            </div>
-                                            <div className="geodir-category-content fl-wrap">
-                                                <a className="listing-geodir-category" href="listing.html">Retail</a>
-                                                <div className="listing-avatar"><a href="author-single.html"><img src="/images/avatar/1.jpg" alt=""/></a>
-                                                    <span className="avatar-tooltip">Added By  <strong>Lisa Smith</strong></span>
+                            {
+                                _.map(this.state.users, (user, index) => {
+                                return (
+                                    <div className="slick-slide-item" key={index}>
+                                        
+                                        <div className="listing-item">
+                                            <article className="geodir-category-listing fl-wrap">
+                                                <div className="geodir-category-img">
+                                                    <img src={user.src} alt=""/>
+                                                    <div className="overlay"></div>
+                                                    <div className="list-post-counter"><span>4</span><i className="fa fa-heart"></i></div>
                                                 </div>
-                                                <h3><a href="listing-single.html">Event in City Mol</a></h3>
-                                                <p>Sed interdum metus at nisi tempor laoreet.  </p>
-                                                <div className="geodir-category-options fl-wrap">
-                                                    <div className="listing-rating card-popup-rainingvis" data-starrating2="5">
-                                                        <span>(7 reviews)</span>
+                                                <div className="geodir-category-content fl-wrap">
+                                                    <a className="listing-geodir-category" href="listing.html">Retail</a>
+                                                    <div className="listing-avatar"><a href="author-single.html"><img src="/images/avatar/1.jpg" alt=""/></a>
+                                                        <span className="avatar-tooltip">Added By  <strong>Lisa Smith</strong></span>
                                                     </div>
-                                                    <div className="geodir-category-location"><a href="#"><i className="fa fa-map-marker" aria-hidden="true"></i> 27th Brooklyn New York, NY 10065</a></div>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </div>
-                                                           
-                                </div>
-                                
-                                <div className="slick-slide-item">
-                                    
-                                    <div className="listing-item">
-                                        <article className="geodir-category-listing fl-wrap">
-                                            <div className="geodir-category-img">
-                                                <img src="/images/all/1.jpg" alt=""/>
-                                                <div className="overlay"></div>
-                                                <div className="list-post-counter"><span>15</span><i className="fa fa-heart"></i></div>
-                                            </div>
-                                            <div className="geodir-category-content fl-wrap">
-                                                <a className="listing-geodir-category" href="listing.html">Event</a>
-                                                <div className="listing-avatar"><a href="author-single.html"><img src="/images/avatar/1.jpg" alt=""/></a>
-                                                    <span className="avatar-tooltip">Added By  <strong>Mark Rose</strong></span>
-                                                </div>
-                                                <h3><a href="listing-single.html">Cafe "Lollipop"</a></h3>
-                                                <p>Morbi suscipit erat in diam bibendum rutrum in nisl.</p>
-                                                <div className="geodir-category-options fl-wrap">
-                                                    <div className="listing-rating card-popup-rainingvis" data-starrating2="4">
-                                                        <span>(17 reviews)</span>
+                                                    <h3><a href="listing-single.html">{user.caption}</a></h3>
+                                                    <p>Sed interdum metus at nisi tempor laoreet.  </p>
+                                                    <div className="geodir-category-options fl-wrap">
+                                                        <div className="listing-rating card-popup-rainingvis" data-starrating2="5">
+                                                            <span>(7 reviews)</span>
+                                                        </div>
+                                                        <div className="geodir-category-location"><a href="#"><i className="fa fa-map-marker" aria-hidden="true"></i> 27th Brooklyn New York, NY 10065</a></div>
                                                     </div>
-                                                    <div className="geodir-category-location"><a href="#"><i className="fa fa-map-marker" aria-hidden="true"></i> 27th Brooklyn New York, NY 10065</a></div>
                                                 </div>
-                                            </div>
-                                        </article>
-                                    </div>
-                                   
-                                </div>
-                               
-                                <div className="slick-slide-item">
-                                    
-                                    <div className="listing-item">
-                                        <article className="geodir-category-listing fl-wrap">
-                                            <div className="geodir-category-img">
-                                                <img src="/images/all/1.jpg" alt=""/>
-                                                <div className="overlay"></div>
-                                                <div className="list-post-counter"><span>13</span><i className="fa fa-heart"></i></div>
-                                            </div>
-                                            <div className="geodir-category-content fl-wrap">
-                                                <a className="listing-geodir-category" href="listing.html">Gym </a>
-                                                <div className="listing-avatar"><a href="author-single.html"><img src="/images/avatar/1.jpg" alt=""/></a>
-                                                    <span className="avatar-tooltip">Added By  <strong>Nasty Wood</strong></span>
-                                                </div>
-                                                <h3><a href="listing-single.html">Gym In Brooklyn</a></h3>
-                                                <p>Morbiaccumsan ipsum velit tincidunt . </p>
-                                                <div className="geodir-category-options fl-wrap">
-                                                    <div className="listing-rating card-popup-rainingvis" data-starrating2="3">
-                                                        <span>(16 reviews)</span>
-                                                    </div>
-                                                    <div className="geodir-category-location"><a href="#"><i className="fa fa-map-marker" aria-hidden="true"></i> 27th Brooklyn New York, NY 10065</a></div>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </div>
-                                   
-                                </div>
-                               
-                                <div className="slick-slide-item">
-                                    
-                                    <div className="listing-item">
-                                        <article className="geodir-category-listing fl-wrap">
-                                            <div className="geodir-category-img">
-                                                <img src="/images/all/1.jpg" alt=""/>
-                                                <div className="overlay"></div>
-                                                <div className="list-post-counter"><span>3</span><i className="fa fa-heart"></i></div>
-                                            </div>
-                                            <div className="geodir-category-content fl-wrap">
-                                                <a className="listing-geodir-category" href="listing.html">Shops</a>
-                                                <div className="listing-avatar"><a href="author-single.html"><img src="/images/avatar/1.jpg" alt=""/></a>
-                                                    <span className="avatar-tooltip">Added By  <strong>Nasty Wood</strong></span>
-                                                </div>
-                                                <h3><a href="listing-single.html">Shop in Boutique Zone</a></h3>
-                                                <p>Morbiaccumsan ipsum velit tincidunt . </p>
-                                                <div className="geodir-category-options fl-wrap">
-                                                    <div className="listing-rating card-popup-rainingvis" data-starrating2="4">
-                                                        <span>(6 reviews)</span>
-                                                    </div>
-                                                    <div className="geodir-category-location"><a href="#"><i className="fa fa-map-marker" aria-hidden="true"></i> 27th Brooklyn New York, NY 10065</a></div>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </div>
-                                   
-                                </div>
-                               
-                                <div className="slick-slide-item">
-                                    
-                                    <div className="listing-item">
-                                        <article className="geodir-category-listing fl-wrap">
-                                            <div className="geodir-category-img">
-                                                <img src="/images/all/1.jpg" alt=""/>
-                                                <div className="overlay"></div>
-                                                <div className="list-post-counter"><span>35</span><i className="fa fa-heart"></i></div>
-                                            </div>
-                                            <div className="geodir-category-content fl-wrap">
-                                                <a className="listing-geodir-category" href="listing.html">Cars</a>
-                                                <div className="listing-avatar"><a href="author-single.html"><img src="/images/avatar/1.jpg" alt=""/></a>
-                                                    <span className="avatar-tooltip">Added By  <strong>Kliff Antony</strong></span>
-                                                </div>
-                                                <h3><a href="listing-single.html">Best deal For the Cars</a></h3>
-                                                <p>Lorem ipsum gravida nibh vel velit.</p>
-                                                <div className="geodir-category-options fl-wrap">
-                                                    <div className="listing-rating card-popup-rainingvis" data-starrating2="5">
-                                                        <span>(11 reviews)</span>
-                                                    </div>
-                                                    <div className="geodir-category-location"><a href="#"><i className="fa fa-map-marker" aria-hidden="true"></i> 27th Brooklyn New York, NY 10065</a></div>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </div>
-                                    
-                                </div>
-                                
-                                <div className="slick-slide-item">
-                                    
-                                    <div className="listing-item">
-                                        <article className="geodir-category-listing fl-wrap">
-                                            <div className="geodir-category-img">
-                                                <img src="/images/all/1.jpg" alt=""/>
-                                                <div className="overlay"></div>
-                                                <div className="list-post-counter"><span>553</span><i className="fa fa-heart"></i></div>
-                                            </div>
-                                            <div className="geodir-category-content fl-wrap">
-                                                <a className="listing-geodir-category" href="listing.html">Restourants</a>
-                                                <div className="listing-avatar"><a href="author-single.html"><img src="/images/avatar/1.jpg" alt=""/></a>
-                                                    <span className="avatar-tooltip">Added By  <strong>Adam Koncy</strong></span>
-                                                </div>
-                                                <h3><a href="listing-single.html">Luxury Restourant</a></h3>
-                                                <p>Sed non neque elit. Sed ut imperdie.</p>
-                                                <div className="geodir-category-options fl-wrap">
-                                                    <div className="listing-rating card-popup-rainingvis" data-starrating2="5">
-                                                        <span>(7 reviews)</span>
-                                                    </div>
-                                                    <div className="geodir-category-location"><a href="#"><i className="fa fa-map-marker" aria-hidden="true"></i> 27th Brooklyn New York, NY 10065</a></div>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    </div>
-                                      
-                                </div>
+                                            </article>
+                                        </div>
                                                             
+                                    </div>
+                                    )
+                                }) 
+                            } 
+                                                              
                             </div>
                             
                             <div className="swiper-button-prev sw-btn"><i className="fa fa-long-arrow-left"></i></div>
@@ -679,7 +570,8 @@ class Home extends Component {
 
 const mapStateToProps = (state) => {
     return {
-      data: state.cms.data
+      data: state.cms.data,
+      modelList: state.cms.modelList
     };
   };
-export default connect(mapStateToProps, { getHomePageDetails })(Home);
+export default connect(mapStateToProps, { getHomePageDetails, getModelList })(Home);
