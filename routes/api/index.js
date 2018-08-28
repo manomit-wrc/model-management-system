@@ -26,6 +26,7 @@ const Job_post = require('../../models/Job_post');
 const ProfileComment = require('../../models/ProfileComment');
 const Booking = require('../../models/Booking');
 const FlagMenu = require('../../models/FlagMenu');
+const Rating = require('../../models/Rating');
 var fs = require('fs');
 var multer = require('multer');
 var base64ToImage = require('base64-to-image');
@@ -710,9 +711,19 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
 router.post('/profile/other-user-details', passport.authenticate('jwt', { session : false}), async (req,res) => {
   var profile_id = req.body.profile_id;
   var total_comment_on_profile = 0;
+  var avg_rating = total_rating = 0;
+
+  var fetch_rating_details = await Rating.find({user : profile_id});
+  
+  if(fetch_rating_details.length > 0){
+    for(var i = 0; i < fetch_rating_details[0].rating_by_user.length; i++){
+      var rating_number = fetch_rating_details[0].rating_by_user[i].number_of_rating;
+      avg_rating = rating_number + avg_rating;
+    }
+  }
+  total_rating = Math.round(avg_rating / 5) ;
 
   var comment_details_on_profile = await ProfileComment.find({profile_id : profile_id});
-  
   if(comment_details_on_profile != ''){
     var profileCommentArray = [];
     for(var i = 0; i < comment_details_on_profile.length; i++){
@@ -761,7 +772,8 @@ router.post('/profile/other-user-details', passport.authenticate('jwt', { sessio
       last_two_images,
       last_two_videos,
       profileCommentArray,
-      total_comment : total_comment_on_profile
+      total_comment : total_comment_on_profile,
+      total_rating : total_rating
   });
 });
 
@@ -2937,5 +2949,62 @@ router.post('/report-against-image', passport.authenticate('jwt', {session : fal
 
     
 });
+
+router.post('/add-rating-on-user', passport.authenticate('jwt', {session : false}), async (req,res) => {
+  var profile_id = req.body.profile_id;
+  var rating_number = req.body.rating_number;
+
+  var fetch_rating_details = await Rating.findOne({user: profile_id});
+  if(fetch_rating_details) {
+      const rating_details_if_exist = _.filter(fetch_rating_details.rating_by_user, rate => rate.user_id == req.user.id);
+      if(rating_details_if_exist.length > 0) {
+        rating_details_if_exist[0].number_of_rating = rating_number;
+        if(fetch_rating_details.save()) {
+          res.json({
+            status : true,
+            code : 200,
+            message : "Rating updated successfully."
+          });
+        }
+      }else{
+        var all_rating = {
+          user_id : req.user.id,
+          number_of_rating : rating_number
+        };
+        fetch_rating_details.rating_by_user.unshift(all_rating);
+        fetch_rating_details.save();
+        res.json({
+          status : true,
+          code : 200,
+          message : "Rating addeed successfully."
+        });
+      }
+  }else{
+    var all_rating = {
+      user_id : req.user.id,
+      number_of_rating : rating_number
+    };
+
+    var add = new Rating ({
+      user : profile_id,
+      rating_by_user : all_rating
+    });
+
+    if(add.save()){
+      res.json({
+        status : true,
+        code : 200,
+        message : "Rating addeed successfully."
+      });
+    }else{
+      res.json({
+        status : false,
+        code : 300,
+        message : "Rating addeed failed."
+      });
+    }
+  }
+});
+
 module.exports = router;
 
