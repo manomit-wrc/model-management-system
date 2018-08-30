@@ -711,7 +711,7 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), async (
 router.post('/profile/other-user-details', passport.authenticate('jwt', { session : false}), async (req,res) => {
   var profile_id = req.body.profile_id;
   var total_comment_on_profile = 0;
-  var avg_rating = total_rating = 0;
+  var avg_rating = total_rating = final_rating = 0;
 
   var fetch_rating_details = await Rating.find({user : profile_id});
   
@@ -722,6 +722,11 @@ router.post('/profile/other-user-details', passport.authenticate('jwt', { sessio
     }
   }
   total_rating = Math.round(avg_rating / 5) ;
+  if(total_rating >= 5){
+    final_rating = 5;
+  }else{
+    final_rating = total_rating;
+  }
 
   var comment_details_on_profile = await ProfileComment.find({profile_id : profile_id});
   if(comment_details_on_profile != ''){
@@ -773,7 +778,7 @@ router.post('/profile/other-user-details', passport.authenticate('jwt', { sessio
       last_two_videos,
       profileCommentArray,
       total_comment : total_comment_on_profile,
-      total_rating : total_rating
+      total_rating : final_rating
   });
 });
 
