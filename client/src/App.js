@@ -8,6 +8,8 @@ import Home from './containers/Home';
 
 
 class App extends Component {
+
+  
   render() {
     return (
       <Provider store={store}>

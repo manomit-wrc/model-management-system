@@ -14,8 +14,8 @@ export function getHomePageDetails() {
 }
 
 export function getModelList() {
-    return (dispatch) => {
-        const response = axios.get(`${API_ROOT}/get-model-list`);
+    return async (dispatch) => {
+        const response = await axios.get(`${API_ROOT}/get-model-list`);
         dispatch({
             type: MODEL_LIST,
             payload: response.data
